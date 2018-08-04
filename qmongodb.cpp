@@ -301,6 +301,8 @@ QString QMongoDB::downloadfile(QElement fileoid)
         iov.iov_base = static_cast<char*>(buf);
         iov.iov_len = sizeof (buf);
 #elif defined(Q_OS_LINUX)
+        iov.iov_base = static_cast<void*>(buf);
+        iov.iov_len = sizeof (buf);
 #else
 
 #endif
@@ -324,6 +326,10 @@ QString QMongoDB::downloadfile(QElement fileoid)
             emit gridfsbytereceived(wbyte.size());
             r = 0;
 #elif defined(Q_OS_LINUX)
+            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
+            wbyte +=ar;
+            emit gridfsbytereceived(wbyte.size());
+            r = 0;
 #else
 
 #endif
