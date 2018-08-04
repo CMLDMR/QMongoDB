@@ -56,7 +56,6 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
 
     const bson_t *doc;
     bson_iter_t iter;
-    //    bson_iter_t *child;
     bson_iter_t sub_iter;
 
     while (mongoc_cursor_next (cursor, &doc)) {
