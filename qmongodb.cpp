@@ -284,6 +284,7 @@ QString QMongoDB::downloadfile(QElement fileoid)
         dir.mkdir("temp");
     }
 
+
     QString _filename = QString("temp/")+filename;
     QFile qfile(_filename);
 
@@ -359,11 +360,11 @@ QByteArray QMongoDB::downloadByteArray(QElement fileoid)
     char buf[4096];
     mongoc_iovec_t iov;
 #if defined(Q_OS_ANDROID)
-        iov.iov_base = static_cast<void*>(buf);
-        iov.iov_len = sizeof (buf);
+    iov.iov_base = static_cast<void*>(buf);
+    iov.iov_len = sizeof (buf);
 #elif defined(Q_OS_WIN)
-        iov.iov_base = static_cast<char*>(buf);
-        iov.iov_len = sizeof (buf);
+    iov.iov_base = static_cast<char*>(buf);
+    iov.iov_len = sizeof (buf);
 #elif defined(Q_OS_LINUX)
 #else
 
@@ -377,15 +378,15 @@ QByteArray QMongoDB::downloadByteArray(QElement fileoid)
             break;
         }
 #if defined(Q_OS_ANDROID)
-            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
+        QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
+        wbyte +=ar;
+        emit gridfsbytereceived(wbyte.size());
+        r = 0;
 #elif defined(Q_OS_WIN)
-            QByteArray ar = QByteArray::fromRawData(iov.iov_base,iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
+        QByteArray ar = QByteArray::fromRawData(iov.iov_base,iov.iov_len);
+        wbyte +=ar;
+        emit gridfsbytereceived(wbyte.size());
+        r = 0;
 #elif defined(Q_OS_LINUX)
 #else
 
