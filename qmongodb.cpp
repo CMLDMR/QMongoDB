@@ -17,7 +17,6 @@
 #include <QCryptographicHash>
 
 
-
 static mongoc_client_t* client;
 
 const bson_t *convert(QBSON &obj);
