@@ -1,0 +1,12 @@
+#ifndef QMONGODB_GLOBAL_H
+#define QMONGODB_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(QMONGODB_LIBRARY)
+#  define QMONGODBSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define QMONGODBSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // QMONGODB_GLOBAL_H
