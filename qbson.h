@@ -73,6 +73,12 @@ public:
     void append(QString key , QVariant value , QElementType type);
 
     ///
+    /// \brief isEmpty : if QBSON Object is Empty return true else false
+    /// \return
+    ///
+    bool isEmpty() const;
+
+    ///
     /// \brief append only bool double string int qlonglong
     /// \param key
     /// \param value

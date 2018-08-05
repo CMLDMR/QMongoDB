@@ -34,6 +34,16 @@ void QBSON::append(QString key, QVariant value, QElementType type)
     maplist.push_back(var);
 }
 
+bool QBSON::isEmpty() const
+{
+    if( this->maplist.isEmpty() )
+    {
+        return true;
+    }else{
+        return false;
+    }
+}
+
 void QBSON::append(QString key, QVariant value)
 {
     QElement var(QElementType::b_invalid);
