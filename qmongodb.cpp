@@ -34,12 +34,15 @@ QMongoDB::QMongoDB(QString mongodburl, QString database, QObject *parent)
 {
     mongoc_init();
     client = mongoc_client_new (this->mUrl.toStdString().c_str());
+
 }
 
 QMongoDB::~QMongoDB()
 {
     mongoc_client_destroy (client);
 }
+
+
 
 QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
 {
@@ -265,7 +268,7 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
 
 }
 
-QString QMongoDB::downloadfile(QElement fileoid)
+QString QMongoDB::downloadfile(QElement fileoid, bool fileNametoOid)
 {
     bson_error_t error;
 
@@ -285,7 +288,14 @@ QString QMongoDB::downloadfile(QElement fileoid)
     }
 
 
+
     QString _filename = QString("temp/")+filename;
+
+    if( fileNametoOid ){
+        QFileInfo info(filename);
+        _filename = QString("temp/")+fileoid.getValue().toString()+"."+info.suffix();
+    }
+
     QFile qfile(_filename);
 
     if( qfile.open(QIODevice::ReadWrite) )
@@ -343,8 +353,9 @@ QString QMongoDB::downloadfile(QElement fileoid)
     }
 
     return _filename;
-
 }
+
+
 
 QByteArray QMongoDB::downloadByteArray(QElement fileoid)
 {

@@ -130,12 +130,14 @@ private:
     QBSON bson;
 };
 
+
 class QMONGODBSHARED_EXPORT QSort
 {
 public:
     QSort();
 
     void sortByAscending(QString key);
+
     void sortByDescending(QString key);
 
     QBSON getBson() const;

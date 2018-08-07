@@ -30,6 +30,7 @@ public:
 
     ~QMongoDB();
 
+
     QVector<QBSON> find(QString collection , QBSON filter , QOption option = QOption() );
 
     QBSON find_one( QString collection , QBSON filter , QOption option = QOption() );
@@ -42,7 +43,7 @@ public:
 
     QElement uploadfile(QString filename, QString key);
 
-    QString downloadfile(QElement fileoid);
+    QString downloadfile(QElement fileoid , bool fileNametoOid = true );
 
     QByteArray downloadByteArray(QElement fileoid);
 
