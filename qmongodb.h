@@ -30,6 +30,8 @@ public:
 
     ~QMongoDB();
 
+    static void instance();
+
 
     QVector<QBSON> find(QString collection , QBSON filter , QOption option = QOption() );
 
@@ -62,6 +64,7 @@ Q_SIGNALS:
 private:
     QString mUrl;
     QString db;
+
 };
 
 #endif // QMONGODB_H

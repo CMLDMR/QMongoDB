@@ -19,6 +19,9 @@
 
 static mongoc_client_t* client;
 
+static mongoc_gridfs_t* gridfs;
+
+
 const bson_t *convert(QBSON &obj);
 void convertArray(QArray &array, bson_t *child);
 
@@ -32,14 +35,21 @@ QMongoDB::QMongoDB(QString mongodburl, QString database, QObject *parent)
       mUrl(mongodburl),
       db(database)
 {
-    mongoc_init();
     client = mongoc_client_new (this->mUrl.toStdString().c_str());
+
+    bson_error_t error;
+    gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
 
 }
 
 QMongoDB::~QMongoDB()
 {
     mongoc_client_destroy (client);
+}
+
+void QMongoDB::instance()
+{
+    mongoc_init();
 }
 
 
@@ -68,7 +78,6 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
             QBSON obj;
 
             while (bson_iter_next (&iter) ) {
-
                 if( bson_iter_recurse (&iter, &sub_iter) )
                 {
                     QString key = bson_iter_key(&iter);
@@ -84,7 +93,6 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
                         RecursiveDocument(key,&sub_iter,obj);
                     }
                 }
-
                 if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_UTF8 )
                 {
                     auto value = bson_iter_value(&iter);
@@ -105,14 +113,11 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
                     auto value = bson_iter_value(&iter);
                     obj.append( bson_iter_key(&iter), value->value.v_int32 , QElementType::b_int32 );
                 }
-
                 if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT64 )
                 {
                     auto value = bson_iter_value(&iter);
                     obj.append( bson_iter_key(&iter), value->value.v_int64 , QElementType::b_int64 );
                 }
-
-
                 if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_OID )
                 {
                     auto value = bson_iter_value(&iter);
@@ -209,7 +214,6 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
 
     bson_error_t error;
 
-    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
 
     auto stream = mongoc_stream_file_new_for_path (filename.toStdString().c_str(), O_RDONLY, 0);
 
@@ -271,8 +275,6 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
 QString QMongoDB::downloadfile(QElement fileoid, bool fileNametoOid)
 {
     bson_error_t error;
-
-    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
 
     QBSON filter;
     filter.append("_id",fileoid);
@@ -361,7 +363,7 @@ QByteArray QMongoDB::downloadByteArray(QElement fileoid)
 {
     bson_error_t error;
 
-    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
+//    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
 
     QBSON filter;
     filter.append("_id",fileoid);
@@ -424,8 +426,6 @@ qlonglong QMongoDB::getfilesize(QElement fileoid)
     }
 
     bson_error_t error;
-    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
-
 
     QBSON filter;
     filter.append("_id",fileoid);
@@ -448,8 +448,6 @@ QString QMongoDB::getfilename(QElement fileoid)
     }
 
     bson_error_t error;
-    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
-
 
     QBSON filter;
     filter.append("_id",fileoid);
