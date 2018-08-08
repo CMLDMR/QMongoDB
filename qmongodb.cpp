@@ -119,7 +119,7 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
                     QString hexCode;
                     for( int i = 0 ; i < 12 ; i++ )
                     {
-                        if( value->value.v_oid.bytes[i] < 10 )
+                        if( value->value.v_oid.bytes[i] < 16 )
                         {
                             hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
                         }else{
@@ -291,7 +291,7 @@ QString QMongoDB::downloadfile(QElement fileoid, bool fileNametoOid)
 
     QString _filename = QString("temp/")+filename;
 
-    if( fileNametoOid ){
+    if( fileNametoOid ) {
         QFileInfo info(filename);
         _filename = QString("temp/")+fileoid.getValue().toString()+"."+info.suffix();
     }
