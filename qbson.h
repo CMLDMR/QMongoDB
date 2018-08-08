@@ -85,23 +85,50 @@ public:
     ///
     void append(QString key , QVariant value );
 
+
+
     void append(std::string key , std::string value);
 
+
+
     virtual void append(QString key , QElement element );
+
+
+
     void append(QString key , QBSON value );
+    void append(std::string key , QBSON value);
+    void append(const char* key , QBSON value);
+
+
+
     void append(QString key , QArray value );
+
+
 
     QVector<QElement> getMaplist() const;
 
+
+
     QBSON& operator=(const QBSON& obj);
+
+
 
     QElement operator[](const QString key);
 
+
+
     const QStringList Keys();
+
+
 
     using container = QVector<QElement>;
 
+
+
     using iterator = typename container::iterator;
+
+
+
     using const_iterator = typename container::const_iterator;
 
     iterator begin() { return maplist.begin(); }
