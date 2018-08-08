@@ -89,6 +89,15 @@ void QBSON::append(QString key, QVariant value)
 
 }
 
+void QBSON::append(std::string key, std::string value)
+{
+    QElement var(QElementType::b_utf8);
+    var.setType( QElementType::b_utf8 );
+    var.setKey( key.c_str() );
+    var.setValue( value.c_str() );
+    maplist.push_back(var);
+}
+
 void QBSON::append(QString key, QElement element)
 {
     maplist.push_back(element);

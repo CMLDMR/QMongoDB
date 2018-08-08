@@ -85,6 +85,8 @@ public:
     ///
     void append(QString key , QVariant value );
 
+    void append(std::string key , std::string value);
+
     virtual void append(QString key , QElement element );
     void append(QString key , QBSON value );
     void append(QString key , QArray value );
