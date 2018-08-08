@@ -30,10 +30,10 @@ void RecursiveDocument( QString key , bson_iter_t *iter , QBSON &obj_ );
 
 void RecursiveArray(QString key , bson_iter_t *iter , QArray &array_ );
 
-QMongoDB::QMongoDB(QString mongodburl, QString database, QObject *parent)
-    :QObject (parent),
-      mUrl(mongodburl),
-      db(database)
+QMongoDB::QMongoDB( QString mongodburl , QString database , QObject *parent )
+    :QObject ( parent ),
+      mUrl( mongodburl ),
+      db( database )
 {
     client = mongoc_client_new (this->mUrl.toStdString().c_str());
 
@@ -628,7 +628,7 @@ void RecursiveDocument( QString key , bson_iter_t *iter , QBSON &obj_ ){
             QString hexCode;
             for( int i = 0 ; i < 12 ; i++ )
             {
-                if( value->value.v_oid.bytes[i] < 10 )
+                if( value->value.v_oid.bytes[i] < 16 )
                 {
                     hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
                 }else{
@@ -644,7 +644,7 @@ void RecursiveDocument( QString key , bson_iter_t *iter , QBSON &obj_ ){
 void RecursiveArray( QString key , bson_iter_t *iter , QArray &array_ )
 {
     bson_iter_t sub_iter;
-    QArray array;
+
 
     while (bson_iter_next (iter) ) {
 
@@ -654,41 +654,44 @@ void RecursiveArray( QString key , bson_iter_t *iter , QArray &array_ )
 
             if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_ARRAY )
             {
+                QArray array;
                 RecursiveArray(key_,&sub_iter,array);
+                array_.append(array);
             }
 
             if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_DOCUMENT )
             {
                 QBSON obj;
                 RecursiveDocument(key_,&sub_iter,obj);
+                array_.append(obj);
             }
         }
 
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_UTF8 )
         {
             auto value = bson_iter_value(iter);
-            array.append( QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len )  );
+            array_.append( QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len )  );
         }
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_DOUBLE )
         {
             auto value = bson_iter_value(iter);
-            array.append(  value->value.v_double  );
+            array_.append(  value->value.v_double  );
         }
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_BOOL )
         {
             auto value = bson_iter_value(iter);
-            array.append(  value->value.v_bool  );
+            array_.append(  value->value.v_bool  );
         }
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_INT32 )
         {
             auto value = bson_iter_value(iter);
-            array.append(  value->value.v_int32  );
+            array_.append(  value->value.v_int32  );
         }
 
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_INT64 )
         {
             auto value = bson_iter_value(iter);
-            array.append(  value->value.v_int64  );
+            array_.append(  value->value.v_int64  );
         }
 
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_OID )
@@ -697,7 +700,7 @@ void RecursiveArray( QString key , bson_iter_t *iter , QArray &array_ )
             QString hexCode;
             for( int i = 0 ; i < 12 ; i++ )
             {
-                if( value->value.v_oid.bytes[i] < 10 )
+                if( value->value.v_oid.bytes[i] < 16 )
                 {
                     hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
                 }else{
@@ -708,10 +711,10 @@ void RecursiveArray( QString key , bson_iter_t *iter , QArray &array_ )
             oid.setKey( "_id" );
             oid.setType( QElementType::b_oid );
             oid.setValue( hexCode );
-            array.append( oid );
+            array_.append( oid );
         }
     }
-    array_.append(array);
+//    array_.append(array);
 
 
 
