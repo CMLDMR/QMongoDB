@@ -258,7 +258,7 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
     QString hexCode;
     for( int i = 0 ; i < 12 ; i++ )
     {
-        if( rid->value.v_oid.bytes[i] < 10 )
+        if( rid->value.v_oid.bytes[i] < 16 )
         {
             hexCode += "0"+QString::number( rid->value.v_oid.bytes[i] , 16 );
         }else{
