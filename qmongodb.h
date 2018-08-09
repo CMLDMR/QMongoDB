@@ -34,14 +34,24 @@ public:
 
 
     QVector<QBSON> find(QString collection , QBSON filter , QOption option = QOption() );
+    QVector<QBSON> find(std::string collection , QBSON filter , QOption option = QOption() );
+    QVector<QBSON> find(const char* collection , QBSON filter , QOption option = QOption() );
 
     QBSON find_one( QString collection , QBSON filter , QOption option = QOption() );
+    QBSON find_one( std::string collection , QBSON filter , QOption option = QOption() );
+    QBSON find_one( const char* collection , QBSON filter , QOption option = QOption() );
 
     bool insert_one(QString collection , QBSON document );
+    bool insert_one(std::string collection , QBSON document );
+    bool insert_one(const char* collection , QBSON document );
 
     bool update_one(QString collection , QBSON filter , QBSON updateDocument );
+    bool update_one(std::string collection , QBSON filter , QBSON updateDocument );
+    bool update_one(const char* collection , QBSON filter , QBSON updateDocument );
 
     bool Delete(QString collection , QBSON filter);
+    bool Delete(std::string collection , QBSON filter);
+    bool Delete(const char* collection , QBSON filter);
 
     QElement uploadfile(QString filename, QString key);
 

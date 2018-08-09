@@ -142,6 +142,182 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
     return list;
 }
 
+QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption option)
+{
+    QVector<QBSON> list;
+
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
+
+    auto _filter = convert(filter);
+
+    QBSON bson = option.getBson();
+    auto _option = convert(bson);
+
+    auto cursor = mongoc_collection_find_with_opts (col, _filter, _option , nullptr);
+
+    const bson_t *doc;
+    bson_iter_t iter;
+    bson_iter_t sub_iter;
+
+    while (mongoc_cursor_next (cursor, &doc)) {
+
+        if (bson_iter_init (&iter, doc) ) {
+
+            QBSON obj;
+
+            while (bson_iter_next (&iter) ) {
+                if( bson_iter_recurse (&iter, &sub_iter) )
+                {
+                    QString key = bson_iter_key(&iter);
+                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_ARRAY )
+                    {
+                        QArray array;
+                        RecursiveArray(key,&sub_iter,array);
+                        obj.append(key,array);
+                    }
+
+                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOCUMENT )
+                    {
+                        RecursiveDocument(key,&sub_iter,obj);
+                    }
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_UTF8 )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter),QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len ) , QElementType::b_utf8 );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOUBLE )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_double , QElementType::b_double );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_BOOL )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_bool , QElementType::b_bool );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT32 )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_int32 , QElementType::b_int32 );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT64 )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_int64 , QElementType::b_int64 );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_OID )
+                {
+                    auto value = bson_iter_value(&iter);
+                    QString hexCode;
+                    for( int i = 0 ; i < 12 ; i++ )
+                    {
+                        if( value->value.v_oid.bytes[i] < 16 )
+                        {
+                            hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
+                        }else{
+                            hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
+                        }
+                    }
+                    obj.append( bson_iter_key(&iter),hexCode , QElementType::b_oid );
+                }
+            }
+
+            list.append(obj);
+        }
+    }
+
+    return list;
+}
+
+QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption option)
+{
+    QVector<QBSON> list;
+
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
+
+    auto _filter = convert(filter);
+
+    QBSON bson = option.getBson();
+    auto _option = convert(bson);
+
+    auto cursor = mongoc_collection_find_with_opts (col, _filter, _option , nullptr);
+
+    const bson_t *doc;
+    bson_iter_t iter;
+    bson_iter_t sub_iter;
+
+    while (mongoc_cursor_next (cursor, &doc)) {
+
+        if (bson_iter_init (&iter, doc) ) {
+
+            QBSON obj;
+
+            while (bson_iter_next (&iter) ) {
+                if( bson_iter_recurse (&iter, &sub_iter) )
+                {
+                    QString key = bson_iter_key(&iter);
+                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_ARRAY )
+                    {
+                        QArray array;
+                        RecursiveArray(key,&sub_iter,array);
+                        obj.append(key,array);
+                    }
+
+                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOCUMENT )
+                    {
+                        RecursiveDocument(key,&sub_iter,obj);
+                    }
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_UTF8 )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter),QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len ) , QElementType::b_utf8 );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOUBLE )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_double , QElementType::b_double );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_BOOL )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_bool , QElementType::b_bool );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT32 )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_int32 , QElementType::b_int32 );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT64 )
+                {
+                    auto value = bson_iter_value(&iter);
+                    obj.append( bson_iter_key(&iter), value->value.v_int64 , QElementType::b_int64 );
+                }
+                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_OID )
+                {
+                    auto value = bson_iter_value(&iter);
+                    QString hexCode;
+                    for( int i = 0 ; i < 12 ; i++ )
+                    {
+                        if( value->value.v_oid.bytes[i] < 16 )
+                        {
+                            hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
+                        }else{
+                            hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
+                        }
+                    }
+                    obj.append( bson_iter_key(&iter),hexCode , QElementType::b_oid );
+                }
+            }
+
+            list.append(obj);
+        }
+    }
+
+    return list;
+}
+
 QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
 {
 
@@ -156,6 +332,34 @@ QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
         return QBSON();
     }
 
+}
+
+QBSON QMongoDB::find_one(std::string collection, QBSON filter, QOption option)
+{
+    option.setLimit(1);
+
+    auto list = this->find(collection.c_str(),filter,option);
+
+    if( list.count() )
+    {
+        return list.first();
+    }else{
+        return QBSON();
+    }
+}
+
+QBSON QMongoDB::find_one(const char *collection, QBSON filter, QOption option)
+{
+    option.setLimit(1);
+
+    auto list = this->find(collection,filter,option);
+
+    if( list.count() )
+    {
+        return list.first();
+    }else{
+        return QBSON();
+    }
 }
 
 bool QMongoDB::insert_one(QString collection, QBSON document)
@@ -174,9 +378,71 @@ bool QMongoDB::insert_one(QString collection, QBSON document)
     }
 }
 
+bool QMongoDB::insert_one(std::string collection, QBSON document)
+{
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
+
+    bson_error_t error;
+    auto _document = convert(document);
+
+    if( !mongoc_collection_insert(col,mongoc_insert_flags_t::MONGOC_INSERT_NONE,_document,nullptr,&error) )
+    {
+        return false;
+    }else{
+        return true;
+    }
+}
+
+bool QMongoDB::insert_one(const char *collection, QBSON document)
+{
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
+
+    bson_error_t error;
+    auto _document = convert(document);
+
+    if( !mongoc_collection_insert(col,mongoc_insert_flags_t::MONGOC_INSERT_NONE,_document,nullptr,&error) )
+    {
+        return false;
+    }else{
+        return true;
+    }
+}
+
 bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument)
 {
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
+
+    bson_error_t error;
+    auto _filter = convert(filter);
+    auto _updateDocument = convert(updateDocument);
+
+    if( !mongoc_collection_update(col,mongoc_update_flags_t::MONGOC_UPDATE_UPSERT,_filter,_updateDocument,nullptr,&error) )
+    {
+        return false;
+    }else{
+        return true;
+    }
+}
+
+bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocument)
+{
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
+
+    bson_error_t error;
+    auto _filter = convert(filter);
+    auto _updateDocument = convert(updateDocument);
+
+    if( !mongoc_collection_update(col,mongoc_update_flags_t::MONGOC_UPDATE_UPSERT,_filter,_updateDocument,nullptr,&error) )
+    {
+        return false;
+    }else{
+        return true;
+    }
+}
+
+bool QMongoDB::update_one(const char *collection, QBSON filter, QBSON updateDocument)
+{
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
     bson_error_t error;
     auto _filter = convert(filter);
@@ -207,6 +473,38 @@ bool QMongoDB::Delete(QString collection, QBSON filter)
         return true;
     }
 
+}
+
+bool QMongoDB::Delete(std::string collection, QBSON filter)
+{
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
+
+    bson_error_t error;
+    auto _filter = convert(filter);
+
+
+    if( !mongoc_collection_delete (col,mongoc_delete_flags_t::MONGOC_DELETE_SINGLE_REMOVE,_filter,nullptr,&error) )
+    {
+        return false;
+    }else{
+        return true;
+    }
+}
+
+bool QMongoDB::Delete(const char *collection, QBSON filter)
+{
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
+
+    bson_error_t error;
+    auto _filter = convert(filter);
+
+
+    if( !mongoc_collection_delete (col,mongoc_delete_flags_t::MONGOC_DELETE_SINGLE_REMOVE,_filter,nullptr,&error) )
+    {
+        return false;
+    }else{
+        return true;
+    }
 }
 
 QElement QMongoDB::uploadfile(QString filename , QString key)
@@ -251,9 +549,6 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
     }
 
     auto rid = mongoc_gridfs_file_get_id(file);
-
-
-
 
     QString hexCode;
     for( int i = 0 ; i < 12 ; i++ )
