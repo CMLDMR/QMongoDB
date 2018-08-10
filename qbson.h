@@ -96,6 +96,14 @@ public:
 
     void append(QString key , QVariant value , QElementType type);
 
+
+    void append(QString key , QOid oid );
+
+    void append(std::string key , QOid oid );
+
+    void append(const char* key , QOid oid );
+
+
     ///
     /// \brief isEmpty : if QBSON Object is Empty return true else false
     /// \return
@@ -116,6 +124,7 @@ public:
 
 
     void append(QString key , QElement element );
+
 
 
 

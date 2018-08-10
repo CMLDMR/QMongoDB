@@ -48,6 +48,24 @@ void QBSON::append(QString key, QVariant value, QElementType type)
 
 }
 
+void QBSON::append(QString key, QOid oid)
+{
+    QElement var( QElementType::b_oid , oid , key );
+    maplist.push_back(var);
+}
+
+void QBSON::append(std::string key, QOid oid)
+{
+    QElement var( QElementType::b_oid , oid , key.c_str() );
+    maplist.push_back(var);
+}
+
+void QBSON::append(const char *key, QOid oid)
+{
+    QElement var( QElementType::b_oid , oid , key );
+    maplist.push_back(var);
+}
+
 bool QBSON::isEmpty() const
 {
     if( this->maplist.isEmpty() )
