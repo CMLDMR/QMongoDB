@@ -357,7 +357,7 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
 
     mongoc_gridfs_file_save (file);
 
-    return QElement(QElementType::b_oid,hexCode,key);
+    return QElement(QElementType::b_oid,QOid(hexCode),key);
 
 }
 
@@ -728,7 +728,9 @@ void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
                     hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
                 }
             }
-            obj_.append( bson_iter_key(iter),hexCode , QElementType::b_oid );
+            QElement element(QElementType::b_oid,QOid(hexCode),bson_iter_key(iter));
+
+            obj_.append( "_id" , element );
         }
     }
 
@@ -799,10 +801,7 @@ void RecursiveArray( bson_iter_t *iter , QArray &array_ )
                     hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
                 }
             }
-            QElement oid(QElementType::b_oid);
-            oid.setKey( "_id" );
-            oid.setType( QElementType::b_oid );
-            oid.setValue( hexCode );
+            QElement oid( QElementType::b_oid , QOid(hexCode) , "" );
             array_.append( oid );
         }
     }

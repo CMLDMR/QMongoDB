@@ -289,8 +289,14 @@ QString QBSON::TypeToString(QElementType type)
 QElement::QElement(QElementType type_, QVariant value_, QString key_)
 {
     this->key = key_;
-    if( type_ == QElementType::b_oid ) this->key = "_id";
     this->setValue( value_ );
+    this->type = type_;
+}
+
+QElement::QElement(QElementType type_, QOid oid, QString key)
+{
+    this->key = key;
+    this->setValue( QVariant::fromValue( oid ) );
     this->type = type_;
 }
 
@@ -367,6 +373,11 @@ QElementType QElement::getType() const
 void QElement::setType(const QElementType &value)
 {
     type = value;
+}
+
+QOid QElement::getOid() const
+{
+    return this->val.value<QOid>();
 }
 
 int QArray::count() const
@@ -519,3 +530,34 @@ QBSON QOption::getBson() const
 {
     return bson;
 }
+
+QString QOid::oid() const
+{
+    return mOid;
+}
+
+QOid::QOid()
+{
+
+}
+
+QOid::QOid( QString oid )
+{
+    this->mOid = oid;
+}
+
+QOid::QOid( const QOid &oid )
+{
+    this->mOid = oid.oid();
+}
+
+QOid::QOid( QOid &oid )
+{
+    this->mOid = oid.oid();
+}
+
+QOid::QOid( QOid &&oid )
+{
+    this->mOid = oid.oid();
+}
+

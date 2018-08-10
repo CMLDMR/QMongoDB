@@ -30,9 +30,31 @@ enum class QElementType
     b_invalid
 };
 
+
+class QMONGODBSHARED_EXPORT QOid
+{
+    QString mOid;
+public:
+
+    explicit QOid();
+    QOid(QString oid);
+    QOid(QOid const &oid);
+    QOid(QOid& oid);
+    QOid(QOid&& oid);
+    ~QOid() {}
+
+    QString oid() const;
+};
+
+Q_DECLARE_METATYPE(QOid);
+
+
+
+
 class QMONGODBSHARED_EXPORT QElement{
 public:
     explicit QElement(QElementType type_ , QVariant value_ = QVariant() , QString key_ = "" );
+    QElement(QElementType type_ , QOid oid , QString key );
     QElement();
     QElement(QElement const &element);
     QElement(QElement& element);
@@ -52,6 +74,8 @@ public:
 
     QElementType getType() const;
     void setType(const QElementType &value);
+
+    QOid getOid() const;
 
 private:
     QString key;
