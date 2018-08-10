@@ -57,6 +57,8 @@ public:
 
     QString downloadfile(QElement fileoid , bool fileNametoOid = true );
 
+    QString downloadfile(QOid fileoid , bool fileNametoOid = true );
+
     QByteArray downloadByteArray(QElement fileoid);
 
     ///

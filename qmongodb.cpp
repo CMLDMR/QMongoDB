@@ -446,6 +446,91 @@ QString QMongoDB::downloadfile(QElement fileoid, bool fileNametoOid)
     return _filename;
 }
 
+QString QMongoDB::downloadfile(QOid fileoid, bool fileNametoOid)
+{
+    bson_error_t error;
+
+    QBSON filter;
+    filter.append("_id",fileoid);
+    auto _filter = convert(filter);
+    auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
+    const char* filename = mongoc_gridfs_file_get_filename(file);
+
+    auto stream = mongoc_stream_gridfs_new(file);
+
+    QDir dir;
+    if( !dir.exists("temp")){
+        dir.mkdir("temp");
+    }
+
+
+
+    QString _filename = QString("temp/")+filename;
+
+    if( fileNametoOid ) {
+        QFileInfo info(filename);
+        _filename = QString("temp/")+fileoid.oid()+"."+info.suffix();
+    }
+
+    QFile qfile(_filename);
+
+    if( qfile.open(QIODevice::ReadWrite) )
+    {
+        ssize_t r;
+        char buf[4096];
+        mongoc_iovec_t iov;
+
+#if defined(Q_OS_ANDROID)
+        iov.iov_base = static_cast<void*>(buf);
+        iov.iov_len = sizeof (buf);
+#elif defined(Q_OS_WIN)
+        iov.iov_base = static_cast<char*>(buf);
+        iov.iov_len = sizeof (buf);
+#elif defined(Q_OS_LINUX)
+        iov.iov_base = static_cast<void*>(buf);
+        iov.iov_len = sizeof (buf);
+#else
+
+#endif
+
+        QByteArray wbyte;
+        for(;;)
+        {
+            r = mongoc_stream_readv (stream, &iov, 1, -1, 0);
+            if (r == 0) {
+                break;
+            }
+
+#if defined(Q_OS_ANDROID)
+            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
+            wbyte +=ar;
+            emit gridfsbytereceived(wbyte.size());
+            r = 0;
+#elif defined(Q_OS_WIN)
+            QByteArray ar = QByteArray::fromRawData(iov.iov_base,iov.iov_len);
+            wbyte +=ar;
+            emit gridfsbytereceived(wbyte.size());
+            r = 0;
+#elif defined(Q_OS_LINUX)
+            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
+            wbyte +=ar;
+            emit gridfsbytereceived(wbyte.size());
+            r = 0;
+#else
+
+#endif
+
+
+
+
+        }
+        qfile.write(wbyte);
+        qfile.close();
+    }
+
+    return _filename;
+}
+
 
 
 QByteArray QMongoDB::downloadByteArray(QElement fileoid)
