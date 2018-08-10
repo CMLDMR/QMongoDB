@@ -38,6 +38,7 @@ void QBSON::append(QString key, QVariant value, QElementType type)
         maplist.push_back(var);
     }
         break;
+
     default:
     {
         QElement var( type , value , key );
@@ -78,7 +79,7 @@ bool QBSON::isEmpty() const
 
 void QBSON::append(QString key, QVariant value)
 {
-    QElement var(QElementType::b_invalid);
+    QElement var(QElementType::b_null);
 
     switch ( value.type() ) {
     case QVariant::Double:
@@ -107,9 +108,9 @@ void QBSON::append(QString key, QVariant value)
         var.setValue( value.toBool() );
         break;
     case QVariant::Invalid:
-        var.setType( QElementType::b_invalid );
-        var.setKey( key );
-        var.setValue( value );
+        if( this->Keys().contains(key) ){
+            throw QError(QString("invalid type does not accept"));
+        }
         break;
     default:
         var.setType( QElementType::b_invalid );
@@ -124,13 +125,12 @@ void QBSON::append(QString key, QVariant value)
 void QBSON::append(std::string key, std::string value)
 {
     QElement var(QElementType::b_utf8);
-    var.setType( QElementType::b_utf8 );
     var.setKey( key.c_str() );
     var.setValue( value.c_str() );
     maplist.push_back(var);
 }
 
-void QBSON::append(QString key, QElement element)
+void QBSON::append(QElement element)
 {
     maplist.push_back(element);
 }
@@ -179,8 +179,13 @@ QBSON& QBSON::operator=(const QBSON& obj)
     return *this;
 }
 
+
 QElement QBSON::operator[](const QString key)
 {
+    if( this->Keys().contains(key) ){
+        throw QError(QString("%1 is not exist!").arg(key));
+    }
+
     QElement str(QElementType::b_null);
     for( auto doc : this->maplist )
     {
@@ -195,6 +200,9 @@ QElement QBSON::operator[](const QString key)
 
 QElement QBSON::operator[](std::string key)
 {
+    if( this->Keys().contains(key.c_str()) ){
+        throw QError(QString("%1 is not exist!").arg(key.c_str()));
+    }
     QElement str(QElementType::b_null);
     for( auto doc : this->maplist )
     {
@@ -209,6 +217,11 @@ QElement QBSON::operator[](std::string key)
 
 QElement QBSON::operator[](const char *key)
 {
+
+    if( this->Keys().contains(key) ){
+        throw QError(QString("%1 is not exist!").arg(key));
+    }
+
     QElement str(QElementType::b_null);
     for( auto doc : this->maplist )
     {
@@ -244,6 +257,26 @@ void QBSON::clear()
 void QBSON::append(QVector<QElement> mlist)
 {
     this->maplist.append(mlist);
+}
+
+bool operator==(const QBSON &obj1, const QBSON &obj2)
+{
+    bool equlaled = true;
+
+    for( auto element1 : obj1.getMaplist() )
+    {
+        for( auto element2 : obj2.getMaplist() )
+        {
+            if( element1 != element2 )
+            {
+                equlaled = false;
+                break;
+            }
+
+        }
+        if( equlaled ) break;
+    }
+    return equlaled;
 }
 
 QString QBSON::TypeToString(QElementType type)
@@ -391,7 +424,12 @@ void QElement::setType(const QElementType &value)
 
 QOid QElement::getOid() const
 {
-    return this->val.value<QOid>();
+    if( this->getType() == QElementType::b_oid )
+    {
+        return this->val.value<QOid>();
+    }else{
+        throw QError("element is not b_oid");
+    }
 }
 
 int QArray::count() const

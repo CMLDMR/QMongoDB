@@ -13,6 +13,9 @@
 #include <QVector>
 #include <type_traits>
 
+#include "qerror.h"
+
+
 class QBSON;
 class QArray;
 
@@ -76,6 +79,10 @@ public:
     QElementType getType() const;
     void setType(const QElementType &value);
 
+    ///
+    /// \brief getOid : return Oid if it's type oid else throw QError
+    /// \return
+    ///
     QOid getOid() const;
 
 private:
@@ -113,6 +120,7 @@ public:
 
     ///
     /// \brief append only bool double string int qlonglong
+    ///  throw std::exception if QElement can not initilazed
     /// \param key
     /// \param value
     ///
@@ -124,11 +132,16 @@ public:
 
 
 
-    void append(QString key , QElement element );
+    void append(QElement element );
 
 
 
 
+    ///
+    /// \brief append : throw std::exception if key does not exist
+    /// \param key
+    /// \param value
+    ///
     void append(QString key , QBSON value );
     void append(std::string key , QBSON value);
     void append(const char* key , QBSON value);
@@ -144,6 +157,8 @@ public:
 
 
     QBSON& operator=(const QBSON& obj);
+
+
 
 
 
@@ -175,6 +190,17 @@ public:
 
     void clear();
     void append(QVector<QElement> mlist);
+
+
+
+    ///
+    /// \brief operator == return true if each one is equaled else return false
+    /// \param obj1
+    /// \param obj2
+    /// \return
+    ///
+    friend bool operator==(const QBSON& obj1,const QBSON& obj2);
+
 
     static QString TypeToString(QElementType type);
 private:
