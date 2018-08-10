@@ -307,6 +307,13 @@ QElement::QElement(QElementType type_, QOid oid, QString key)
     this->type = type_;
 }
 
+QElement::QElement(QOid oid, QString key)
+{
+    this->key = key;
+    this->setValue( QVariant::fromValue( oid ) );
+    this->type = QElementType::b_oid;
+}
+
 QElement::QElement()
 {
     this->key = "";
