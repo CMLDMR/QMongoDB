@@ -115,7 +115,7 @@ public:
 
 
 
-    virtual void append(QString key , QElement element );
+    void append(QString key , QElement element );
 
 
 
