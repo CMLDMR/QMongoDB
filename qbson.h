@@ -114,6 +114,8 @@ public:
 
 
     QElement operator[](const QString key);
+    QElement operator[](std::string key);
+    QElement operator[](const char* key);
 
 
 

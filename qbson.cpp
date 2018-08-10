@@ -170,6 +170,48 @@ QElement QBSON::operator[](const QString key)
     }
 }
 
+QElement QBSON::operator[](std::string key)
+{
+    QElement str(QElementType::b_null);
+    bool exist;
+    for( auto doc : this->maplist )
+    {
+        if( key.c_str() == doc.getKey() )
+        {
+            exist = true;
+            str = doc;
+            break;
+        }
+    }
+    if( !exist )
+    {
+        throw "Return Type or Key Does Not Exist";
+    }else{
+        return str;
+    }
+}
+
+QElement QBSON::operator[](const char *key)
+{
+    QElement str(QElementType::b_null);
+    bool exist;
+    for( auto doc : this->maplist )
+    {
+        if( key == doc.getKey() )
+        {
+            exist = true;
+            str = doc;
+            break;
+        }
+    }
+    if( !exist )
+    {
+        throw "Return Type or Key Does Not Exist";
+    }else{
+        return str;
+    }
+}
+
 const QStringList QBSON::Keys()
 {
     QStringList strList;
