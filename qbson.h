@@ -192,15 +192,7 @@ public:
     void append(QVector<QElement> mlist);
 
 
-
-    ///
-    /// \brief operator == return true if each one is equaled else return false
-    /// \param obj1
-    /// \param obj2
-    /// \return
-    ///
-    friend bool operator==(const QBSON& obj1,const QBSON& obj2);
-
+    //TODO: operator== required
 
     static QString TypeToString(QElementType type);
 private:

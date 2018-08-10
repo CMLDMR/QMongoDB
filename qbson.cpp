@@ -259,25 +259,7 @@ void QBSON::append(QVector<QElement> mlist)
     this->maplist.append(mlist);
 }
 
-bool operator==(const QBSON &obj1, const QBSON &obj2)
-{
-    bool equlaled = true;
 
-    for( auto element1 : obj1.getMaplist() )
-    {
-        for( auto element2 : obj2.getMaplist() )
-        {
-            if( element1 != element2 )
-            {
-                equlaled = false;
-                break;
-            }
-
-        }
-        if( equlaled ) break;
-    }
-    return equlaled;
-}
 
 QString QBSON::TypeToString(QElementType type)
 {
@@ -431,6 +413,8 @@ QOid QElement::getOid() const
         throw QError("element is not b_oid");
     }
 }
+
+
 
 int QArray::count() const
 {
