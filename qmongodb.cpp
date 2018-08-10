@@ -366,7 +366,13 @@ QString QMongoDB::downloadfile(QElement fileoid, bool fileNametoOid)
     bson_error_t error;
 
     QBSON filter;
-    filter.append("_id",fileoid);
+    try {
+        filter.append("_id",QOid(fileoid.getOid().oid()));
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        throw QError("can not init file oid for downloading");
+    }
+
     auto _filter = convert(filter);
     auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
     const char* filename = mongoc_gridfs_file_get_filename(file);
@@ -540,7 +546,13 @@ QByteArray QMongoDB::downloadByteArray(QElement fileoid)
 //    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
 
     QBSON filter;
-    filter.append("_id",fileoid);
+    try {
+        filter.append("_id",QOid(fileoid.getOid().oid()));
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        throw QError("can not init file oid for downloadByteArray");
+    }
+
     auto _filter = convert(filter);
     auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
     const char* filename = mongoc_gridfs_file_get_filename(file);
@@ -602,7 +614,12 @@ qlonglong QMongoDB::getfilesize(QElement fileoid)
     bson_error_t error;
 
     QBSON filter;
-    filter.append("_id",fileoid);
+    try {
+        filter.append("_id",QOid(fileoid.getOid().oid()));
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        throw QError("can not init file oid for getfilesize");
+    }
     auto _filter = convert(filter);
 
     auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
@@ -624,7 +641,13 @@ QString QMongoDB::getfilename(QElement fileoid)
     bson_error_t error;
 
     QBSON filter;
-    filter.append("_id",fileoid);
+    try {
+        filter.append("_id",QOid(fileoid.getOid().oid()));
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        throw QError("can not init file oid for getfilename");
+    }
+
     auto _filter = convert(filter);
 
     auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
@@ -813,9 +836,7 @@ void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
                     hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
                 }
             }
-            QElement element(QElementType::b_oid,QOid(hexCode),bson_iter_key(iter));
-
-            obj_.append( "_id" , element );
+            obj_.append( bson_iter_key(iter) , QOid(hexCode) );
         }
     }
 
