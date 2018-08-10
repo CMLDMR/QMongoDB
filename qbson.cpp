@@ -29,11 +29,23 @@ QBSON::QBSON(QBSON &&obj)
 
 void QBSON::append(QString key, QVariant value, QElementType type)
 {
-    QElement var(type);
-    var.setType( type );
-    var.setKey( key );
-    var.setValue( value );
-    maplist.push_back(var);
+
+
+    switch ( type ) {
+    case QElementType::b_oid:
+    {
+        QElement var( type , QOid(value.toString() ) , key );
+        maplist.push_back(var);
+    }
+        break;
+    default:
+    {
+        QElement var( type , value , key );
+        maplist.push_back(var);
+    }
+        break;
+    }
+
 }
 
 bool QBSON::isEmpty() const

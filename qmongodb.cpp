@@ -384,7 +384,7 @@ QString QMongoDB::downloadfile(QElement fileoid, bool fileNametoOid)
 
     if( fileNametoOid ) {
         QFileInfo info(filename);
-        _filename = QString("temp/")+fileoid.getValue().toString()+"."+info.suffix();
+        _filename = QString("temp/")+fileoid.getOid().oid()+"."+info.suffix();
     }
 
     QFile qfile(_filename);
