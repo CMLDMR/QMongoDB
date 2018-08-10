@@ -182,7 +182,7 @@ QBSON& QBSON::operator=(const QBSON& obj)
 
 QElement QBSON::operator[](const QString key)
 {
-    if( this->Keys().contains(key) ){
+    if( !this->Keys().contains(key) ){
         throw QError(QString("%1 is not exist!").arg(key));
     }
 
@@ -200,7 +200,7 @@ QElement QBSON::operator[](const QString key)
 
 QElement QBSON::operator[](std::string key)
 {
-    if( this->Keys().contains(key.c_str()) ){
+    if( !this->Keys().contains(key.c_str()) ){
         throw QError(QString("%1 is not exist!").arg(key.c_str()));
     }
     QElement str(QElementType::b_null);
@@ -218,7 +218,7 @@ QElement QBSON::operator[](std::string key)
 QElement QBSON::operator[](const char *key)
 {
 
-    if( this->Keys().contains(key) ){
+    if( !this->Keys().contains(key) ){
         throw QError(QString("%1 is not exist!").arg(key));
     }
 
