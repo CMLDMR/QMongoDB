@@ -22,13 +22,15 @@ static mongoc_client_t* client;
 static mongoc_gridfs_t* gridfs;
 
 
+void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list);
+
 const bson_t *convert(QBSON &obj);
 void convertArray(QArray &array, bson_t *child);
 
 
-void RecursiveDocument( QString key , bson_iter_t *iter , QBSON &obj_ );
+void RecursiveDocument(bson_iter_t *iter , QBSON &obj_ );
 
-void RecursiveArray(QString key , bson_iter_t *iter , QArray &array_ );
+void RecursiveArray(bson_iter_t *iter , QArray &array_ );
 
 QMongoDB::QMongoDB( QString mongodburl , QString database , QObject *parent )
     :QObject ( parent ),
@@ -63,81 +65,12 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
     auto _filter = convert(filter);
 
     QBSON bson = option.getBson();
+
     auto _option = convert(bson);
 
     auto cursor = mongoc_collection_find_with_opts (col, _filter, _option , nullptr);
 
-    const bson_t *doc;
-    bson_iter_t iter;
-    bson_iter_t sub_iter;
-
-    while (mongoc_cursor_next (cursor, &doc)) {
-
-        if (bson_iter_init (&iter, doc) ) {
-
-            QBSON obj;
-
-            while (bson_iter_next (&iter) ) {
-                if( bson_iter_recurse (&iter, &sub_iter) )
-                {
-                    QString key = bson_iter_key(&iter);
-                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_ARRAY )
-                    {
-                        QArray array;
-                        RecursiveArray(key,&sub_iter,array);
-                        obj.append(key,array);
-                    }
-
-                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOCUMENT )
-                    {
-                        RecursiveDocument(key,&sub_iter,obj);
-                    }
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_UTF8 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter),QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len ) , QElementType::b_utf8 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOUBLE )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_double , QElementType::b_double );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_BOOL )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_bool , QElementType::b_bool );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT32 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_int32 , QElementType::b_int32 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT64 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_int64 , QElementType::b_int64 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_OID )
-                {
-                    auto value = bson_iter_value(&iter);
-                    QString hexCode;
-                    for( int i = 0 ; i < 12 ; i++ )
-                    {
-                        if( value->value.v_oid.bytes[i] < 16 )
-                        {
-                            hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
-                        }else{
-                            hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
-                        }
-                    }
-                    obj.append( bson_iter_key(&iter),hexCode , QElementType::b_oid );
-                }
-            }
-
-            list.append(obj);
-        }
-    }
+    _find(cursor,&list);
 
     return list;
 }
@@ -155,77 +88,7 @@ QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption opti
 
     auto cursor = mongoc_collection_find_with_opts (col, _filter, _option , nullptr);
 
-    const bson_t *doc;
-    bson_iter_t iter;
-    bson_iter_t sub_iter;
-
-    while (mongoc_cursor_next (cursor, &doc)) {
-
-        if (bson_iter_init (&iter, doc) ) {
-
-            QBSON obj;
-
-            while (bson_iter_next (&iter) ) {
-                if( bson_iter_recurse (&iter, &sub_iter) )
-                {
-                    QString key = bson_iter_key(&iter);
-                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_ARRAY )
-                    {
-                        QArray array;
-                        RecursiveArray(key,&sub_iter,array);
-                        obj.append(key,array);
-                    }
-
-                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOCUMENT )
-                    {
-                        RecursiveDocument(key,&sub_iter,obj);
-                    }
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_UTF8 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter),QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len ) , QElementType::b_utf8 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOUBLE )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_double , QElementType::b_double );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_BOOL )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_bool , QElementType::b_bool );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT32 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_int32 , QElementType::b_int32 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT64 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_int64 , QElementType::b_int64 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_OID )
-                {
-                    auto value = bson_iter_value(&iter);
-                    QString hexCode;
-                    for( int i = 0 ; i < 12 ; i++ )
-                    {
-                        if( value->value.v_oid.bytes[i] < 16 )
-                        {
-                            hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
-                        }else{
-                            hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
-                        }
-                    }
-                    obj.append( bson_iter_key(&iter),hexCode , QElementType::b_oid );
-                }
-            }
-
-            list.append(obj);
-        }
-    }
+    _find(cursor,&list);
 
     return list;
 }
@@ -243,77 +106,8 @@ QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption opti
 
     auto cursor = mongoc_collection_find_with_opts (col, _filter, _option , nullptr);
 
-    const bson_t *doc;
-    bson_iter_t iter;
-    bson_iter_t sub_iter;
+    _find(cursor,&list);
 
-    while (mongoc_cursor_next (cursor, &doc)) {
-
-        if (bson_iter_init (&iter, doc) ) {
-
-            QBSON obj;
-
-            while (bson_iter_next (&iter) ) {
-                if( bson_iter_recurse (&iter, &sub_iter) )
-                {
-                    QString key = bson_iter_key(&iter);
-                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_ARRAY )
-                    {
-                        QArray array;
-                        RecursiveArray(key,&sub_iter,array);
-                        obj.append(key,array);
-                    }
-
-                    if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOCUMENT )
-                    {
-                        RecursiveDocument(key,&sub_iter,obj);
-                    }
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_UTF8 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter),QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len ) , QElementType::b_utf8 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_DOUBLE )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_double , QElementType::b_double );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_BOOL )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_bool , QElementType::b_bool );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT32 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_int32 , QElementType::b_int32 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_INT64 )
-                {
-                    auto value = bson_iter_value(&iter);
-                    obj.append( bson_iter_key(&iter), value->value.v_int64 , QElementType::b_int64 );
-                }
-                if( bson_iter_type(&iter) == bson_type_t::BSON_TYPE_OID )
-                {
-                    auto value = bson_iter_value(&iter);
-                    QString hexCode;
-                    for( int i = 0 ; i < 12 ; i++ )
-                    {
-                        if( value->value.v_oid.bytes[i] < 16 )
-                        {
-                            hexCode += "0"+QString::number( value->value.v_oid.bytes[i] , 16 );
-                        }else{
-                            hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
-                        }
-                    }
-                    obj.append( bson_iter_key(&iter),hexCode , QElementType::b_oid );
-                }
-            }
-
-            list.append(obj);
-        }
-    }
 
     return list;
 }
@@ -867,54 +661,58 @@ void convertArray(QArray &array , bson_t* child){
     }
 }
 
-void RecursiveDocument( QString key , bson_iter_t *iter , QBSON &obj_ ){
+void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
 
     bson_iter_t sub_iter;
+
     QBSON obj;
 
     while (bson_iter_next (iter) ) {
 
         if( bson_iter_recurse (iter, &sub_iter) )
         {
-            QString key_ =  bson_iter_key(&sub_iter);
+            QString key_ =  bson_iter_key(iter);
 
             if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_ARRAY )
             {
                 QArray array;
-                RecursiveArray(key_,&sub_iter,array);
+                RecursiveArray(&sub_iter,array);
+                obj_.append(key_,array);
             }
 
             if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_DOCUMENT )
             {
-                RecursiveDocument(key_,&sub_iter,obj);
+                QBSON obj__;
+                RecursiveDocument(&sub_iter,obj__);
+                obj_.append(key_,obj__);
             }
         }
 
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_UTF8 )
         {
             auto value = bson_iter_value(iter);
-            obj.append( bson_iter_key(iter),QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len ) , QElementType::b_utf8 );
+            obj_.append( bson_iter_key(iter),QString::fromUtf8(value->value.v_utf8.str,value->value.v_utf8.len ) , QElementType::b_utf8 );
         }
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_DOUBLE )
         {
             auto value = bson_iter_value(iter);
-            obj.append( bson_iter_key(iter), value->value.v_double , QElementType::b_double );
+            obj_.append( bson_iter_key(iter), value->value.v_double , QElementType::b_double );
         }
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_BOOL )
         {
             auto value = bson_iter_value(iter);
-            obj.append( bson_iter_key(iter), value->value.v_bool , QElementType::b_bool );
+            obj_.append( bson_iter_key(iter), value->value.v_bool , QElementType::b_bool );
         }
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_INT32 )
         {
             auto value = bson_iter_value(iter);
-            obj.append( bson_iter_key(iter), value->value.v_int32 , QElementType::b_int32 );
+            obj_.append( bson_iter_key(iter), value->value.v_int32 , QElementType::b_int32 );
         }
 
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_INT64 )
         {
             auto value = bson_iter_value(iter);
-            obj.append( bson_iter_key(iter), value->value.v_int64 , QElementType::b_int64 );
+            obj_.append( bson_iter_key(iter), value->value.v_int64 , QElementType::b_int64 );
         }
 
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_OID )
@@ -930,34 +728,33 @@ void RecursiveDocument( QString key , bson_iter_t *iter , QBSON &obj_ ){
                     hexCode += QString::number( value->value.v_oid.bytes[i] , 16 );
                 }
             }
-            obj.append( bson_iter_key(iter),hexCode , QElementType::b_oid );
+            obj_.append( bson_iter_key(iter),hexCode , QElementType::b_oid );
         }
     }
-    obj_.append(key,obj);
+
 }
 
-void RecursiveArray( QString key , bson_iter_t *iter , QArray &array_ )
+void RecursiveArray( bson_iter_t *iter , QArray &array_ )
 {
     bson_iter_t sub_iter;
-
 
     while (bson_iter_next (iter) ) {
 
         if( bson_iter_recurse (iter, &sub_iter) )
         {
-            QString key_ =  bson_iter_key(&sub_iter);
+            QString key_ =  bson_iter_key(iter);
 
             if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_ARRAY )
             {
                 QArray array;
-                RecursiveArray(key_,&sub_iter,array);
+                RecursiveArray(&sub_iter,array);
                 array_.append(array);
             }
 
             if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_DOCUMENT )
             {
                 QBSON obj;
-                RecursiveDocument(key_,&sub_iter,obj);
+                RecursiveDocument(&sub_iter,obj);
                 array_.append(obj);
             }
         }
@@ -1009,8 +806,24 @@ void RecursiveArray( QString key , bson_iter_t *iter , QArray &array_ )
             array_.append( oid );
         }
     }
-//    array_.append(array);
+
+}
 
 
 
+
+void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list){
+
+
+    const bson_t *doc;
+    bson_iter_t iter;
+    bson_iter_t sub_iter;
+
+    while (mongoc_cursor_next (cursor, &doc)) {
+        if (bson_iter_init (&iter, doc) ) {
+            QBSON obj;
+            RecursiveDocument(&iter,obj);
+            list->append(obj);
+        }
+    }
 }

@@ -75,6 +75,9 @@ private:
     QString mUrl;
     QString db;
 
+
+
+
 };
 
 #endif // QMONGODB_H
