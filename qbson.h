@@ -130,6 +130,8 @@ public:
 
     void append(std::string key , std::string value);
 
+    void append(std::string key , QString str);
+
 
 
     void append(QElement element );

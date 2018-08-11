@@ -128,6 +128,12 @@ void QBSON::append(std::string key, std::string value)
     maplist.push_back(var);
 }
 
+void QBSON::append(std::string key, QString str)
+{
+    QElement var(QElementType::b_utf8,str.toStdString().c_str(),key.c_str());
+    maplist.push_back(var);
+}
+
 void QBSON::append(QElement element)
 {
     maplist.push_back(element);
