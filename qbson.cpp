@@ -480,7 +480,12 @@ QElement &QElement::operator=(const QElement &element)
 {
     this->setKey( element.getKey() );
     this->setType( element.getType() );
-    this->setValue( element.getValue() );
+    if( element.getType() == QElementType::b_oid )
+    {
+        this->setValue( QVariant::fromValue(element.getOid()) );
+    }else{
+        this->setValue( element.getValue() );
+    }
     return *this;
 }
 
@@ -500,7 +505,7 @@ QVariant QElement::getValue() const
     {
         return val;
     }else{
-        throw QError("element is not b_oid");
+        throw QError("expected QVariant but QOid");
     }
 
 }
