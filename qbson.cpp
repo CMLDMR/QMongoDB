@@ -1,6 +1,9 @@
 #include "qbson.h"
 
 
+void consoleLog( std::string &stream , QBSON obj );
+void consoleLog( std::string &stream , QArray array  );
+
 
 QBSON::QBSON()
 {
@@ -34,7 +37,21 @@ void QBSON::append(QString key, QVariant value, QElementType type)
     switch ( type ) {
     case QElementType::b_oid:
     {
-        QElement var( type , QOid(value.toString() ) , key );
+        QElement var( type , QOid( value.toString() ) , key );
+        maplist.push_back(var);
+    }
+        break;
+
+    case QElementType::b_int32:
+    {
+        QElement var( type , std::int32_t( value.toInt() ) , key );
+        maplist.push_back(var);
+    }
+        break;
+
+    case QElementType::b_int64:
+    {
+        QElement var( type , std::int64_t( value.toLongLong() ) , key );
         maplist.push_back(var);
     }
         break;
@@ -131,6 +148,12 @@ void QBSON::append(std::string key, std::string value)
 void QBSON::append(std::string key, QString str)
 {
     QElement var(QElementType::b_utf8,str.toStdString().c_str(),key.c_str());
+    maplist.push_back(var);
+}
+
+void QBSON::append(std::string key, const char *str)
+{
+    QElement var(QElementType::b_utf8,str,key.c_str());
     maplist.push_back(var);
 }
 
@@ -306,6 +329,17 @@ QString QBSON::TypeToString(QElementType type)
 
 
 }
+
+std::string QBSON::tojson()
+{
+    std::string str;
+    str += "{ ";
+    consoleLog(str,*this);
+    str += " }";
+    return str;
+}
+
+
 
 
 
@@ -484,6 +518,12 @@ void QArray::append(QElement element)
     this->mapData.append(element);
 }
 
+void QArray::append(QOid oid)
+{
+    QElement element(QOid(oid),"");
+    this->mapData.append(element);
+}
+
 QProjection::QProjection()
 {
 
@@ -599,5 +639,108 @@ QOid::QOid( QOid &oid )
 QOid::QOid( QOid &&oid )
 {
     this->mOid = oid.oid();
+}
+
+
+
+void consoleLog( std::string &stream , QBSON obj ){
+
+
+    for( auto element : obj )
+
+    {
+        switch ( element.getType() ) {
+        case QElementType::b_bool:
+        {
+            if( element.getValue().toBool() )
+            {
+                stream += "\""+element.getKey().toStdString() + "\" : true , ";
+
+            }else{
+                stream += "\""+element.getKey().toStdString() + "\" : false , ";
+
+            }
+        }
+            break;
+        case QElementType::b_double:
+            stream += "\""+element.getKey().toStdString() + "\" : " +  std::to_string(element.getValue().toDouble())+ " , ";
+            break;
+        case QElementType::b_int32:
+            stream += "\""+element.getKey().toStdString() +"\" : "+ std::to_string( element.getValue().toInt() )+ " , ";
+            break;
+        case QElementType::b_int64:
+            stream += "\""+element.getKey().toStdString() +"\" : "+ std::to_string(element.getValue().toLongLong() ) + " , ";
+            break;
+        case QElementType::b_oid:
+            stream += "\""+element.getKey().toStdString() +"\" : { \""+ QString(element.getValue().typeName()).toStdString() +"\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
+            break;
+        case QElementType::b_utf8:
+            stream += "\""+element.getKey().toStdString() +"\" : \"" + element.getValue().toString().toStdString() + "\"" + " , ";
+            break;
+        case QElementType::b_document:
+            stream += "\""+element.getKey().toStdString() +"\" : "+ "{";
+            consoleLog(stream,element.toDocument());
+            stream += "} , ";
+            break;
+        case QElementType::b_array:
+            stream += "\""+element.getKey().toStdString() +"\" : "+ "[";
+            consoleLog(stream,element.toArray());
+            stream += "] , ";
+            break;
+        default:
+            break;
+        }
+    }
+    return;
+}
+
+
+void consoleLog(std::string &stream , QArray array ){
+
+
+    for( auto element : array ){
+
+        switch ( element.getType() ) {
+        case QElementType::b_bool:
+        {
+            if( element.getValue().toBool() )
+            {
+                stream += "true, ";
+            }else{
+                stream += "false, ";
+            }
+        }
+            break;
+        case QElementType::b_double:
+            stream += std::to_string(element.getValue().toDouble())+ " , ";
+            break;
+        case QElementType::b_int32:
+            stream += std::to_string( element.getValue().toInt() )+ " , ";
+            break;
+        case QElementType::b_int64:
+            stream += std::to_string(element.getValue().toLongLong() ) + " , ";
+            break;
+        case QElementType::b_oid:
+            stream += "{ \"" + QString(element.getValue().typeName()).toStdString() + "\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
+            break;
+        case QElementType::b_utf8:
+            stream += "\"" + element.getValue().toString().toStdString() + "\"" + " , ";
+            break;
+        case QElementType::b_document:
+            stream += "{";
+            consoleLog(stream,element.toDocument());
+            stream += "} , ";
+            break;
+        case QElementType::b_array:
+            stream += "[";
+            consoleLog(stream,element.toArray());
+            stream += "] , ";
+            break;
+        default:
+            break;
+        }
+    }
+
+    return;
 }
 

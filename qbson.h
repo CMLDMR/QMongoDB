@@ -12,8 +12,11 @@
 #include <QVariant>
 #include <QVector>
 #include <type_traits>
+#include <iostream>
 
 #include "qerror.h"
+
+
 
 
 class QBSON;
@@ -50,7 +53,8 @@ public:
 };
 
 Q_DECLARE_METATYPE(QOid);
-
+Q_DECLARE_METATYPE(int64_t);
+Q_DECLARE_METATYPE(int32_t);
 
 
 
@@ -106,9 +110,7 @@ public:
 
 
     void append(QString key , QOid oid );
-
     void append(std::string key , QOid oid );
-
     void append(const char* key , QOid oid );
 
 
@@ -129,8 +131,8 @@ public:
 
 
     void append(std::string key , std::string value);
-
     void append(std::string key , QString str);
+    void append(std::string key , const char* str);
 
 
 
@@ -197,10 +199,18 @@ public:
     //TODO: operator== required
 
     static QString TypeToString(QElementType type);
+
+
+    std::string tojson();
+
+
 private:
     QVector<QElement> maplist;
 
 };
+
+
+
 
 class QMONGODBSHARED_EXPORT QProjection
 {
@@ -269,6 +279,7 @@ public:
     void append(QBSON obj);
     void append(QArray array);
     void append(QElement element);
+    void append(QOid oid);
 
 
     using container = QVector<QElement>;

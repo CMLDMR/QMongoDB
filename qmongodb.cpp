@@ -17,6 +17,7 @@
 #include <QCryptographicHash>
 
 
+
 static mongoc_client_t* client;
 
 static mongoc_gridfs_t* gridfs;
@@ -659,6 +660,8 @@ QString QMongoDB::getfilename(QElement fileoid)
 }
 
 
+
+
 const bson_t *convert(QBSON &obj){
 
     auto doc = bson_new();
@@ -795,7 +798,6 @@ void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
                 obj_.append(key_,obj__);
             }
         }
-
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_UTF8 )
         {
             auto value = bson_iter_value(iter);
@@ -816,13 +818,11 @@ void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
             auto value = bson_iter_value(iter);
             obj_.append( bson_iter_key(iter), value->value.v_int32 , QElementType::b_int32 );
         }
-
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_INT64 )
         {
             auto value = bson_iter_value(iter);
             obj_.append( bson_iter_key(iter), value->value.v_int64 , QElementType::b_int64 );
         }
-
         if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_OID )
         {
             auto value = bson_iter_value(iter);
@@ -932,3 +932,8 @@ void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list){
         }
     }
 }
+
+
+
+
+
