@@ -778,9 +778,8 @@ void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
 
     QBSON obj;
 
-    while (bson_iter_next (iter) ) {
-
-        if( bson_iter_recurse (iter, &sub_iter) )
+    while (bson_iter_next ( iter ) ) {
+        if( bson_iter_recurse ( iter , &sub_iter ) )
         {
             QString key_ =  bson_iter_key(iter);
 
@@ -913,9 +912,6 @@ void RecursiveArray( bson_iter_t *iter , QArray &array_ )
     }
 
 }
-
-
-
 
 void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list){
 
