@@ -175,6 +175,24 @@ void QBSON::append(QString key, const char *str)
     maplist.push_back(var);
 }
 
+void QBSON::append(const char *key, std::string str)
+{
+    QElement var(QElementType::b_utf8,str.c_str(),key);
+    maplist.push_back(var);
+}
+
+void QBSON::append(const char *key, QString str)
+{
+    QElement var(QElementType::b_utf8,str.toStdString().c_str(),key);
+    maplist.push_back(var);
+}
+
+void QBSON::append(const char *key, const char *str)
+{
+    QElement var(QElementType::b_utf8,str,key);
+    maplist.push_back(var);
+}
+
 void QBSON::append(QElement element)
 {
     maplist.push_back(element);

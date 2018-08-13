@@ -138,6 +138,10 @@ public:
     void append(QString key , QString str);
     void append(QString key , const char* str);
 
+    void append(const char* key , std::string str);
+    void append(const char* key , QString str);
+    void append(const char* key , const char* str);
+
 
     void append(QElement element );
 
