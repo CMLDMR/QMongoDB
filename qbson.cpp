@@ -1,5 +1,7 @@
 #include "qbson.h"
 
+#include <QDebug>
+
 
 void consoleLog( std::string &stream , QBSON obj );
 void consoleLog( std::string &stream , QArray array  );
@@ -80,8 +82,14 @@ void QBSON::append(std::string key, QOid oid)
 
 void QBSON::append(const char *key, QOid oid)
 {
-    QElement var( QElementType::b_oid , oid , key );
-    maplist.push_back(var);
+    qDebug() << "Append oid key";
+    QElement var( oid , key );
+
+    qDebug() << "Appended oid key";
+
+    maplist.append(var);
+
+    qDebug() << "Push Back var";
 }
 
 bool QBSON::isEmpty() const
@@ -417,8 +425,8 @@ QElement::QElement(QElementType type_, QOid oid, QString key)
 QElement::QElement(QOid oid, QString key)
 {
     this->key = key;
-    this->setValue( QVariant::fromValue( oid ) );
     this->type = QElementType::b_oid;
+    this->setValue( QVariant::fromValue( oid ) );
 }
 
 QElement::QElement()
@@ -432,20 +440,36 @@ QElement::QElement(const QElement &element)
 {
     this->setKey( element.getKey() );
     this->setType( element.getType() );
-    this->setValue( element.getValue() );
+    if( element.getType() == QElementType::b_oid )
+    {
+        this->setValue( QVariant::fromValue(element.getOid()) );
+    }else{
+        this->setValue( element.getValue() );
+    }
+
 }
 
 QElement::QElement(QElement &element)
 {
     this->setKey( element.getKey() );
     this->setType( element.getType() );
-    this->setValue( element.getValue() );
+    if( element.getType() == QElementType::b_oid )
+    {
+        this->setValue( QVariant::fromValue(element.getOid()) );
+    }else{
+        this->setValue( element.getValue() );
+    }
 }
 QElement::QElement(QElement &&element)
 {
     this->setKey( element.getKey() );
     this->setType( element.getType() );
-    this->setValue( element.getValue() );
+    if( element.getType() == QElementType::b_oid )
+    {
+        this->setValue( QVariant::fromValue(element.getOid()) );
+    }else{
+        this->setValue( element.getValue() );
+    }
 }
 
 QBSON QElement::toDocument() const
@@ -478,7 +502,13 @@ void QElement::setKey(const QString &value)
 
 QVariant QElement::getValue() const
 {
-    return val;
+    if( this->type != QElementType::b_oid )
+    {
+        return val;
+    }else{
+        throw QError("element is not b_oid");
+    }
+
 }
 
 void QElement::setValue(const QVariant &value)
@@ -670,6 +700,12 @@ QString QOid::oid() const
     return mOid;
 }
 
+QOid &QOid::operator=(const QOid &oid)
+{
+    this->mOid = oid.oid();
+    return *this;
+}
+
 QOid::QOid()
 {
 
@@ -726,18 +762,18 @@ void consoleLog( std::string &stream , QBSON obj ){
             stream += "\""+element.getKey().toStdString() +"\" : "+ std::to_string(element.getValue().toLongLong() ) + " , ";
             break;
         case QElementType::b_oid:
-            stream += "\""+element.getKey().toStdString() +"\" : { \""+ QString(element.getValue().typeName()).toStdString() +"\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
+            stream += "\""+element.getKey().toStdString() +"\" : { \"QOid\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
             break;
         case QElementType::b_utf8:
             stream += "\""+element.getKey().toStdString() +"\" : \"" + element.getValue().toString().toStdString() + "\"" + " , ";
             break;
         case QElementType::b_document:
-            stream += "\""+element.getKey().toStdString() +"\" : "+ "{";
+            stream += "\""+element.getKey().toStdString() +"\" : "+ "{ ";
             consoleLog(stream,element.toDocument());
             stream += "} , ";
             break;
         case QElementType::b_array:
-            stream += "\""+element.getKey().toStdString() +"\" : "+ "[";
+            stream += "\""+element.getKey().toStdString() +"\" : "+ "[ ";
             consoleLog(stream,element.toArray());
             stream += "] , ";
             break;
@@ -775,7 +811,7 @@ void consoleLog(std::string &stream , QArray array ){
             stream += std::to_string(element.getValue().toLongLong() ) + " , ";
             break;
         case QElementType::b_oid:
-            stream += "{ \"" + QString(element.getValue().typeName()).toStdString() + "\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
+            stream += "{ \"QOid\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
             break;
         case QElementType::b_utf8:
             stream += "\"" + element.getValue().toString().toStdString() + "\"" + " , ";

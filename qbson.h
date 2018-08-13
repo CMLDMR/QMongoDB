@@ -50,6 +50,8 @@ public:
     ~QOid() {}
 
     QString oid() const;
+
+    QOid& operator=(const QOid& oid);
 };
 
 Q_DECLARE_METATYPE(QOid);
@@ -99,6 +101,9 @@ private:
 class QMONGODBSHARED_EXPORT QBSON
 {
 
+    using container = QVector<QElement>;
+
+
 public:
     explicit QBSON();
     QBSON(QBSON const &obj);
@@ -108,10 +113,9 @@ public:
 
     void append(QString key , QVariant value , QElementType type);
 
+
     void append(QString key , QOid oid );
-
     void append(std::string key , QOid oid );
-
     void append(const char* key , QOid oid );
 
 
@@ -176,7 +180,6 @@ public:
 
     const QStringList Keys();
 
-    using container = QVector<QElement>;
 
     using iterator = typename container::iterator;
 
