@@ -82,14 +82,8 @@ void QBSON::append(std::string key, QOid oid)
 
 void QBSON::append(const char *key, QOid oid)
 {
-    qDebug() << "Append oid key";
     QElement var( oid , key );
-
-    qDebug() << "Appended oid key";
-
     maplist.append(var);
-
-    qDebug() << "Push Back var";
 }
 
 bool QBSON::isEmpty() const
