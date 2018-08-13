@@ -139,9 +139,9 @@ void QBSON::append(QString key, QVariant value)
 
 }
 
-void QBSON::append(std::string key, std::string value)
+void QBSON::append(std::string key, std::string str)
 {
-    QElement var(QElementType::b_utf8,value.c_str(),key.c_str());
+    QElement var(QElementType::b_utf8,str.c_str(),key.c_str());
     maplist.push_back(var);
 }
 
@@ -154,6 +154,24 @@ void QBSON::append(std::string key, QString str)
 void QBSON::append(std::string key, const char *str)
 {
     QElement var(QElementType::b_utf8,str,key.c_str());
+    maplist.push_back(var);
+}
+
+void QBSON::append(QString key, std::string str)
+{
+    QElement var(QElementType::b_utf8,str.c_str(),key);
+    maplist.push_back(var);
+}
+
+void QBSON::append(QString key, QString str)
+{
+    QElement var(QElementType::b_utf8,str.toStdString().c_str(),key);
+    maplist.push_back(var);
+}
+
+void QBSON::append(QString key, const char *str)
+{
+    QElement var(QElementType::b_utf8,str,key);
     maplist.push_back(var);
 }
 

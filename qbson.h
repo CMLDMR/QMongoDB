@@ -108,9 +108,10 @@ public:
 
     void append(QString key , QVariant value , QElementType type);
 
-
     void append(QString key , QOid oid );
+
     void append(std::string key , QOid oid );
+
     void append(const char* key , QOid oid );
 
 
@@ -129,80 +130,64 @@ public:
     void append(QString key , QVariant value );
 
 
-
-    void append(std::string key , std::string value);
+    void append(std::string key , std::string str);
     void append(std::string key , QString str);
     void append(std::string key , const char* str);
 
+    void append(QString key , std::string str);
+    void append(QString key , QString str);
+    void append(QString key , const char* str);
 
 
     void append(QElement element );
-
-
-
 
     ///
     /// \brief append : throw std::exception if key does not exist
     /// \param key
     /// \param value
     ///
+
     void append(QString key , QBSON value );
+
     void append(std::string key , QBSON value);
+
     void append(const char* key , QBSON value);
-
-
 
     void append(QString key , QArray value );
 
-
-
     QVector<QElement> getMaplist() const;
-
-
 
     QBSON& operator=(const QBSON& obj);
 
-
-
-
-
     QElement operator[](const QString key);
+
     QElement operator[](std::string key);
+
     QElement operator[](const char* key);
-
-
 
     const QStringList Keys();
 
-
-
     using container = QVector<QElement>;
 
-
-
     using iterator = typename container::iterator;
-
-
 
     using const_iterator = typename container::const_iterator;
 
     iterator begin() { return maplist.begin(); }
+
     iterator end() { return maplist.end(); }
+
     const_iterator cbegin() const { return maplist.cbegin(); }
+
     const_iterator cend() const { return maplist.cend(); }
 
-
     void clear();
+
     void append(QVector<QElement> mlist);
-
-
-    //TODO: operator== required
 
     static QString TypeToString(QElementType type);
 
-
     std::string tojson();
-
 
 private:
     QVector<QElement> maplist;
