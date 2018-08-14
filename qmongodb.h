@@ -4,20 +4,15 @@
 
 #include <QtCore/qglobal.h>
 
-//#if defined(QMONGODB_LIBRARY)
-//#  define QMONGODBSHARED_EXPORT Q_DECL_EXPORT
-//#else
-//#  define QMONGODBSHARED_EXPORT Q_DECL_IMPORT
-//#endif
 
-
-//#include "qmongodb_global.h"
 #include <QString>
 #include <QMap>
 #include <QVariantMap>
 #include "qbson.h"
 #include <QObject>
 #include <QtCore>
+#include <QMimeDatabase>
+
 
 
 
@@ -55,20 +50,16 @@ public:
 
     QElement uploadfile(QString filename, QString key);
 
-    QString downloadfile(QElement fileoid , bool fileNametoOid = true );
-
     QString downloadfile(QOid fileoid , bool fileNametoOid = true );
-
-    QByteArray downloadByteArray(QElement fileoid);
 
     ///
     /// \brief getfilesize if QElement type is not oid throw error
     /// \param fileoid
     /// \return
     ///
-    qlonglong getfilesize(QElement fileoid);
+    qlonglong getfilesize(QOid fileoid);
 
-    QString getfilename(QElement fileoid);
+    QString getfilename(QOid fileoid);
 
 
 Q_SIGNALS:

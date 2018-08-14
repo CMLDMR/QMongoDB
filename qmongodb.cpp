@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <fstream>
+#include <assert.h>
+
 
 #include <QDebug>
 #include <QJsonDocument>
@@ -304,16 +306,13 @@ bool QMongoDB::Delete(const char *collection, QBSON filter)
 
 QElement QMongoDB::uploadfile(QString filename , QString key)
 {
-
     bson_error_t error;
-
 
     auto stream = mongoc_stream_file_new_for_path (filename.toStdString().c_str(), O_RDONLY, 0);
 
-    mongoc_gridfs_file_opt_t opt = {nullptr};
+    assert (stream);
 
     QFileInfo info(filename);
-
 
     QFile qfile(filename);
     QByteArray ar;
@@ -324,28 +323,31 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
         qfile.close();
     }
 
-
-    opt.filename = info.fileName().toStdString().c_str();
-
     auto hash = QCryptographicHash::hash(ar,QCryptographicHash::Algorithm::Md5);
-    opt.md5 = hash.toHex().toStdString().c_str();
+
+    QMimeDatabase mimedb;
+
+    QMimeType mime = mimedb.mimeTypeForFile(filename, QMimeDatabase::MatchContent);
+
+    mongoc_gridfs_file_opt_t opt = {hash.toHex().toStdString().c_str(),info.fileName().toStdString().c_str(),mime.name().toStdString().c_str()};
 
     auto file = mongoc_gridfs_create_file_from_stream (gridfs, stream, &opt);
 
-
-
     bson_value_t id;
 
-    id.value_type = BSON_TYPE_INT32;
-    id.value.v_int32 = 1;
+    id.value_type = BSON_TYPE_OID;
+
 
     if (!mongoc_gridfs_file_set_id (file, &id, &error)) {
-
+    }else{
     }
 
     auto rid = mongoc_gridfs_file_get_id(file);
 
+    auto ridfilename = mongoc_gridfs_file_get_filename(file);
+
     QString hexCode;
+
     for( int i = 0 ; i < 12 ; i++ )
     {
         if( rid->value.v_oid.bytes[i] < 16 )
@@ -362,300 +364,116 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
 
 }
 
-QString QMongoDB::downloadfile(QElement fileoid, bool fileNametoOid)
+
+QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
 {
-    bson_error_t error;
 
     QBSON filter;
-    try {
-        filter.append("_id",QOid(fileoid.getOid().oid()));
-    } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-        throw QError("can not init file oid for downloading");
-    }
 
-    auto _filter = convert(filter);
-    auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
-    const char* filename = mongoc_gridfs_file_get_filename(file);
-
-    auto stream = mongoc_stream_gridfs_new(file);
-
-    QDir dir;
-    if( !dir.exists("temp")){
-        dir.mkdir("temp");
-    }
-
-
-
-    QString _filename = QString("temp/")+filename;
-
-    if( fileNametoOid ) {
-        QFileInfo info(filename);
-        _filename = QString("temp/")+fileoid.getOid().oid()+"."+info.suffix();
-    }
-
-    QFile qfile(_filename);
-
-    if( qfile.open(QIODevice::ReadWrite) )
-    {
-        ssize_t r;
-        char buf[4096];
-        mongoc_iovec_t iov;
-
-#if defined(Q_OS_ANDROID)
-        iov.iov_base = static_cast<void*>(buf);
-        iov.iov_len = sizeof (buf);
-#elif defined(Q_OS_WIN)
-        iov.iov_base = static_cast<char*>(buf);
-        iov.iov_len = sizeof (buf);
-#elif defined(Q_OS_LINUX)
-        iov.iov_base = static_cast<void*>(buf);
-        iov.iov_len = sizeof (buf);
-#else
-
-#endif
-
-        QByteArray wbyte;
-        for(;;)
-        {
-            r = mongoc_stream_readv (stream, &iov, 1, -1, 0);
-            if (r == 0) {
-                break;
-            }
-
-#if defined(Q_OS_ANDROID)
-            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
-#elif defined(Q_OS_WIN)
-            QByteArray ar = QByteArray::fromRawData(iov.iov_base,iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
-#elif defined(Q_OS_LINUX)
-            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
-#else
-
-#endif
-
-
-
-
-        }
-        qfile.write(wbyte);
-        qfile.close();
-    }
-
-    return _filename;
-}
-
-QString QMongoDB::downloadfile(QOid fileoid, bool fileNametoOid)
-{
-    bson_error_t error;
-
-    QBSON filter;
     filter.append("_id",fileoid);
-    auto _filter = convert(filter);
-    auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
-    const char* filename = mongoc_gridfs_file_get_filename(file);
 
-    auto stream = mongoc_stream_gridfs_new(file);
+    auto filedoc = this->find_one("fs.files",filter);
 
-    QDir dir;
-    if( !dir.exists("temp")){
-        dir.mkdir("temp");
-    }
+    auto files_id = filedoc["_id"].getOid().oid();
 
+    filter.clear();
 
+    filter.append("files_id",filedoc["_id"].getOid());
 
-    QString _filename = QString("temp/")+filename;
+    QOption findOption;
 
-    if( fileNametoOid ) {
-        QFileInfo info(filename);
-        _filename = QString("temp/")+fileoid.oid()+"."+info.suffix();
-    }
+    QProjection projection;
 
-    QFile qfile(_filename);
+    projection.set("data",false);
 
-    if( qfile.open(QIODevice::ReadWrite) )
+    findOption.setProjection(projection);
+
+    auto chunks = this->find("fs.chunks",filter,findOption);
+
+     QString filename;
+
+     if( fileNametoOid )
+     {
+         QFileInfo info(filedoc["filename"].getValue().toString());
+         filename = "temp/"+filedoc["_id"].getOid().oid()+"."+info.suffix();
+     }else{
+         filename = "temp/"+filedoc["filename"].getValue().toString();
+     }
+
+    QFile file(filename);
+
+    if( file.open(QIODevice::WriteOnly) )
     {
-        ssize_t r;
-        char buf[4096];
-        mongoc_iovec_t iov;
+        quint64 size = 0;
+        int skip = 0;
 
-#if defined(Q_OS_ANDROID)
-        iov.iov_base = static_cast<void*>(buf);
-        iov.iov_len = sizeof (buf);
-#elif defined(Q_OS_WIN)
-        iov.iov_base = static_cast<char*>(buf);
-        iov.iov_len = sizeof (buf);
-#elif defined(Q_OS_LINUX)
-        iov.iov_base = static_cast<void*>(buf);
-        iov.iov_len = sizeof (buf);
-#else
 
-#endif
 
-        QByteArray wbyte;
-        for(;;)
+        auto length = filedoc["length"].getValue().toLongLong();
+        auto chunksize = filedoc["chunkSize"].getValue().toLongLong();
+
+        auto counter = length / chunksize + 1;
+
+        for( auto i = 0 ; i < counter ; i++ )
         {
-            r = mongoc_stream_readv (stream, &iov, 1, -1, 0);
-            if (r == 0) {
-                break;
-            }
 
-#if defined(Q_OS_ANDROID)
-            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
-#elif defined(Q_OS_WIN)
-            QByteArray ar = QByteArray::fromRawData(iov.iov_base,iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
-#elif defined(Q_OS_LINUX)
-            QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
-            wbyte +=ar;
-            emit gridfsbytereceived(wbyte.size());
-            r = 0;
-#else
+            QOption dataOption;
 
-#endif
+            QSort sort;
+            sort.sortByAscending("n");
 
+            dataOption.setSort(sort);
+            dataOption.setSkip(skip);
 
+            QBSON fileFilter;
 
+            fileFilter.append("files_id",filedoc["_id"].getOid());
 
+            auto val = this->find_one("fs.chunks",fileFilter,dataOption);
+
+            file.seek(size);
+            QByteArray ar = val["data"].getBinary();
+            file.write(ar);
+            size += ar.size();
+
+            skip++;
         }
-        qfile.write(wbyte);
-        qfile.close();
+        file.close();
     }
-
-    return _filename;
-}
-
-
-
-QByteArray QMongoDB::downloadByteArray(QElement fileoid)
-{
-    bson_error_t error;
-
-//    auto gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
-
-    QBSON filter;
-    try {
-        filter.append("_id",QOid(fileoid.getOid().oid()));
-    } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-        throw QError("can not init file oid for downloadByteArray");
-    }
-
-    auto _filter = convert(filter);
-    auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
-    const char* filename = mongoc_gridfs_file_get_filename(file);
-
-    auto stream = mongoc_stream_gridfs_new(file);
-
-    QByteArray wbyte;
-
-    ssize_t r;
-    char buf[4096];
-    mongoc_iovec_t iov;
-#if defined(Q_OS_ANDROID)
-    iov.iov_base = static_cast<void*>(buf);
-    iov.iov_len = sizeof (buf);
-#elif defined(Q_OS_WIN)
-    iov.iov_base = static_cast<char*>(buf);
-    iov.iov_len = sizeof (buf);
-#elif defined(Q_OS_LINUX)
-#else
-
-#endif
-
-
-    for(;;)
-    {
-        r = mongoc_stream_readv (stream, &iov, 1, -1, 0);
-        if (r == 0) {
-            break;
-        }
-#if defined(Q_OS_ANDROID)
-        QByteArray ar = QByteArray::fromRawData(static_cast<char*>(iov.iov_base),iov.iov_len);
-        wbyte +=ar;
-        emit gridfsbytereceived(wbyte.size());
-        r = 0;
-#elif defined(Q_OS_WIN)
-        QByteArray ar = QByteArray::fromRawData(iov.iov_base,iov.iov_len);
-        wbyte +=ar;
-        emit gridfsbytereceived(wbyte.size());
-        r = 0;
-#elif defined(Q_OS_LINUX)
-#else
-
-#endif
-        emit gridfsbytereceived(wbyte.size());
-        r = 0;
-    }
-    return wbyte;
-}
-
-qlonglong QMongoDB::getfilesize(QElement fileoid)
-{
-
-    if( fileoid.getType() != QElementType::b_oid )
-    {
-        throw QString("Element type must be a QElementType::b_oid");
-        return 0;
-    }
-
-    bson_error_t error;
-
-    QBSON filter;
-    try {
-        filter.append("_id",QOid(fileoid.getOid().oid()));
-    } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-        throw QError("can not init file oid for getfilesize");
-    }
-    auto _filter = convert(filter);
-
-    auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
-
-    auto size = mongoc_gridfs_file_get_length(file);
-
-    return size;
-
-}
-
-QString QMongoDB::getfilename(QElement fileoid)
-{
-    if( fileoid.getType() != QElementType::b_oid )
-    {
-        throw QString("Element type must be a QElementType::b_oid");
-        return nullptr;
-    }
-
-    bson_error_t error;
-
-    QBSON filter;
-    try {
-        filter.append("_id",QOid(fileoid.getOid().oid()));
-    } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-        throw QError("can not init file oid for getfilename");
-    }
-
-    auto _filter = convert(filter);
-
-    auto file = mongoc_gridfs_find_one(gridfs,_filter,&error);
-
-    auto filename = mongoc_gridfs_file_get_filename(file);
 
     return filename;
+}
+
+
+
+
+qlonglong QMongoDB::getfilesize(QOid fileoid)
+{
+
+    QBSON filter;
+
+    filter.append("_id",fileoid);
+
+    auto filedoc = this->find_one("fs.files",filter);
+
+    auto files_id = filedoc["length"].getValue().toInt();
+
+    return files_id;
+
+}
+
+QString QMongoDB::getfilename(QOid fileoid)
+{
+
+    QBSON filter;
+
+    filter.append("_id",fileoid);
+
+    auto filedoc = this->find_one("fs.files",filter);
+
+    auto files_id = filedoc["filename"].getValue().toString();
+
+    return files_id;
 
 }
 
@@ -837,6 +655,14 @@ void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
             }
             obj_.append( bson_iter_key(iter) , QOid(hexCode) );
         }
+        if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_BINARY )
+        {
+            auto value = bson_iter_value(iter);
+
+            QByteArray binary = QByteArray(reinterpret_cast<const char*>(value->value.v_binary.data),value->value.v_binary.data_len);
+
+            obj_.append( bson_iter_key(iter), binary , QElementType::b_binary );
+        }
     }
 
 }
@@ -908,6 +734,14 @@ void RecursiveArray( bson_iter_t *iter , QArray &array_ )
             }
             QElement oid( QElementType::b_oid , QOid(hexCode) , "" );
             array_.append( oid );
+        }
+        if( bson_iter_type(iter) == bson_type_t::BSON_TYPE_BINARY )
+        {
+            auto value = bson_iter_value(iter);
+
+            QByteArray binary = QByteArray(reinterpret_cast<const char*>(value->value.v_binary.data),value->value.v_binary.data_len);
+
+            array_.append( binary );
         }
     }
 
