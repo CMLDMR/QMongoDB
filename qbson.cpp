@@ -3,6 +3,7 @@
 #include <QDebug>
 
 
+
 void consoleLog( std::string &stream , QBSON obj );
 void consoleLog( std::string &stream , QArray array  );
 
@@ -46,14 +47,14 @@ void QBSON::append(QString key, QVariant value, QElementType type)
 
     case QElementType::b_int32:
     {
-        QElement var( type , std::int32_t( value.toInt() ) , key );
+        QElement var( type , value.toInt() , key );
         maplist.push_back(var);
     }
         break;
 
     case QElementType::b_int64:
     {
-        QElement var( type , std::int64_t( value.toLongLong() ) , key );
+        QElement var( type , value.toLongLong()  , key );
         maplist.push_back(var);
     }
         break;
@@ -531,7 +532,17 @@ QOid QElement::getOid() const
     {
         return this->val.value<QOid>();
     }else{
-        throw QError("element is not b_oid");
+        throw QError(QString("element is not b_oid: ") + QBSON::TypeToString(this->getType()));
+    }
+}
+
+QByteArray QElement::getBinary() const
+{
+    if( this->getType() == QElementType::b_binary )
+    {
+        return this->val.value<QByteArray>();
+    }else{
+        throw QError(QString("element is not b_binary: ") + QBSON::TypeToString(this->getType()));
     }
 }
 
@@ -604,6 +615,13 @@ void QArray::append(QElement element)
 void QArray::append(QOid oid)
 {
     QElement element(QOid(oid),"");
+    this->mapData.append(element);
+}
+
+void QArray::append(QByteArray binary)
+{
+    QElement element(QElementType::b_binary);
+    element.setValue( QVariant::fromValue(binary) );
     this->mapData.append(element);
 }
 
@@ -752,13 +770,13 @@ void consoleLog( std::string &stream , QBSON obj ){
         }
             break;
         case QElementType::b_double:
-            stream += "\""+element.getKey().toStdString() + "\" : " +  std::to_string(element.getValue().toDouble())+ " , ";
+            stream += "\""+element.getKey().toStdString() + "\" : " +  QString::number(element.getValue().toDouble()).toStdString()+ " , ";
             break;
         case QElementType::b_int32:
-            stream += "\""+element.getKey().toStdString() +"\" : "+ std::to_string( element.getValue().toInt() )+ " , ";
+            stream += "\""+element.getKey().toStdString() +"\" : "+ QString::number( element.getValue().toInt() ).toStdString()+ " , ";
             break;
         case QElementType::b_int64:
-            stream += "\""+element.getKey().toStdString() +"\" : "+ std::to_string(element.getValue().toLongLong() ) + " , ";
+            stream += "\""+element.getKey().toStdString() +"\" : "+ QString::number(element.getValue().toLongLong() ).toStdString() + " , ";
             break;
         case QElementType::b_oid:
             stream += "\""+element.getKey().toStdString() +"\" : { \"QOid\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
@@ -775,6 +793,9 @@ void consoleLog( std::string &stream , QBSON obj ){
             stream += "\""+element.getKey().toStdString() +"\" : "+ "[ ";
             consoleLog(stream,element.toArray());
             stream += "] , ";
+            break;
+        case QElementType::b_binary:
+            stream += "\""+element.getKey().toStdString() +"\" : { \"binary\" : "+ QString::number(element.getBinary().size()).toStdString()+ " bytes } , ";
             break;
         default:
             break;
@@ -801,13 +822,13 @@ void consoleLog(std::string &stream , QArray array ){
         }
             break;
         case QElementType::b_double:
-            stream += std::to_string(element.getValue().toDouble())+ " , ";
+            stream += QString::number(element.getValue().toDouble()).toStdString()+ " , ";
             break;
         case QElementType::b_int32:
-            stream += std::to_string( element.getValue().toInt() )+ " , ";
+            stream += QString::number( element.getValue().toInt() ).toStdString()+ " , ";
             break;
         case QElementType::b_int64:
-            stream += std::to_string(element.getValue().toLongLong() ) + " , ";
+            stream += QString::number(element.getValue().toLongLong() ).toStdString() + " , ";
             break;
         case QElementType::b_oid:
             stream += "{ \"QOid\" : \""+ element.getOid().oid().toStdString()+ "\" } , ";
@@ -816,14 +837,17 @@ void consoleLog(std::string &stream , QArray array ){
             stream += "\"" + element.getValue().toString().toStdString() + "\"" + " , ";
             break;
         case QElementType::b_document:
-            stream += "{";
+            stream += "{ ";
             consoleLog(stream,element.toDocument());
-            stream += "} , ";
+            stream += " } , ";
             break;
         case QElementType::b_array:
             stream += "[";
             consoleLog(stream,element.toArray());
             stream += "] , ";
+            break;
+        case QElementType::b_binary:
+            stream += "{ \"binary\" : "+ QString::number(element.getBinary().size()).toStdString()+ " bytes } , ";
             break;
         default:
             break;

@@ -33,7 +33,8 @@ enum class QElementType
     b_array,
     b_bool,
     b_null,
-    b_invalid
+    b_invalid,
+    b_binary
 };
 
 
@@ -55,8 +56,8 @@ public:
 };
 
 Q_DECLARE_METATYPE(QOid);
-Q_DECLARE_METATYPE(int64_t);
-Q_DECLARE_METATYPE(int32_t);
+//Q_DECLARE_METATYPE(int64_t);
+//Q_DECLARE_METATYPE(int32_t);
 
 
 
@@ -90,6 +91,8 @@ public:
     /// \return
     ///
     QOid getOid() const;
+
+    QByteArray getBinary() const;
 
 private:
     QString key;
@@ -277,6 +280,7 @@ public:
     void append(QArray array);
     void append(QElement element);
     void append(QOid oid);
+    void append(QByteArray binary);
 
 
     using container = QVector<QElement>;
