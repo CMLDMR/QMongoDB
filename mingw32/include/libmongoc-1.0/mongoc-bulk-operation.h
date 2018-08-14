@@ -24,6 +24,7 @@
 #include "mongoc-macros.h"
 #include "mongoc-write-concern.h"
 
+/* ordered, bypass_document_validation, has_collation, multi */
 #define MONGOC_BULK_WRITE_FLAGS_INIT                     \
    {                                                     \
       true, MONGOC_BYPASS_DOCUMENT_VALIDATION_DEFAULT, 0 \
@@ -31,6 +32,8 @@
 
 BSON_BEGIN_DECLS
 
+/* forward decl */
+struct _mongoc_client_session_t;
 
 typedef struct _mongoc_bulk_operation_t mongoc_bulk_operation_t;
 typedef struct _mongoc_bulk_write_flags_t mongoc_bulk_write_flags_t;
@@ -130,6 +133,10 @@ mongoc_bulk_operation_set_collection (mongoc_bulk_operation_t *bulk,
                                       const char *collection);
 MONGOC_EXPORT (void)
 mongoc_bulk_operation_set_client (mongoc_bulk_operation_t *bulk, void *client);
+MONGOC_EXPORT (void)
+mongoc_bulk_operation_set_client_session (
+   mongoc_bulk_operation_t *bulk,
+   struct _mongoc_client_session_t *client_session);
 /* These names include the term "hint" for backward compatibility, should be
  * mongoc_bulk_operation_get_server_id, mongoc_bulk_operation_set_server_id. */
 MONGOC_EXPORT (void)

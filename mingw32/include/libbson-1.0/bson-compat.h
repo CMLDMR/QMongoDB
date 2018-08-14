@@ -80,14 +80,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdint.h>
 
 
 BSON_BEGIN_DECLS
 
 
 #ifdef _MSC_VER
-#include <time.h>
-#include "bson-stdint-win32.h"
 #ifndef __cplusplus
 /* benign redefinition of type */
 #pragma warning(disable : 4142)
@@ -112,14 +111,25 @@ typedef SSIZE_T ssize_t;
 #endif
 #pragma warning(default : 4142)
 #endif
+#ifndef PRIi32
 #define PRIi32 "d"
+#endif
+#ifndef PRId32
 #define PRId32 "d"
+#endif
+#ifndef PRIu32
 #define PRIu32 "u"
+#endif
+#ifndef PRIi64
 #define PRIi64 "I64i"
+#endif
+#ifndef PRId64
 #define PRId64 "I64i"
+#endif
+#ifndef PRIu64
 #define PRIu64 "I64u"
+#endif
 #else
-#include "bson-stdint.h"
 #include <inttypes.h>
 #endif
 

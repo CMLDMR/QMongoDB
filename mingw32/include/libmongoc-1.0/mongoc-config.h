@@ -20,7 +20,7 @@
 
 /* MONGOC_USER_SET_CFLAGS is set from config based on what compiler flags were
  * used to compile mongoc */
-#define MONGOC_USER_SET_CFLAGS " -D_CRT_RAND_S"
+#define MONGOC_USER_SET_CFLAGS ""
 
 #define MONGOC_USER_SET_LDFLAGS ""
 
@@ -203,19 +203,6 @@
 
 
 /*
- * MONGOC_HAVE_WEAK_SYMBOLS is set from configure to determine if the
- * compiler supports the (weak) annotation. We use it to prevent
- * Link-Time-Optimization (LTO) in our constant-time mongoc_memcmp()
- * This is known to work with GNU GCC and Solaris Studio
- */
-#define MONGOC_HAVE_WEAK_SYMBOLS 0
-
-#if MONGOC_HAVE_WEAK_SYMBOLS != 1
-#  undef MONGOC_HAVE_WEAK_SYMBOLS
-#endif
-
-
-/*
  * Disable automatic calls to mongoc_init() and mongoc_cleanup()
  * before main() is called, and after exit() (respectively).
  */
@@ -233,6 +220,62 @@
 
 #if MONGOC_HAVE_SOCKLEN != 1
 #  undef MONGOC_HAVE_SOCKLEN
+#endif
+
+
+/*
+ * MONGOC_HAVE_DNSAPI is set from configure to determine if we should use the
+ * Windows dnsapi for SRV record lookups.
+ */
+#define MONGOC_HAVE_DNSAPI 1
+
+#if MONGOC_HAVE_DNSAPI != 1
+#  undef MONGOC_HAVE_DNSAPI
+#endif
+
+
+/*
+ * MONGOC_HAVE_RES_NSEARCH is set from configure to determine if we
+ * have thread-safe res_nsearch().
+ */
+#define MONGOC_HAVE_RES_NSEARCH 0
+
+#if MONGOC_HAVE_RES_NSEARCH != 1
+#  undef MONGOC_HAVE_RES_NSEARCH
+#endif
+
+
+/*
+ * MONGOC_HAVE_RES_NDESTROY is set from configure to determine if we
+ * have BSD / Darwin's res_ndestroy().
+ */
+#define MONGOC_HAVE_RES_NDESTROY 0
+
+#if MONGOC_HAVE_RES_NDESTROY != 1
+#  undef MONGOC_HAVE_RES_NDESTROY
+#endif
+
+
+/*
+ * MONGOC_HAVE_RES_NCLOSE is set from configure to determine if we
+ * have Linux's res_nclose().
+ */
+#define MONGOC_HAVE_RES_NCLOSE 0
+
+#if MONGOC_HAVE_RES_NCLOSE != 1
+#  undef MONGOC_HAVE_RES_NCLOSE
+#endif
+
+
+/*
+ * MONGOC_HAVE_RES_SEARCH is set from configure to determine if we
+ * have thread-unsafe res_search(). It's unset if we have the preferred
+ * res_nsearch().
+ */
+#define MONGOC_HAVE_RES_SEARCH 0
+
+#if MONGOC_HAVE_RES_SEARCH != 1
+#  undef MONGOC_HAVE_RES_SEARCH
 #endif
 
 
@@ -274,6 +317,57 @@
 #  undef MONGOC_ENABLE_COMPRESSION_ZLIB
 #endif
 
+/*
+ * Set if performance counters are available and not disabled.
+ *
+ */
+#define MONGOC_ENABLE_SHM_COUNTERS 0
+
+#if MONGOC_ENABLE_SHM_COUNTERS != 1
+#  undef MONGOC_ENABLE_SHM_COUNTERS
+#endif
+
+/*
+ * Set if we have enabled fast counters on Intel using the RDTSCP instruction
+ *
+ */
+#define MONGOC_ENABLE_RDTSCP 0
+
+#if MONGOC_ENABLE_RDTSCP != 1
+#  undef MONGOC_ENABLE_RDTSCP
+#endif
+
+
+/*
+ * Set if we have the sched_getcpu() function for use with counters
+ *
+ */
+#define MONGOC_HAVE_SCHED_GETCPU 0
+
+#if MONGOC_HAVE_SCHED_GETCPU != 1
+#  undef MONGOC_HAVE_SCHED_GETCPU
+#endif
+
+/*
+ * Set if tracing is enabled. Logs things like network communication and
+ * entry/exit of certain functions.
+ *
+ */
+#define MONGOC_TRACE 0
+
+#if MONGOC_TRACE != 1
+#  undef MONGOC_TRACE
+#endif
+
+/*
+ * Set if we have ICU support.
+ */
+#define MONGOC_ENABLE_ICU 0
+
+#if MONGOC_ENABLE_ICU != 1
+#  undef MONGOC_ENABLE_ICU
+#endif
+
 
 /*
  * NOTICE:
@@ -282,6 +376,7 @@
  * o The bitfield in mongoc-handshake-private.h
  * o _get_config_bitfield() in mongoc-handshake.c
  * o examples/parse_handshake_cfg.py
+ * o test_handshake_config_string in test-mongoc-handshake.c
  */
 
 #endif /* MONGOC_CONFIG_H */
