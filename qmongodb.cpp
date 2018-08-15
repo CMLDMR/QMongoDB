@@ -315,6 +315,7 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
     QFileInfo info(filename);
 
     QFile qfile(filename);
+
     QByteArray ar;
 
     if( qfile.open(QIODevice::ReadOnly) )
@@ -373,8 +374,13 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
     filter.append("_id",fileoid);
 
     auto filedoc = this->find_one("fs.files",filter);
+    QString files_id;
+    try {
+        files_id = filedoc["_id"].getOid().oid();
+    } catch (QError &e) {
+        return QString("Error:") + e.what();
+    }
 
-    auto files_id = filedoc["_id"].getOid().oid();
 
     filter.clear();
 
@@ -391,6 +397,13 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
     auto chunks = this->find("fs.chunks",filter,findOption);
 
      QString filename;
+
+     QDir dir;
+
+     if( !dir.exists("temp") )
+     {
+         dir.mkdir("temp");
+     }
 
      if( fileNametoOid )
      {
@@ -432,10 +445,12 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
             auto val = this->find_one("fs.chunks",fileFilter,dataOption);
 
             file.seek(size);
+
             QByteArray ar = val["data"].getBinary();
+
             file.write(ar);
             size += ar.size();
-
+            emit gridfsbytereceived(size);
             skip++;
         }
         file.close();
