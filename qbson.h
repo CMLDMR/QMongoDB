@@ -282,6 +282,8 @@ public:
     void append(QOid oid);
     void append(QByteArray binary);
 
+    QElement operator[](const int index);
+
 
     using container = QVector<QElement>;
 

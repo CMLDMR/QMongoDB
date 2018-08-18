@@ -625,6 +625,15 @@ void QArray::append(QByteArray binary)
     this->mapData.append(element);
 }
 
+QElement QArray::operator[](const int index)
+{
+    if( this->mapData.count() <= index || index < 0)
+    {
+        throw QString("[%1] index out of bound: 0-%2").arg(index).arg(this->mapData.count());
+    }
+    return this->mapData[index];
+}
+
 QProjection::QProjection()
 {
 
