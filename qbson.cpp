@@ -71,14 +71,14 @@ void QBSON::append(QString key, QVariant value, QElementType type)
 
 void QBSON::append(QString key, QOid oid)
 {
-    QElement var( QElementType::b_oid , oid , key );
-    maplist.push_back(var);
+    QElement var( oid , key );
+    maplist.append(var);
 }
 
 void QBSON::append(std::string key, QOid oid)
 {
-    QElement var( QElementType::b_oid , oid , key.c_str() );
-    maplist.push_back(var);
+    QElement var( oid , key.c_str() );
+    maplist.append(var);
 }
 
 void QBSON::append(const char *key, QOid oid)
