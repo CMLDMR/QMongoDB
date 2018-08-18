@@ -164,12 +164,13 @@ public:
     ///
 
     void append(QString key , QBSON value );
-
     void append(std::string key , QBSON value);
-
     void append(const char* key , QBSON value);
 
+
     void append(QString key , QArray value );
+    void append(std::string key , QArray value );
+    void append(const char* key , QArray value );
 
     QVector<QElement> getMaplist() const;
 

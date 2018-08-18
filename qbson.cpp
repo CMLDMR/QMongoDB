@@ -251,6 +251,22 @@ void QBSON::append(QString key, QArray value)
     maplist.push_back(var);
 }
 
+void QBSON::append(std::string key, QArray value)
+{
+    QElement var(QElementType::b_array);
+    var.setKey( key.c_str() );
+    var.setValue( QVariant::fromValue(value) );
+    maplist.push_back(var);
+}
+
+void QBSON::append(const char *key, QArray value)
+{
+    QElement var(QElementType::b_array);
+    var.setKey( key );
+    var.setValue( QVariant::fromValue(value) );
+    maplist.push_back(var);
+}
+
 QVector<QElement> QBSON::getMaplist() const
 {
     return maplist;
