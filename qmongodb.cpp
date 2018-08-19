@@ -1,4 +1,4 @@
-#include "qmongodb.h"
+﻿#include "qmongodb.h"
 
 #include <mongoc.h>
 #include <stdio.h>
@@ -266,24 +266,6 @@ bool QMongoDB::update_one(const char *collection, QBSON filter, QBSON updateDocu
     bson_error_t error;
     auto _filter = convert(filter);
     auto _updateDocument = convert(updateDocument);
-
-    qDebug() << "CONVERT"<<bson_as_relaxed_extended_json  (_updateDocument,nullptr);
-
-//    bson_t *doc;
-
-//    doc = BCON_NEW ("$set",
-//                    "{",
-//                    "Siparisler",
-//                    "[",
-//                    "{",
-//                     "miktar",
-//                    BCON_DOUBLE (1.5),
-//                    "}",
-//                    "]",
-//                    "}");
-
-//    qDebug() << "ORGINAL"<<bson_as_relaxed_extended_json  (doc,nullptr);
-
 
     if( !mongoc_collection_update_one (col,_filter,_updateDocument,nullptr,nullptr,&error) )
     {
