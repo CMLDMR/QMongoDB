@@ -572,6 +572,7 @@ int QArray::count() const
 void QArray::append(QString str)
 {
     QElement element(QElementType::b_utf8);
+    element.setKey("blank");
     element.setValue( str );
     this->mapData.append(element);
 }
@@ -579,12 +580,14 @@ void QArray::append(QString str)
 void QArray::append(double val)
 {
     QElement element(QElementType::b_double);
+    element.setKey("blank");
     element.setValue( val );
     this->mapData.append(element);}
 
 void QArray::append(bool val)
 {
     QElement element(QElementType::b_bool);
+    element.setKey("blank");
     element.setValue( val );;
     this->mapData.append(element);
 }
@@ -592,6 +595,7 @@ void QArray::append(bool val)
 void QArray::append(qint32 val)
 {
     QElement element(QElementType::b_int32);
+    element.setKey("blank");
     element.setValue( val );
     this->mapData.append(element);
 }
@@ -599,6 +603,7 @@ void QArray::append(qint32 val)
 void QArray::append(qint64 val)
 {
     QElement element(QElementType::b_int64);
+    element.setKey("blank");
     element.setValue( val );
     this->mapData.append(element);
 }
@@ -606,6 +611,7 @@ void QArray::append(qint64 val)
 void QArray::append(QBSON obj)
 {
     QElement element(QElementType::b_document);
+    element.setKey("blank");
     element.setValue( QVariant::fromValue( obj ) );
     this->mapData.append(element);
 }
@@ -613,6 +619,7 @@ void QArray::append(QBSON obj)
 void QArray::append(QArray array)
 {
     QElement element(QElementType::b_array);
+    element.setKey("blank");
     element.setValue( QVariant::fromValue(array) );
     this->mapData.append(element);
 }
@@ -637,6 +644,7 @@ void QArray::append(QOid oid)
 void QArray::append(QByteArray binary)
 {
     QElement element(QElementType::b_binary);
+    element.setKey("blank");
     element.setValue( QVariant::fromValue(binary) );
     this->mapData.append(element);
 }
