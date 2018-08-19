@@ -27,8 +27,8 @@ static mongoc_gridfs_t* gridfs;
 
 void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list);
 
-const bson_t *convert(QBSON &obj);
-void convertArray(QArray &array, bson_t *child);
+bson_t *convert(QBSON &obj);
+void convertArray(QArray &array , bson_t *child);
 
 
 void RecursiveDocument(bson_iter_t *iter , QBSON &obj_ );
@@ -215,6 +215,17 @@ bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument
 
     if( !mongoc_collection_update(col,mongoc_update_flags_t::MONGOC_UPDATE_UPSERT,_filter,_updateDocument,nullptr,&error) )
     {
+        QString err;
+        for( int i = 0 ; i < 504 ; i++ )
+        {
+            if( error.message[i] )
+            {
+                err += error.message[i];
+            }else{
+                break;
+            }
+        }
+        mLastError = err;
         return false;
     }else{
         return true;
@@ -231,6 +242,17 @@ bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocu
 
     if( !mongoc_collection_update(col,mongoc_update_flags_t::MONGOC_UPDATE_UPSERT,_filter,_updateDocument,nullptr,&error) )
     {
+        QString err;
+        for( int i = 0 ; i < 504 ; i++ )
+        {
+            if( error.message[i] )
+            {
+                err += error.message[i];
+            }else{
+                break;
+            }
+        }
+        mLastError = err;;
         return false;
     }else{
         return true;
@@ -245,8 +267,37 @@ bool QMongoDB::update_one(const char *collection, QBSON filter, QBSON updateDocu
     auto _filter = convert(filter);
     auto _updateDocument = convert(updateDocument);
 
-    if( !mongoc_collection_update(col,mongoc_update_flags_t::MONGOC_UPDATE_UPSERT,_filter,_updateDocument,nullptr,&error) )
+    qDebug() << "CONVERT"<<bson_as_relaxed_extended_json  (_updateDocument,nullptr);
+
+//    bson_t *doc;
+
+//    doc = BCON_NEW ("$set",
+//                    "{",
+//                    "Siparisler",
+//                    "[",
+//                    "{",
+//                     "miktar",
+//                    BCON_DOUBLE (1.5),
+//                    "}",
+//                    "]",
+//                    "}");
+
+//    qDebug() << "ORGINAL"<<bson_as_relaxed_extended_json  (doc,nullptr);
+
+
+    if( !mongoc_collection_update_one (col,_filter,_updateDocument,nullptr,nullptr,&error) )
     {
+        QString err;
+        for( int i = 0 ; i < 504 ; i++ )
+        {
+            if( error.message[i] )
+            {
+                err += error.message[i];
+            }else{
+                break;
+            }
+        }
+        mLastError = err;
         return false;
     }else{
         return true;
@@ -492,12 +543,18 @@ QString QMongoDB::getfilename(QOid fileoid)
 
 }
 
+QString QMongoDB::getLastError() const
+{
+    return mLastError;
+}
 
 
+void convert(QBSON &obj,bson_t* parent);
 
-const bson_t *convert(QBSON &obj){
+bson_t *convert(QBSON &obj){
 
     auto doc = bson_new();
+    bson_init (doc);
 
     for( auto element : obj )
     {
@@ -524,8 +581,10 @@ const bson_t *convert(QBSON &obj){
         case QElementType::b_document:
         {
             auto _element = element.toDocument();
-            auto _bson_tObj = convert(_element);
-            BSON_APPEND_DOCUMENT( doc , element.getKey().toStdString().c_str() , _bson_tObj );
+            bson_t _bson_tObj;
+            bson_init (&_bson_tObj);
+            convert(_element,&_bson_tObj);
+            BSON_APPEND_DOCUMENT(doc,element.getKey().toStdString().c_str(),&_bson_tObj);
         }
             break;
 
@@ -533,7 +592,7 @@ const bson_t *convert(QBSON &obj){
         {
             auto _array = element.toArray();
             bson_t* child = bson_new();
-            BSON_APPEND_ARRAY_BEGIN (doc, element.getKey().toStdString().c_str(), child);
+            bson_append_array_begin (doc, element.getKey().toStdString().c_str(), element.getKey().length(),child);
             convertArray(_array,child);
             bson_append_array_end (doc, child);
         }
@@ -548,8 +607,70 @@ const bson_t *convert(QBSON &obj){
         }
     }
 
+    size_t err_offset;
+    qDebug() <<"Validate: " << bson_validate (doc, BSON_VALIDATE_NONE, &err_offset);
 
     return doc;
+}
+
+
+void convert(QBSON &obj,bson_t* parent){
+
+
+
+    for( auto element : obj )
+    {
+        switch (element.getType()) {
+        case QElementType::b_double:
+            BSON_APPEND_DOUBLE( parent , element.getKey().toStdString().c_str() , element.getValue().toDouble() );
+            break;
+        case QElementType::b_utf8:
+            BSON_APPEND_UTF8( parent , element.getKey().toStdString().c_str() , element.getValue().toString().toStdString().c_str() );
+            break;
+        case QElementType::b_oid:
+        {
+            bson_oid_t oid;
+            bson_oid_init_from_string (&oid, element.getOid().oid().toStdString().c_str());
+            BSON_APPEND_OID( parent , element.getKey().toStdString().c_str() , &oid );
+        }
+            break;
+        case QElementType::b_int64:
+            BSON_APPEND_INT64( parent , element.getKey().toStdString().c_str() , element.getValue().toLongLong()) ;
+            break;
+        case QElementType::b_int32:
+            BSON_APPEND_INT32( parent , element.getKey().toStdString().c_str() , element.getValue().toInt() );
+            break;
+        case QElementType::b_document:
+        {
+            auto _element = element.toDocument();
+            bson_t _bson_tObj;
+            bson_init (&_bson_tObj);
+            convert(_element,&_bson_tObj);
+            BSON_APPEND_DOCUMENT(parent,element.getKey().toStdString().c_str(),&_bson_tObj);
+        }
+            break;
+
+        case QElementType::b_array:
+        {
+            auto _array = element.toArray();
+            bson_t _bson_tObj;
+            bson_init (&_bson_tObj);
+            bson_append_array_begin (parent, element.getKey().toStdString().c_str(),element.getKey().length(), &_bson_tObj);
+            convertArray(_array,&_bson_tObj);
+            bson_append_array_end (parent, &_bson_tObj);
+        }
+            break;
+
+        case QElementType::b_bool:
+            BSON_APPEND_BOOL(parent , element.getKey().toStdString().c_str() , element.getValue().toBool() );
+            break;
+        default:
+            throw "No Element Type Detected. Skipped Key: " + element.getKey().toStdString();
+            break;
+        }
+    }
+
+
 }
 
 void convertArray(QArray &array , bson_t* child){
@@ -580,18 +701,21 @@ void convertArray(QArray &array , bson_t* child){
         case QElementType::b_document:
         {
             auto _element = element.toDocument();
-            auto _bson_tObj = convert(_element);
-            BSON_APPEND_DOCUMENT( child , element.getKey().toStdString().c_str() , _bson_tObj );
+            bson_t _bson_tObj;
+            bson_init (&_bson_tObj);
+            convert(_element,&_bson_tObj);
+            BSON_APPEND_DOCUMENT(child,element.getKey().toStdString().c_str(),&_bson_tObj);
         }
             break;
 
         case QElementType::b_array:
         {
             auto _array = element.toArray();
-            bson_t* child_ = bson_new();
-            BSON_APPEND_ARRAY_BEGIN (child, element.getKey().toStdString().c_str(), child_);
-            convertArray(_array,child);
-            bson_append_array_end (child, child_);
+            bson_t _bson_tObj;
+            bson_init (&_bson_tObj);
+            bson_append_array_begin (child, element.getKey().toStdString().c_str(),element.getKey().length(), &_bson_tObj);
+            convertArray(_array,&_bson_tObj);
+            bson_append_array_end (child, &_bson_tObj);
         }
             break;
 
@@ -603,7 +727,11 @@ void convertArray(QArray &array , bson_t* child){
             break;
         }
     }
+
 }
+
+
+
 
 void RecursiveDocument(  bson_iter_t *iter , QBSON &obj_ ){
 

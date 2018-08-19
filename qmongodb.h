@@ -62,6 +62,8 @@ public:
     QString getfilename(QOid fileoid);
 
 
+    QString getLastError() const;
+
 Q_SIGNALS:
     void gridfsbytereceived(int);
 
@@ -69,6 +71,7 @@ private:
     QString mUrl;
     QString db;
 
+    QString mLastError;
 
 
 
