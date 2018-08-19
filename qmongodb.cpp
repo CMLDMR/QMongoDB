@@ -607,9 +607,6 @@ bson_t *convert(QBSON &obj){
         }
     }
 
-    size_t err_offset;
-    qDebug() <<"Validate: " << bson_validate (doc, BSON_VALIDATE_NONE, &err_offset);
-
     return doc;
 }
 
