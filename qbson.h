@@ -161,6 +161,10 @@ public:
     void append(QString key , bool value);
     void append(const char* key , bool value);
 
+    void append(std::string key , int value);
+    void append(QString key , int value);
+    void append(const char* key , int value);
+
 
 
     void append(QElement element );
