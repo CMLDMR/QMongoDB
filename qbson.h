@@ -176,10 +176,25 @@ public:
 
     QBSON& operator=(const QBSON& obj);
 
+    ///
+    /// \brief operator [] : throw QError if key is not exist
+    /// \param key
+    /// \return
+    ///
     QElement operator[](const QString key);
 
+    ///
+    /// \brief operator [] : throw QError if key is not exist
+    /// \param key
+    /// \return
+    ///
     QElement operator[](std::string key);
 
+    ///
+    /// \brief operator [] : throw QError if key is not exist
+    /// \param key
+    /// \return
+    ///
     QElement operator[](const char* key);
 
     const QStringList Keys();
