@@ -157,6 +157,10 @@ public:
     void append(QString key , qint64 value);
     void append(const char* key , qint64 value);
 
+    void append(std::string key , bool value);
+    void append(QString key , bool value);
+    void append(const char* key , bool value);
+
 
 
     void append(QElement element );
