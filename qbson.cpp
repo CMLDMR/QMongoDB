@@ -214,6 +214,24 @@ void QBSON::append(const char *key, double value)
     maplist.push_back(var);
 }
 
+void QBSON::append(std::string key, qint64 value)
+{
+    QElement var(QElementType::b_int64,value,key.c_str());
+    maplist.push_back(var);
+}
+
+void QBSON::append(QString key, qint64 value)
+{
+    QElement var(QElementType::b_int64,value,key);
+    maplist.push_back(var);
+}
+
+void QBSON::append(const char *key, qint64 value)
+{
+    QElement var(QElementType::b_int64,value,key);
+    maplist.push_back(var);
+}
+
 void QBSON::append(QElement element)
 {
     maplist.push_back(element);
