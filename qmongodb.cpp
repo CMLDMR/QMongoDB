@@ -566,7 +566,9 @@ bson_t *convert(QBSON &obj){
             bson_t _bson_tObj;
             bson_init (&_bson_tObj);
             convert(_element,&_bson_tObj);
-            BSON_APPEND_DOCUMENT(doc,element.getKey().toStdString().c_str(),&_bson_tObj);
+            if( !BSON_APPEND_DOCUMENT(doc,element.getKey().toStdString().c_str(),&_bson_tObj) ){
+                qDebug() << "Convert Document Error";
+            }
         }
             break;
 
@@ -625,7 +627,9 @@ void convert(QBSON &obj,bson_t* parent){
             bson_t _bson_tObj;
             bson_init (&_bson_tObj);
             convert(_element,&_bson_tObj);
-            BSON_APPEND_DOCUMENT(parent,element.getKey().toStdString().c_str(),&_bson_tObj);
+            if( !BSON_APPEND_DOCUMENT(parent,element.getKey().toStdString().c_str(),&_bson_tObj) ){
+                qDebug() << "Convert Document Error";
+            }
         }
             break;
 
@@ -683,7 +687,9 @@ void convertArray(QArray &array , bson_t* child){
             bson_t _bson_tObj;
             bson_init (&_bson_tObj);
             convert(_element,&_bson_tObj);
-            BSON_APPEND_DOCUMENT(child,element.getKey().toStdString().c_str(),&_bson_tObj);
+            if( !BSON_APPEND_DOCUMENT(child,element.getKey().toStdString().c_str(),&_bson_tObj) ){
+                qDebug() << "Convert Document Error";
+            }
         }
             break;
 
