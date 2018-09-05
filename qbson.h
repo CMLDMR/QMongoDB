@@ -106,6 +106,8 @@ class QMONGODBSHARED_EXPORT QBSON
 
     using container = QVector<QElement>;
 
+    using self = QBSON;
+
 
 public:
     explicit QBSON();
@@ -116,6 +118,8 @@ public:
 
     void append(QString key , QVariant value , QElementType type);
 
+    // COMPOSITE BUILDER
+    self& insert( QString key , QOid oid );
 
     void append(QString key , QOid oid );
     void append(std::string key , QOid oid );
