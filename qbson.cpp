@@ -111,6 +111,15 @@ QBSON::self &QBSON::insert(QString key, int value)
     return *this;
 }
 
+QBSON::self &QBSON::insert(QString key, QBSON value)
+{
+    QElement var(QElementType::b_document);
+    var.setKey( key );
+    var.setValue( QVariant::fromValue(value) );
+    maplist.push_back(var);
+    return *this;
+}
+
 void QBSON::append(QString key, QOid oid)
 {
     QElement var( oid , key );

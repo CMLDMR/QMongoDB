@@ -125,6 +125,7 @@ public:
     self& insert( QString key , qint64 value );
     self& insert( QString key , bool value );
     self& insert( QString key , int value );
+    self& insert( QString key , QBSON value );
 
     void append(QString key , QOid oid );
     void append(std::string key , QOid oid );
