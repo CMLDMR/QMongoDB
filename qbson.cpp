@@ -83,6 +83,13 @@ QBSON::self &QBSON::insert(QString key, QString value)
     return *this;
 }
 
+QBSON::self &QBSON::insert(QString key, double value)
+{
+    QElement var( QElementType::b_double,QVariant::fromValue(value),key);
+    maplist.append( var );
+    return *this;
+}
+
 void QBSON::append(QString key, QOid oid)
 {
     QElement var( oid , key );

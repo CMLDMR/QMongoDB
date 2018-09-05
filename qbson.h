@@ -121,6 +121,7 @@ public:
     // COMPOSITE BUILDER
     self& insert( QString key , QOid oid );
     self& insert( QString key , QString value );
+    self& insert( QString key , double value );
 
     void append(QString key , QOid oid );
     void append(std::string key , QOid oid );
