@@ -61,6 +61,8 @@ android{
 
         DEPENDPATH += $$PWD/android/include/libmongoc-1.0
     }
+
+
     equals(ANDROID_TARGET_ARCH, armeabi) {
         message("* using settings for android - armeabi");
     }
@@ -73,7 +75,9 @@ android{
 
 
 win32{
-    message("* using settings for windows");
+
+    gcc{
+    message("* using settings for windows gcc");
     LIBS += -L$$PWD/mingw32/lib/ -llibbson-1.0.dll -llibmongoc-1.0.dll
 
 
@@ -85,5 +89,12 @@ win32{
 
     INCLUDEPATH += $$PWD/mingw32/include
     DEPENDPATH += $$PWD/mingw32/include
+    }
+
+    msvc{
+    message("* using settings for windows msvc");
+
+    }
+
 
 }
