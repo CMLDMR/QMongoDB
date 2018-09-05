@@ -28,12 +28,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         qmongodb.cpp \
-    qbson.cpp
+    qbson.cpp \
+    qerror.cpp
 
 HEADERS += \
         qmongodb.h \
         qmongodb_global.h \
-    qbson.h
+    qbson.h \
+    qerror.h
 
 
 
@@ -45,17 +47,27 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 android{
-    message("* using settings for android");
 
+    equals(ANDROID_TARGET_ARCH, armeabi-v7a) {
+        message("* using settings for android - armeabi-v7a");
 
-#    LIBS += -L"D:/project/AndroidMongoCXXWorking/QMongoDB/QMongoDB/android/lib" -lbson-1.0 -lmongoc-1.0
-    LIBS += -L$$PWD/android/lib/ -lbson-1.0 -lmongoc-1.0
+        LIBS += -L$$PWD/android/lib/ -lbson-1.0 -lmongoc-1.0
 
-    INCLUDEPATH += $$PWD/android/include/libbson-1.0
-    DEPENDPATH += $$PWD/android/include/libbson-1.0
+        INCLUDEPATH += $$PWD/android/include/libbson-1.0
 
-    INCLUDEPATH += $$PWD/android/include/libmongoc-1.0
-    DEPENDPATH += $$PWD/android/include/libmongoc-1.0
+        DEPENDPATH += $$PWD/android/include/libbson-1.0
+
+        INCLUDEPATH += $$PWD/android/include/libmongoc-1.0
+
+        DEPENDPATH += $$PWD/android/include/libmongoc-1.0
+    }
+    equals(ANDROID_TARGET_ARCH, armeabi) {
+        message("* using settings for android - armeabi");
+    }
+    equals(ANDROID_TARGET_ARCH, x86)  {
+        message("* using settings for android - x86");
+    }
+
 
 }
 
