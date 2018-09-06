@@ -320,6 +320,7 @@ public:
             out >> element;
             bson.append(element);
         }
+        return bson;
     }
 
 private:
