@@ -13,6 +13,7 @@
 #include <QVector>
 #include <type_traits>
 #include <iostream>
+#include <QDataStream>
 
 #include "qerror.h"
 
@@ -92,6 +93,31 @@ public:
     QOid getOid() const;
 
     QByteArray getBinary() const;
+
+    friend QDataStream& operator<<(QDataStream& in , const QElement& element)
+    {
+        in.setVersion(QDataStream::Version::Qt_5_10);
+        in << static_cast<int>(element.getType());
+        in << element.getKey();
+        in << element.getValue();
+        return in;
+    }
+
+    friend QElement& operator>>(QDataStream& out,QElement& element)
+    {
+        out.setVersion(QDataStream::Version::Qt_5_10);
+        int type;
+        QString key;
+        QVariant value;
+        out >> type;
+        out >> key;
+        out >> value;
+        element.setKey(key);
+        element.setType(static_cast<QElementType>(type));
+        element.setValue(value);
+        return element;
+
+    }
 
 private:
     QString key;
