@@ -226,6 +226,10 @@ public:
     void append(QString key , int value);
     void append(const char* key , int value);
 
+    void append(std::string key , QByteArray binary);
+    void append(QString key , QByteArray binary);
+    void append(const char* key , QByteArray binary);
+
 
 
     void append(QElement element );
