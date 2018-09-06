@@ -713,7 +713,6 @@ QByteArray QElement::getBinary() const
 }
 
 
-
 int QArray::count() const
 {
     return mapData.count();

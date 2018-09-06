@@ -108,9 +108,9 @@ public:
         } else{
             in << element.getValue();
         }
-
         return in;
     }
+
 
     friend QElement& operator>>(QDataStream& out,QElement& element)
     {
