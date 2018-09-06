@@ -268,6 +268,31 @@ public:
 
     std::string tojson();
 
+    friend QDataStream& operator<<(QDataStream& in , const QBSON& bson)
+    {
+        in.setVersion(QDataStream::Version::Qt_5_10);
+        in << bson.getMaplist().count();
+        for( int i = 0 ; i < bson.getMaplist().count() ; i++ )
+        {
+            in << bson.getMaplist().at(i);
+        }
+        return in;
+    }
+
+    friend QBSON& operator>>(QDataStream& out,QBSON& bson)
+    {
+        out.setVersion(QDataStream::Version::Qt_5_10);
+        int count;
+        out >> count;
+        bson.clear();
+        for( int i = 0 ; i < count ; i++ )
+        {
+            QElement element;
+            out >> element;
+            bson.append(element);
+        }
+    }
+
 private:
     QVector<QElement> maplist;
 
