@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       -= gui
-QT       += core
+QT       += core network
 
 TARGET = QMongoDB
 TEMPLATE = lib
@@ -105,6 +105,18 @@ win32{
     }
 
 
+}
+
+
+mac{
+    message("* using settings for mac");
+QT       += network
+
+}
+
+ios{
+    message("* using settings for ios");
+QT       += network
 }
 
 
