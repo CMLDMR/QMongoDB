@@ -176,6 +176,7 @@ public:
     self& insert( QString key , int value );
     self& insert( QString key , QBSON value );
     self& insert( QString key , QArray value );
+    self& insert( QString key , QByteArray binary );
 
     void append(QString key , QOid oid );
     void append(std::string key , QOid oid );

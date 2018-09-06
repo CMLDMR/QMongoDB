@@ -129,6 +129,13 @@ QBSON::self &QBSON::insert(QString key, QArray value)
     return *this;
 }
 
+QBSON::self &QBSON::insert(QString key, QByteArray binary)
+{
+    QElement var(binary,key);
+    maplist.push_back(var);
+    return *this;
+}
+
 void QBSON::append(QString key, QOid oid)
 {
     QElement var( oid , key );
