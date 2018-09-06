@@ -22,7 +22,7 @@
 class QBSON;
 class QArray;
 
-enum class QElementType
+enum class QElementType : int
 {
     b_double = 0,
     b_utf8,
