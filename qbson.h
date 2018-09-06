@@ -99,7 +99,13 @@ public:
         in.setVersion(QDataStream::Version::Qt_5_10);
         in << static_cast<int>(element.getType());
         in << element.getKey();
-        in << element.getValue();
+        if( element.getType() == QElementType::b_oid )
+        {
+            in << element.getOid().oid();
+        }else{
+            in << element.getValue();
+        }
+
         return in;
     }
 
@@ -111,10 +117,21 @@ public:
         QVariant value;
         out >> type;
         out >> key;
-        out >> value;
-        element.setKey(key);
+
         element.setType(static_cast<QElementType>(type));
-        element.setValue(value);
+        element.setKey(key);
+
+        if( type == static_cast<int>(QElementType::b_oid) )
+        {
+            QString oid;
+            out >> oid;
+            element = QElement(QOid(oid),key);
+        }else{
+            out >> value;
+            element.setValue(value);
+        }
+
+
         return element;
 
     }
