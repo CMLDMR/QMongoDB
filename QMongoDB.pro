@@ -77,24 +77,35 @@ android{
 win32{
 
     gcc{
-    message("* using settings for windows gcc");
-    LIBS += -L$$PWD/mingw32/lib/ -llibbson-1.0.dll -llibmongoc-1.0.dll
+        message("* using settings for windows gcc 5.30");
+        LIBS += -L$$PWD/mingw32/lib/ -llibbson-1.0.dll -llibmongoc-1.0.dll
 
 
-    INCLUDEPATH += $$PWD/mingw32/include/libbson-1.0
-    DEPENDPATH += $$PWD/mingw32/include/libbson-1.0
+        INCLUDEPATH += $$PWD/mingw32/include/libbson-1.0
+        DEPENDPATH += $$PWD/mingw32/include/libbson-1.0
 
-    INCLUDEPATH += $$PWD/mingw32/include/libmongoc-1.0
-    DEPENDPATH += $$PWD/mingw32/include/libmongoc-1.0
+        INCLUDEPATH += $$PWD/mingw32/include/libmongoc-1.0
+        DEPENDPATH += $$PWD/mingw32/include/libmongoc-1.0
 
-    INCLUDEPATH += $$PWD/mingw32/include
-    DEPENDPATH += $$PWD/mingw32/include
+        INCLUDEPATH += $$PWD/mingw32/include
+        DEPENDPATH += $$PWD/mingw32/include
     }
 
     msvc{
-    message("* using settings for windows msvc");
+        message("* using settings for windows msvc2015x64");
+
+        LIBS += -L$$PWD/msvc2015x64/lib/ -lbson-1.0 -lmongoc-1.0
+
+        INCLUDEPATH += $$PWD/msvc2015x64/include/libbson-1.0
+        DEPENDPATH += $$PWD/msvc2015x64/include/libbson-1.0
+
+        INCLUDEPATH += $$PWD/msvc2015x64/include/libmongoc-1.0
+        DEPENDPATH += $$PWD/msvc2015x64/include/libmongoc-1.0
 
     }
 
 
 }
+
+
+
