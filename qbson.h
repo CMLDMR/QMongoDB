@@ -56,8 +56,7 @@ public:
 };
 
 Q_DECLARE_METATYPE(QOid);
-//Q_DECLARE_METATYPE(int64_t);
-//Q_DECLARE_METATYPE(int32_t);
+
 
 
 
