@@ -509,7 +509,11 @@ QString QBSON::TypeToString(QElementType type)
     case QElementType::b_invalid:
         return "invalid";
         break;
+    case QElementType::b_binary:
+        return "binary";
+        break;
     default:
+        return "Unknown Element Type";
         break;
     }
 
@@ -552,6 +556,13 @@ QElement::QElement(QOid oid, QString key)
     this->key = key;
     this->type = QElementType::b_oid;
     this->setValue( QVariant::fromValue( oid ) );
+}
+
+QElement::QElement(QByteArray binary, QString key)
+{
+    this->key = key;
+    this->type = QElementType::b_binary;
+    this->setValue( QVariant::fromValue(binary) );
 }
 
 QElement::QElement()
