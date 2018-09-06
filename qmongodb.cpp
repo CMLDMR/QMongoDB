@@ -41,64 +41,73 @@
 #else
     static mongoc_client_t* client;
     static mongoc_gridfs_t* gridfs;
+    void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list);
+    bson_t *convert(QBSON &obj);
+    void convertArray(QArray &array , bson_t *child);
+    void RecursiveDocument(bson_iter_t *iter , QBSON &obj_ );
+    void RecursiveArray(bson_iter_t *iter , QArray &array_ );
 #endif
 
 
-void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list);
-
-bson_t *convert(QBSON &obj);
-void convertArray(QArray &array , bson_t *child);
 
 
-void RecursiveDocument(bson_iter_t *iter , QBSON &obj_ );
-
-void RecursiveArray(bson_iter_t *iter , QArray &array_ );
 
 
+
+QMongoDB::QMongoDB(QString mongourlorswitchip , QString database , QObject *parent )
+    :QObject ( parent ),
+      mUrl( mongourlorswitchip ),
+      db( database )
+{
 
 #ifdef MAC_IOS
-QMongoDB::QMongoDB( QString serverip , QString database , QObject *parent )
-    :QObject ( parent ),
-      mUrl( mongodburl ),
-      db( database )
-{
-    client = mongoc_client_new (this->mUrl.toStdString().c_str());
 
-    bson_error_t error;
-    gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
+    mSocket = new QTcpSocket;
+    mSocket->connectToHost(mUrl,17778);
 
-}
 #else
-QMongoDB::QMongoDB( QString mongodburl , QString database , QObject *parent )
-    :QObject ( parent ),
-      mUrl( mongodburl ),
-      db( database )
-{
-    client = mongoc_client_new (this->mUrl.toStdString().c_str());
 
+    client = mongoc_client_new (this->mUrl.toStdString().c_str());
     bson_error_t error;
     gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
 
-}
 #endif
+}
+
+
 
 
 
 
 QMongoDB::~QMongoDB()
 {
+#ifdef MAC_IOS
+    delete mSocket;
+#else
     mongoc_client_destroy (client);
+#endif
+
 }
 
 void QMongoDB::instance()
 {
+#ifdef MAC_IOS
+
+#else
     mongoc_init();
+#endif
+
 }
 
 
 
 QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
 {
+
+#ifdef MAC_IOS
+
+#else
+
     QVector<QBSON> list;
 
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
@@ -114,10 +123,17 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
     _find(cursor,&list);
 
     return list;
+
+#endif
+
 }
 
 QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption option)
 {
+
+#ifdef MAC_IOS
+
+#else
     QVector<QBSON> list;
 
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
@@ -132,10 +148,16 @@ QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption opti
     _find(cursor,&list);
 
     return list;
+#endif
+
+
 }
 
 QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption option)
 {
+#ifdef MAC_IOS
+
+#else
     QVector<QBSON> list;
 
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
@@ -151,11 +173,15 @@ QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption opti
 
 
     return list;
+#endif
+
 }
 
 QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
 {
+#ifdef MAC_IOS
 
+#else
     option.setLimit(1);
 
     auto list = this->find(collection,filter,option);
@@ -166,11 +192,16 @@ QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
     }else{
         return QBSON();
     }
+#endif
+
 
 }
 
 QBSON QMongoDB::find_one(std::string collection, QBSON filter, QOption option)
 {
+#ifdef MAC_IOS
+
+#else
     option.setLimit(1);
 
     auto list = this->find(collection.c_str(),filter,option);
@@ -181,10 +212,15 @@ QBSON QMongoDB::find_one(std::string collection, QBSON filter, QOption option)
     }else{
         return QBSON();
     }
+#endif
+
 }
 
 QBSON QMongoDB::find_one(const char *collection, QBSON filter, QOption option)
 {
+#ifdef MAC_IOS
+
+#else
     option.setLimit(1);
 
     auto list = this->find(collection,filter,option);
@@ -195,11 +231,15 @@ QBSON QMongoDB::find_one(const char *collection, QBSON filter, QOption option)
     }else{
         return QBSON();
     }
+#endif
+
 }
 
 bool QMongoDB::insert_one(QString collection, QBSON document)
 {
+#ifdef MAC_IOS
 
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
     bson_error_t error;
@@ -211,10 +251,15 @@ bool QMongoDB::insert_one(QString collection, QBSON document)
     }else{
         return true;
     }
+#endif
+
 }
 
 bool QMongoDB::insert_one(std::string collection, QBSON document)
 {
+#ifdef MAC_IOS
+
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
     bson_error_t error;
@@ -226,10 +271,15 @@ bool QMongoDB::insert_one(std::string collection, QBSON document)
     }else{
         return true;
     }
+#endif
+
 }
 
 bool QMongoDB::insert_one(const char *collection, QBSON document)
 {
+#ifdef MAC_IOS
+
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
     bson_error_t error;
@@ -241,10 +291,15 @@ bool QMongoDB::insert_one(const char *collection, QBSON document)
     }else{
         return true;
     }
+#endif
+
 }
 
 bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument)
 {
+#ifdef MAC_IOS
+
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
     bson_error_t error;
@@ -268,10 +323,15 @@ bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument
     }else{
         return true;
     }
+#endif
+
 }
 
 bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocument)
 {
+#ifdef MAC_IOS
+
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
     bson_error_t error;
@@ -295,10 +355,15 @@ bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocu
     }else{
         return true;
     }
+#endif
+
 }
 
 bool QMongoDB::update_one(const char *collection, QBSON filter, QBSON updateDocument)
 {
+#ifdef MAC_IOS
+
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
     bson_error_t error;
@@ -322,12 +387,16 @@ bool QMongoDB::update_one(const char *collection, QBSON filter, QBSON updateDocu
     }else{
         return true;
     }
+#endif
+
 }
 
 bool QMongoDB::Delete(QString collection, QBSON filter)
 {
 
+#ifdef MAC_IOS
 
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
     bson_error_t error;
@@ -340,11 +409,17 @@ bool QMongoDB::Delete(QString collection, QBSON filter)
     }else{
         return true;
     }
+#endif
+
+
 
 }
 
 bool QMongoDB::Delete(std::string collection, QBSON filter)
 {
+#ifdef MAC_IOS
+
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
     bson_error_t error;
@@ -357,10 +432,15 @@ bool QMongoDB::Delete(std::string collection, QBSON filter)
     }else{
         return true;
     }
+#endif
+
 }
 
 bool QMongoDB::Delete(const char *collection, QBSON filter)
 {
+#ifdef MAC_IOS
+
+#else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
     bson_error_t error;
@@ -373,10 +453,15 @@ bool QMongoDB::Delete(const char *collection, QBSON filter)
     }else{
         return true;
     }
+#endif
+
 }
 
 QElement QMongoDB::uploadfile(QString filename , QString key)
 {
+#ifdef MAC_IOS
+
+#else
     bson_error_t error;
 
     auto stream = mongoc_stream_file_new_for_path (filename.toStdString().c_str(), O_RDONLY, 0);
@@ -433,13 +518,17 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
     mongoc_gridfs_file_save (file);
 
     return QElement(QElementType::b_oid,QOid(hexCode),key);
+#endif
+
 
 }
 
 
 QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
 {
+#ifdef MAC_IOS
 
+#else
     QBSON filter;
 
     filter.append("_id",fileoid);
@@ -528,6 +617,8 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
     }
 
     return filename;
+#endif
+
 }
 
 
@@ -535,7 +626,9 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
 
 qlonglong QMongoDB::getfilesize(QOid fileoid)
 {
+#ifdef MAC_IOS
 
+#else
     QBSON filter;
 
     filter.append("_id",fileoid);
@@ -545,12 +638,16 @@ qlonglong QMongoDB::getfilesize(QOid fileoid)
     auto files_id = filedoc["length"].getValue().toInt();
 
     return files_id;
+#endif
+
 
 }
 
 QString QMongoDB::getfilename(QOid fileoid)
 {
+#ifdef MAC_IOS
 
+#else
     QBSON filter;
 
     filter.append("_id",fileoid);
@@ -560,15 +657,24 @@ QString QMongoDB::getfilename(QOid fileoid)
     auto files_id = filedoc["filename"].getValue().toString();
 
     return files_id;
+#endif
+
 
 }
 
 QString QMongoDB::getLastError() const
 {
+#ifdef MAC_IOS
+
+#else
     return mLastError;
+#endif
+
 }
 
+#ifdef MAC_IOS
 
+#else
 void convert(QBSON &obj,bson_t* parent);
 
 bson_t *convert(QBSON &obj){
@@ -929,6 +1035,9 @@ void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list){
     }
 }
 
+
+
+#endif
 
 
 

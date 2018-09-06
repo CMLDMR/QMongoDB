@@ -14,7 +14,8 @@
 #include <QMimeDatabase>
 
 
-#ifdef Q_OS_WIN // Q_OS_IOS
+//#ifdef Q_OS_WIN // Q_OS_IOS
+#ifdef Q_OS_IOS // Q_OS_WIN
 #define MAC_IOS
 #endif
 
@@ -48,15 +49,17 @@ class QMONGODBSHARED_EXPORT QMongoDB : public QObject
     Q_OBJECT
 public:
 
-#ifdef MAC_IOS
-    QMongoDB(QString serverip , QString database , QObject* parent = nullptr);
-#else
-    QMongoDB(QString mongodburl , QString database , QObject* parent = nullptr);
-#endif
+    QMongoDB(QString mongourlorswitchip , QString database , QObject* parent = nullptr);
 
     ~QMongoDB();
 
+
+#ifdef MAC_IOS
+    void instance();
+#else
     static void instance();
+#endif
+
 
 
     QVector<QBSON> find(QString collection , QBSON filter , QOption option = QOption() );
@@ -102,15 +105,11 @@ private:
 
 
 #ifdef MAC_IOS
-
     QTcpSocket* mSocket;
-
-#else
+#endif
     QString mUrl;
     QString db;
     QString mLastError;
-#endif
-
 
 
 
