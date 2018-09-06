@@ -20,9 +20,28 @@
 
 
 
-static mongoc_client_t* client;
 
-static mongoc_gridfs_t* gridfs;
+
+
+
+
+
+#ifdef MAC_IOS
+    enum class NetworkCommand : int
+    {
+        find = 0,
+        find_one,
+        update_many,
+        update_one,
+        insert_many,
+        insert_one,
+        delete_many,
+        delete_one
+    };
+#else
+    static mongoc_client_t* client;
+    static mongoc_gridfs_t* gridfs;
+#endif
 
 
 void _find(_mongoc_cursor_t* cursor , QVector<QBSON>* list);
@@ -35,6 +54,21 @@ void RecursiveDocument(bson_iter_t *iter , QBSON &obj_ );
 
 void RecursiveArray(bson_iter_t *iter , QArray &array_ );
 
+
+
+#ifdef MAC_IOS
+QMongoDB::QMongoDB( QString serverip , QString database , QObject *parent )
+    :QObject ( parent ),
+      mUrl( mongodburl ),
+      db( database )
+{
+    client = mongoc_client_new (this->mUrl.toStdString().c_str());
+
+    bson_error_t error;
+    gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
+
+}
+#else
 QMongoDB::QMongoDB( QString mongodburl , QString database , QObject *parent )
     :QObject ( parent ),
       mUrl( mongodburl ),
@@ -46,6 +80,10 @@ QMongoDB::QMongoDB( QString mongodburl , QString database , QObject *parent )
     gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
 
 }
+#endif
+
+
+
 
 QMongoDB::~QMongoDB()
 {
