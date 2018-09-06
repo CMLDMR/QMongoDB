@@ -66,6 +66,7 @@ public:
     explicit QElement(QElementType type_ , QVariant value_ = QVariant() , QString key_ = "" );
     QElement(QElementType type_ , QOid oid , QString key );
     QElement( QOid oid , QString key );
+    QElement( QByteArray binary , QString key );
     QElement();
     QElement(QElement const &element);
     QElement(QElement& element);
@@ -102,7 +103,9 @@ public:
         if( element.getType() == QElementType::b_oid )
         {
             in << element.getOid().oid();
-        }else{
+        }else if ( element.getType() == QElementType::b_binary ) {
+            in << element.getBinary();
+        } else{
             in << element.getValue();
         }
 
@@ -126,7 +129,11 @@ public:
             QString oid;
             out >> oid;
             element = QElement(QOid(oid),key);
-        }else{
+        }else if ( type == static_cast<int>(QElementType::b_binary) ) {
+            QByteArray ar;
+            out >> ar;
+            element = QElement(QElementType::b_binary , ar , key );
+        } else {
             out >> value;
             element.setValue(value);
         }
