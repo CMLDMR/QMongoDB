@@ -32,17 +32,7 @@
 
 
 #ifdef MAC_IOS
-    enum class NetworkCommand : int
-    {
-        find = 0,
-        find_one,
-        update_many,
-        update_one,
-        insert_many,
-        insert_one,
-        delete_many,
-        delete_one
-    };
+
 #else
     static mongoc_client_t* client;
     static mongoc_gridfs_t* gridfs;
@@ -63,12 +53,11 @@ QMongoDB::QMongoDB(QString mongourl , QString database , QObject *parent )
       db( database )
 {
 
-    qRegisterMetaTypeStreamOperators<QBSON>("QBSON");
-
-
 #ifdef MAC_IOS
+
     mSocket = new Socket(mUrl);
     mSocket->connect();
+
 #else
 
     client = mongoc_client_new (this->mUrl.toStdString().c_str());
@@ -77,10 +66,6 @@ QMongoDB::QMongoDB(QString mongourl , QString database , QObject *parent )
 
 #endif
 }
-
-
-
-
 
 
 QMongoDB::~QMongoDB()
@@ -92,6 +77,85 @@ QMongoDB::~QMongoDB()
 #endif
 
 }
+
+bool QMongoDB::isValid()
+{
+#ifdef MAC_IOS
+    bool returnValue = false;
+    bool timeout = false;
+    int counter = 0;
+    int control = 0;
+    QDataStream out;
+
+    this->mSocket->ValidateDatabase();
+
+    while ( !returnValue ) {
+
+        switch (control) {
+
+        case 0:
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            control = 1;
+            counter++;
+            break;
+
+        case 1:
+            if( mSocket->bufferCompleted(out) )
+            {
+                returnValue = true;
+            }
+
+            if( !returnValue )
+            {
+                if( counter >= 30 )
+                {
+                    returnValue = true;
+                    timeout = true;
+                }
+            }
+            control = 0;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if( timeout ) return false;
+
+    if( returnValue )
+    {
+            int commandType;
+            out >> commandType;
+            NetworkCommand command = static_cast<NetworkCommand>(commandType);
+
+
+            switch (command) {
+
+            case NetworkCommand::connectInfo:
+                qDebug() << "Connection info";
+                bool valid;
+                out >> valid;
+                return valid;
+                break;
+
+            default:
+                qDebug() << "No Value" << commandType;
+                return false;
+                break;
+            }
+    }else{
+        return false;
+    }
+
+#else
+    return false;
+#endif
+
+
+}
+
+
 
 void QMongoDB::instance()
 {
@@ -112,10 +176,75 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
 
     QVector<QBSON> list;
 
+    bool returnValue = false;
+    bool timeout = false;
+    int counter = 0;
+    int control = 0;
+    QDataStream out;
 
-    return list;
+    mSocket->send( collection , NetworkCommand::find , filter , option );
 
+    while ( !returnValue ) {
 
+        switch (control) {
+
+        case 0:
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            control = 1;
+            counter++;
+            break;
+
+        case 1:
+            if( mSocket->bufferCompleted(out) )
+            {
+                returnValue = true;
+            }
+
+            if( !returnValue )
+            {
+                if( counter >= 30 )
+                {
+                    returnValue = true;
+                    timeout = true;
+                }
+            }
+            control = 0;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if( timeout ) return list;;
+
+    if( returnValue )
+    {
+
+            int commandType;
+            out >> commandType;
+            NetworkCommand command = static_cast<NetworkCommand>(commandType);
+
+            if( command != NetworkCommand::find )
+            {
+                qDebug() << "invalid data";
+
+                return list;
+            }
+
+            int bsonCount = 0;
+            out >> bsonCount;
+            for( int i = 0 ; i < bsonCount ; i++ )
+            {
+                QBSON bson;
+                out >> bson;
+                list.append(bson);
+            }
+
+            return list;
+    }else{
+        return list;
+    }
 
 #else
 
@@ -143,10 +272,9 @@ QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption opti
 {
 
 #ifdef MAC_IOS
-    QVector<QBSON> list;
 
+    return this->find(QString(collection.c_str()),filter,option);
 
-    return list;
 #else
     QVector<QBSON> list;
 
@@ -170,10 +298,7 @@ QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption opti
 QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption option)
 {
 #ifdef MAC_IOS
-    QVector<QBSON> list;
-
-
-    return list;
+    return this->find(QString(collection),filter,option);
 #else
     QVector<QBSON> list;
 
@@ -196,11 +321,77 @@ QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption opti
 
 QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
 {
+
 #ifdef MAC_IOS
-    QBSON list;
 
+    option.setLimit(1);
 
-    return list;
+    bool returnValue = false;
+    bool timeout = false;
+    int counter = 0;
+    int control = 0;
+    QDataStream out;
+
+    mSocket->send( collection , NetworkCommand::find_one , filter , option );
+
+    while ( !returnValue ) {
+
+        switch (control) {
+
+        case 0:
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            control = 1;
+            counter++;
+            break;
+
+        case 1:
+            if( mSocket->bufferCompleted(out) )
+            {
+                returnValue = true;
+            }
+
+            if( !returnValue )
+            {
+                if( counter >= 30 )
+                {
+                    returnValue = true;
+                    timeout = true;
+                }
+            }
+            control = 0;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if( timeout ) QBSON();
+
+    if( returnValue )
+    {
+
+            int commandType;
+            out >> commandType;
+            NetworkCommand command = static_cast<NetworkCommand>(commandType);
+
+            QBSON bson;
+
+            if( command != NetworkCommand::find_one )
+            {
+                qDebug() << "invalid data";
+
+                return bson;
+            }
+
+            int bsonCount = 0;
+            out >> bsonCount;
+            out >> bson;
+            return bson;
+    }else{
+        return QBSON();
+    }
+
 #else
     option.setLimit(1);
 
@@ -220,10 +411,7 @@ QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
 QBSON QMongoDB::find_one(std::string collection, QBSON filter, QOption option)
 {
 #ifdef MAC_IOS
-    QBSON list;
-
-
-    return list;
+    return this->find_one(QString(collection.c_str()),filter,option);
 #else
     option.setLimit(1);
 
@@ -242,10 +430,7 @@ QBSON QMongoDB::find_one(std::string collection, QBSON filter, QOption option)
 QBSON QMongoDB::find_one(const char *collection, QBSON filter, QOption option)
 {
 #ifdef MAC_IOS
-    QBSON list;
-
-
-    return list;
+    return this->find_one(QString(collection),filter,option);
 #else
     option.setLimit(1);
 
@@ -264,8 +449,69 @@ QBSON QMongoDB::find_one(const char *collection, QBSON filter, QOption option)
 bool QMongoDB::insert_one(QString collection, QBSON document)
 {
 #ifdef MAC_IOS
+    bool returnValue = false;
+    bool timeout = false;
+    int counter = 0;
+    int control = 0;
+    QDataStream out;
 
-    return true;
+    qDebug() << "insert_one " << document.tojson().c_str();
+    mSocket->send( collection , NetworkCommand::insert_one , document );
+
+    while ( !returnValue ) {
+
+        switch (control) {
+
+        case 0:
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            control = 1;
+            counter++;
+            break;
+
+        case 1:
+            if( mSocket->bufferCompleted(out) )
+            {
+                returnValue = true;
+            }
+
+            if( !returnValue )
+            {
+                if( counter >= 30 )
+                {
+                    returnValue = true;
+                    timeout = true;
+                }
+            }
+            control = 0;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if( timeout ) return false;;
+
+    if( returnValue )
+    {
+
+            int commandType;
+            out >> commandType;
+            NetworkCommand command = static_cast<NetworkCommand>(commandType);
+
+            if( command != NetworkCommand::insert_one )
+            {
+                qDebug() << "invalid data";
+                return false;
+            }
+
+            bool inserted = false;
+            out >> inserted;
+            return inserted;
+
+    }else{
+        return false;
+    }
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
@@ -285,7 +531,7 @@ bool QMongoDB::insert_one(QString collection, QBSON document)
 bool QMongoDB::insert_one(std::string collection, QBSON document)
 {
 #ifdef MAC_IOS
-return true;
+return this->insert_one(QString(collection.c_str()),document);
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
@@ -305,7 +551,7 @@ return true;
 bool QMongoDB::insert_one(const char *collection, QBSON document)
 {
 #ifdef MAC_IOS
-    return true;
+    return this->insert_one(QString(collection),document);
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
@@ -325,7 +571,69 @@ bool QMongoDB::insert_one(const char *collection, QBSON document)
 bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument)
 {
 #ifdef MAC_IOS
-    return true;
+    bool returnValue = false;
+    bool timeout = false;
+    int counter = 0;
+    int control = 0;
+    QDataStream out;
+
+    qDebug() << "insert_one " << updateDocument.tojson().c_str();
+    mSocket->sendupdateone( collection , filter , updateDocument );
+
+    while ( !returnValue ) {
+
+        switch (control) {
+
+        case 0:
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            control = 1;
+            counter++;
+            break;
+
+        case 1:
+            if( mSocket->bufferCompleted(out) )
+            {
+                returnValue = true;
+            }
+
+            if( !returnValue )
+            {
+                if( counter >= 30 )
+                {
+                    returnValue = true;
+                    timeout = true;
+                }
+            }
+            control = 0;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if( timeout ) return false;;
+
+    if( returnValue )
+    {
+
+            int commandType;
+            out >> commandType;
+            NetworkCommand command = static_cast<NetworkCommand>(commandType);
+
+            if( command != NetworkCommand::update_one )
+            {
+                qDebug() << "invalid data";
+                return false;
+            }
+
+            bool updated = false;
+            out >> updated;
+            return updated;
+
+    }else{
+        return false;
+    }
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
@@ -357,7 +665,7 @@ bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument
 bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocument)
 {
 #ifdef MAC_IOS
-    return true;
+    return this->update_one(QString(collection.c_str()),filter,updateDocument);
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
@@ -389,7 +697,7 @@ bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocu
 bool QMongoDB::update_one(const char *collection, QBSON filter, QBSON updateDocument)
 {
 #ifdef MAC_IOS
-    return true;
+    return this->update_one(QString(collection),filter,updateDocument);
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
@@ -422,7 +730,69 @@ bool QMongoDB::Delete(QString collection, QBSON filter)
 {
 
 #ifdef MAC_IOS
-    return true;
+    bool returnValue = false;
+    bool timeout = false;
+    int counter = 0;
+    int control = 0;
+    QDataStream out;
+
+    qDebug() << "delete_one " << filter.tojson().c_str();
+    mSocket->send( collection ,NetworkCommand::delete_one , filter );
+
+    while ( !returnValue ) {
+
+        switch (control) {
+
+        case 0:
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            control = 1;
+            counter++;
+            break;
+
+        case 1:
+            if( mSocket->bufferCompleted(out) )
+            {
+                returnValue = true;
+            }
+
+            if( !returnValue )
+            {
+                if( counter >= 30 )
+                {
+                    returnValue = true;
+                    timeout = true;
+                }
+            }
+            control = 0;
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if( timeout ) return false;;
+
+    if( returnValue )
+    {
+
+            int commandType;
+            out >> commandType;
+            NetworkCommand command = static_cast<NetworkCommand>(commandType);
+
+            if( command != NetworkCommand::delete_one )
+            {
+                qDebug() << "invalid data";
+                return false;
+            }
+
+            bool deleted = false;
+            out >> deleted;
+            return deleted;
+
+    }else{
+        return false;
+    }
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 

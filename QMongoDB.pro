@@ -29,13 +29,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         qmongodb.cpp \
     qbson.cpp \
-    qerror.cpp
+    qerror.cpp \
+    src/socket.cpp \
+    qelement.cpp
 
 HEADERS += \
         qmongodb.h \
         qmongodb_global.h \
     qbson.h \
-    qerror.h
+    qerror.h \
+    src/socket.h \
+    qelement.h
 
 
 

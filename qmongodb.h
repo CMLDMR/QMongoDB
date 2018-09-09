@@ -56,9 +56,17 @@ public:
     /// \param parent
     /// if Platform Android or Windows you should pass mongodb url else Switch ip
     /// Mongodb url/Switch ip format: mongodb://username:passworkd@ipaddress:port/?authSource=DATABASE
-    QMongoDB(QString mongourl , QString database , QObject* parent = nullptr);
+    QMongoDB( QString mongourl , QString database , QObject* parent = nullptr );
 
     ~QMongoDB();
+
+
+    ///
+    /// \brief isValid
+    /// \return
+    /// only available on macosx or ios
+    /// do not use another platform
+    bool isValid();
 
 
 
