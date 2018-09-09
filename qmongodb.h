@@ -31,17 +31,17 @@
 #define MAC_IOS
 #endif
 
+
+
+
+
 #ifdef MAC_IOS
-#include <QTcpSocket>
+class Socket;
 #else
 
 #endif
 
-#ifdef MAC_IOS
 
-#else
-
-#endif
 
 
 class QMONGODBSHARED_EXPORT QMongoDB : public QObject
@@ -49,16 +49,24 @@ class QMONGODBSHARED_EXPORT QMongoDB : public QObject
     Q_OBJECT
 public:
 
-    QMongoDB(QString mongourlorswitchip , QString database , QObject* parent = nullptr);
+    ///
+    /// \brief QMongoDB
+    /// \param mongourlorswitchip
+    /// \param database
+    /// \param parent
+    /// if Platform Android or Windows you should pass mongodb url else Switch ip
+    /// Mongodb url/Switch ip format: mongodb://username:passworkd@ipaddress:port/?authSource=DATABASE
+    QMongoDB(QString mongourl , QString database , QObject* parent = nullptr);
 
     ~QMongoDB();
 
 
-#ifdef MAC_IOS
-    void instance();
-#else
+
+    ///
+    /// \brief instance
+    /// Must be Called if Platform is Android or Windows else Nothing to be done
     static void instance();
-#endif
+
 
 
 
@@ -103,14 +111,15 @@ Q_SIGNALS:
 
 private:
 
-
-#ifdef MAC_IOS
-    QTcpSocket* mSocket;
-#endif
     QString mUrl;
     QString db;
     QString mLastError;
 
+
+
+#ifdef MAC_IOS
+    Socket* mSocket;
+#endif
 
 
 

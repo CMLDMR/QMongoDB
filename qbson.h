@@ -16,139 +16,12 @@
 #include <QDataStream>
 
 #include "qerror.h"
+#include "qelement.h"
 
 
 
-
-class QBSON;
 class QArray;
 
-enum class QElementType : int
-{
-    b_double = 0,
-    b_utf8,
-    b_oid,
-    b_int64,
-    b_int32,
-    b_document,
-    b_array,
-    b_bool,
-    b_null,
-    b_invalid,
-    b_binary
-};
-
-
-class QMONGODBSHARED_EXPORT QOid
-{
-    QString mOid;
-public:
-
-    explicit QOid();
-    QOid(QString oid);
-    QOid(QOid const &oid);
-    QOid(QOid& oid);
-    QOid(QOid&& oid);
-    ~QOid() {}
-
-    QString oid() const;
-
-    QOid& operator=(const QOid& oid);
-};
-
-Q_DECLARE_METATYPE(QOid);
-
-
-
-
-class QMONGODBSHARED_EXPORT QElement{
-public:
-    explicit QElement(QElementType type_ , QVariant value_ = QVariant() , QString key_ = "" );
-    QElement(QElementType type_ , QOid oid , QString key );
-    QElement( QOid oid , QString key );
-    QElement( QByteArray binary , QString key );
-    QElement();
-    QElement(QElement const &element);
-    QElement(QElement& element);
-    QElement(QElement&& element);
-    ~QElement() {}
-
-    QBSON toDocument() const;
-    QArray toArray() const;
-
-    QElement& operator=(const QElement& element);
-
-    QString getKey() const;
-    void setKey(const QString &value);
-
-    QVariant getValue() const;
-    void setValue(const QVariant &value);
-
-    QElementType getType() const;
-    void setType(const QElementType &value);
-
-    ///
-    /// \brief getOid : return Oid if it's type oid else throw QError
-    /// \return
-    ///
-    QOid getOid() const;
-
-    QByteArray getBinary() const;
-
-    friend QDataStream& operator<<(QDataStream& in , const QElement& element)
-    {
-        in.setVersion(QDataStream::Version::Qt_5_10);
-        in << static_cast<int>(element.getType());
-        in << element.getKey();
-        if( element.getType() == QElementType::b_oid )
-        {
-            in << element.getOid().oid();
-        }else if ( element.getType() == QElementType::b_binary ) {
-            in << element.getBinary();
-        } else{
-            in << element.getValue();
-        }
-        return in;
-    }
-
-
-    friend QElement& operator>>(QDataStream& out,QElement& element)
-    {
-        out.setVersion(QDataStream::Version::Qt_5_10);
-        int type;
-        QString key;
-        QVariant value;
-        out >> type;
-        out >> key;
-
-        element.setType(static_cast<QElementType>(type));
-        element.setKey(key);
-
-        if( type == static_cast<int>(QElementType::b_oid) )
-        {
-            QString oid;
-            out >> oid;
-            element = QElement(QOid(oid),key);
-        }else if ( type == static_cast<int>(QElementType::b_binary) ) {
-            QByteArray ar;
-            out >> ar;
-            element = QElement(QElementType::b_binary , ar , key );
-        } else {
-            out >> value;
-            element.setValue(value);
-        }
-
-
-        return element;
-
-    }
-
-private:
-    QString key;
-    QVariant val;
-    QElementType type;
-
-};
 
 class QMONGODBSHARED_EXPORT QBSON
 {
@@ -297,13 +170,28 @@ public:
 
     std::string tojson();
 
+
+
+
     friend QDataStream& operator<<(QDataStream& in , const QBSON& bson)
     {
         in.setVersion(QDataStream::Version::Qt_5_10);
         in << bson.getMaplist().count();
         for( int i = 0 ; i < bson.getMaplist().count() ; i++ )
         {
-            in << bson.getMaplist().at(i);
+
+            auto element = bson.getMaplist().at(i);
+            qDebug() << "KEY<<" << element.getKey();
+            in << static_cast<int>(element.getType());
+            if( element.getType() == QElementType::b_document )
+            {
+                auto _bson = element.toDocument();
+                in << element.getKey();
+                in << _bson;
+            }else{
+                in << element;
+            }
+
         }
         return in;
     }
@@ -316,9 +204,26 @@ public:
         bson.clear();
         for( int i = 0 ; i < count ; i++ )
         {
+            int type;
+            out >> type;
+            QElementType _type = static_cast<QElementType>(type);
             QElement element;
-            out >> element;
-            bson.append(element);
+
+
+            if( _type == QElementType::b_document )
+            {
+                QString key;
+                QBSON _bson;
+                out >> key;
+                out >> _bson;
+
+                bson.append( key , _bson );
+            }else{
+                out >> element;
+                bson.append( element );
+            }
+
+
         }
         return bson;
     }
@@ -374,10 +279,14 @@ public:
     void setSort(const QSort &sort);
 
     void setSkip(int skip);
+
+    //TODO: setlimit 2 defa çağrılınca iki tane "limit":x oluşuyor
     void setLimit(int limit);
 
 
     QBSON getBson() const;
+
+    void setBson(const QBSON &value);
 
 private:
     QBSON bson;
@@ -417,6 +326,9 @@ public:
 private:
     QVector<QElement> mapData;
 };
+
+
+
 
 
 Q_DECLARE_METATYPE(QElement);

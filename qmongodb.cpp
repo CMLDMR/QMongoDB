@@ -1,6 +1,7 @@
 ﻿#include "qmongodb.h"
 
-#include <mongoc.h>
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -20,7 +21,11 @@
 
 
 
-
+#ifdef MAC_IOS
+#include "src/socket.h"
+#else
+#include <mongoc.h>
+#endif
 
 
 
@@ -52,19 +57,18 @@
 
 
 
-
-
-QMongoDB::QMongoDB(QString mongourlorswitchip , QString database , QObject *parent )
+QMongoDB::QMongoDB(QString mongourl , QString database , QObject *parent )
     :QObject ( parent ),
-      mUrl( mongourlorswitchip ),
+      mUrl( mongourl ),
       db( database )
 {
 
+    qRegisterMetaTypeStreamOperators<QBSON>("QBSON");
+
+
 #ifdef MAC_IOS
-
-    mSocket = new QTcpSocket;
-    mSocket->connectToHost(mUrl,17778);
-
+    mSocket = new Socket(mUrl);
+    mSocket->connect();
 #else
 
     client = mongoc_client_new (this->mUrl.toStdString().c_str());
@@ -106,6 +110,13 @@ QVector<QBSON> QMongoDB::find(QString collection, QBSON filter, QOption option)
 
 #ifdef MAC_IOS
 
+    QVector<QBSON> list;
+
+
+    return list;
+
+
+
 #else
 
     QVector<QBSON> list;
@@ -132,7 +143,10 @@ QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption opti
 {
 
 #ifdef MAC_IOS
+    QVector<QBSON> list;
 
+
+    return list;
 #else
     QVector<QBSON> list;
 
@@ -156,7 +170,10 @@ QVector<QBSON> QMongoDB::find(std::string collection, QBSON filter, QOption opti
 QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption option)
 {
 #ifdef MAC_IOS
+    QVector<QBSON> list;
 
+
+    return list;
 #else
     QVector<QBSON> list;
 
@@ -180,7 +197,10 @@ QVector<QBSON> QMongoDB::find(const char *collection, QBSON filter, QOption opti
 QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
 {
 #ifdef MAC_IOS
+    QBSON list;
 
+
+    return list;
 #else
     option.setLimit(1);
 
@@ -200,7 +220,10 @@ QBSON QMongoDB::find_one(QString collection, QBSON filter, QOption option)
 QBSON QMongoDB::find_one(std::string collection, QBSON filter, QOption option)
 {
 #ifdef MAC_IOS
+    QBSON list;
 
+
+    return list;
 #else
     option.setLimit(1);
 
@@ -219,7 +242,10 @@ QBSON QMongoDB::find_one(std::string collection, QBSON filter, QOption option)
 QBSON QMongoDB::find_one(const char *collection, QBSON filter, QOption option)
 {
 #ifdef MAC_IOS
+    QBSON list;
 
+
+    return list;
 #else
     option.setLimit(1);
 
@@ -239,6 +265,7 @@ bool QMongoDB::insert_one(QString collection, QBSON document)
 {
 #ifdef MAC_IOS
 
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
@@ -258,7 +285,7 @@ bool QMongoDB::insert_one(QString collection, QBSON document)
 bool QMongoDB::insert_one(std::string collection, QBSON document)
 {
 #ifdef MAC_IOS
-
+return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
@@ -278,7 +305,7 @@ bool QMongoDB::insert_one(std::string collection, QBSON document)
 bool QMongoDB::insert_one(const char *collection, QBSON document)
 {
 #ifdef MAC_IOS
-
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
@@ -298,7 +325,7 @@ bool QMongoDB::insert_one(const char *collection, QBSON document)
 bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument)
 {
 #ifdef MAC_IOS
-
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
@@ -330,7 +357,7 @@ bool QMongoDB::update_one(QString collection, QBSON filter, QBSON updateDocument
 bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocument)
 {
 #ifdef MAC_IOS
-
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
@@ -362,7 +389,7 @@ bool QMongoDB::update_one(std::string collection, QBSON filter, QBSON updateDocu
 bool QMongoDB::update_one(const char *collection, QBSON filter, QBSON updateDocument)
 {
 #ifdef MAC_IOS
-
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
@@ -395,7 +422,7 @@ bool QMongoDB::Delete(QString collection, QBSON filter)
 {
 
 #ifdef MAC_IOS
-
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
 
@@ -418,7 +445,7 @@ bool QMongoDB::Delete(QString collection, QBSON filter)
 bool QMongoDB::Delete(std::string collection, QBSON filter)
 {
 #ifdef MAC_IOS
-
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
 
@@ -439,7 +466,7 @@ bool QMongoDB::Delete(std::string collection, QBSON filter)
 bool QMongoDB::Delete(const char *collection, QBSON filter)
 {
 #ifdef MAC_IOS
-
+    return true;
 #else
     auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
 
@@ -460,7 +487,7 @@ bool QMongoDB::Delete(const char *collection, QBSON filter)
 QElement QMongoDB::uploadfile(QString filename , QString key)
 {
 #ifdef MAC_IOS
-
+    return QElement();
 #else
     bson_error_t error;
 
@@ -527,7 +554,7 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
 QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
 {
 #ifdef MAC_IOS
-
+    return "";
 #else
     QBSON filter;
 
@@ -627,7 +654,7 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
 qlonglong QMongoDB::getfilesize(QOid fileoid)
 {
 #ifdef MAC_IOS
-
+    return 0;
 #else
     QBSON filter;
 
@@ -646,7 +673,7 @@ qlonglong QMongoDB::getfilesize(QOid fileoid)
 QString QMongoDB::getfilename(QOid fileoid)
 {
 #ifdef MAC_IOS
-
+    return "";
 #else
     QBSON filter;
 
@@ -665,7 +692,7 @@ QString QMongoDB::getfilename(QOid fileoid)
 QString QMongoDB::getLastError() const
 {
 #ifdef MAC_IOS
-
+    return "";
 #else
     return mLastError;
 #endif

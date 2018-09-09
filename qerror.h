@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <QString>
+#include <QDebug>
 
 
 
