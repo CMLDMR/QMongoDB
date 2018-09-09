@@ -20,7 +20,47 @@
 
 
 
-class QArray;
+class QBSON;
+
+class QMONGODBSHARED_EXPORT QArray
+{
+public:
+    QArray() {}
+
+    int count() const;
+
+    void append(QString str);
+    void append(double val);
+    void append(bool val);
+    void append(qint32 val);
+    void append(qint64 val);
+    void append(QBSON obj);
+    void append(QArray array);
+    void append(QElement element);
+    void append(QOid oid);
+    void append(QByteArray binary);
+
+    QElement operator[](const int index);
+
+
+    using container = QVector<QElement>;
+
+    using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
+
+    iterator begin() { return mapData.begin(); }
+    iterator end() { return mapData.end(); }
+    const_iterator cbegin() const { return mapData.cbegin(); }
+    const_iterator cend() const { return mapData.cend(); }
+
+private:
+    QVector<QElement> mapData;
+};
+
+
+static void inStream(QDataStream& in , const QElement &element);
+static void outStream(QDataStream& out , QArray &array);
+
 
 
 class QMONGODBSHARED_EXPORT QBSON
@@ -188,7 +228,11 @@ public:
                 auto _bson = element.toDocument();
                 in << element.getKey();
                 in << _bson;
-            }else{
+            }else if( element.getType() == QElementType::b_array ) {
+
+                inStream(in,element);
+
+            } else {
                 in << element;
             }
 
@@ -216,8 +260,13 @@ public:
                 QBSON _bson;
                 out >> key;
                 out >> _bson;
-
                 bson.append( key , _bson );
+            }else if(_type == QElementType::b_array ){
+                QString key;
+                out >> key;
+                QArray array;
+                outStream(out,array);
+                bson.append( key , array );
             }else{
                 out >> element;
                 bson.append( element );
@@ -233,6 +282,66 @@ private:
 
 };
 
+
+static void inStream(QDataStream& in , const QElement &element)
+{
+
+    auto array = element.toArray();
+    in << element.getKey();
+    in << array.count();
+    for( auto _element : array )
+    {
+        in << static_cast<int>(_element.getType());
+        if( _element.getType() == QElementType::b_document )
+        {
+            auto _bson = _element.toDocument();
+            in << _element.getKey();
+            in << _bson;
+        }else if( _element.getType() == QElementType::b_array ) {
+
+            inStream(in,_element);
+
+        } else {
+            in << _element;
+        }
+    }
+
+}
+
+
+static void outStream(QDataStream& out , QArray &array)
+{
+    out.setVersion(QDataStream::Version::Qt_5_10);
+    int count;
+    out >> count;
+    QArray _array;
+    for( int i = 0 ; i < count ; i++ )
+    {
+        int _type;
+        out >> _type;
+        QElementType type = static_cast<QElementType>(_type);
+
+        if( type == QElementType::b_document )
+        {
+            QString key;
+            QBSON _bson;
+            out >> key;
+            out >> _bson;
+            array.append( _bson );
+        }else if (type == QElementType::b_array ) {
+            QString key;
+            out >> key;
+            QArray array;
+            outStream(out,array);
+            array.append( array );
+        } else {
+            QElement element;
+            out >> element;
+            array.append( element );
+        }
+
+    }
+}
 
 
 
@@ -292,40 +401,10 @@ private:
     QBSON bson;
 };
 
-class QMONGODBSHARED_EXPORT QArray
-{
-public:
-    QArray() {}
-
-    int count() const;
-
-    void append(QString str);
-    void append(double val);
-    void append(bool val);
-    void append(qint32 val);
-    void append(qint64 val);
-    void append(QBSON obj);
-    void append(QArray array);
-    void append(QElement element);
-    void append(QOid oid);
-    void append(QByteArray binary);
-
-    QElement operator[](const int index);
 
 
-    using container = QVector<QElement>;
 
-    using iterator = typename container::iterator;
-    using const_iterator = typename container::const_iterator;
 
-    iterator begin() { return mapData.begin(); }
-    iterator end() { return mapData.end(); }
-    const_iterator cbegin() const { return mapData.cbegin(); }
-    const_iterator cend() const { return mapData.cend(); }
-
-private:
-    QVector<QElement> mapData;
-};
 
 
 

@@ -860,3 +860,4 @@ void consoleLog(std::string &stream , QArray array ){
     return;
 }
 
+
