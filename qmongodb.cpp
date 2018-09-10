@@ -460,7 +460,10 @@ bool QMongoDB::insert_one(QString collection, QBSON document)
     qDebug() << "insert_one " << document.tojson().c_str();
     mSocket->send( collection , NetworkCommand::insert_one , document );
 
+
     while ( !returnValue ) {
+
+
 
         switch (control) {
 
@@ -536,18 +539,7 @@ bool QMongoDB::insert_one(std::string collection, QBSON document)
 #ifdef MAC_IOS
 return this->insert_one(QString(collection.c_str()),document);
 #else
-    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.c_str());
-
-    bson_error_t error;
-    auto _document = convert(document);
-
-    if( !mongoc_collection_insert(col,mongoc_insert_flags_t::MONGOC_INSERT_NONE,_document,nullptr,&error) )
-    {
-        qDebug() << "ERROR insert_one: "<<error.message;
-        return false;
-    }else{
-        return true;
-    }
+return this->insert_one(QString(collection.c_str()),document);
 #endif
 
 }
@@ -557,18 +549,7 @@ bool QMongoDB::insert_one(const char *collection, QBSON document)
 #ifdef MAC_IOS
     return this->insert_one(QString(collection),document);
 #else
-    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection);
-
-    bson_error_t error;
-    auto _document = convert(document);
-
-    if( !mongoc_collection_insert(col,mongoc_insert_flags_t::MONGOC_INSERT_NONE,_document,nullptr,&error) )
-    {
-        qDebug() << "ERROR insert_one: "<<error.message;
-        return false;
-    }else{
-        return true;
-    }
+    return this->insert_one(QString(collection),document);
 #endif
 
 }
