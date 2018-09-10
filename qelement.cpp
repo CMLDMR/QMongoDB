@@ -79,7 +79,6 @@ bool QElement::isValid() const
     if( this->type == QElementType::b_invalid ) { qDebug() << "Type is inValid"; return false; }
     if( !this->val.isValid() )                  { qDebug() << "val is not Valid"; return false; }
     if( this->val.isNull() )                    { qDebug() << "val is null"; return false;}
-
     return true;
 }
 
