@@ -44,18 +44,55 @@ enum class QElementType : int
 class QMONGODBSHARED_EXPORT QOid
 {
     QString mOid;
+    bool valid;
 public:
 
+    ///
+    /// \brief QOid
+    /// no throw an exception
     explicit QOid();
+
+    ///
+    /// \brief QOid
+    /// \param oid
+    /// throw exception if QOid is not valid
     QOid(QString oid);
+    ///
+    /// \brief QOid
+    /// \param oid
+    /// throw exception if QOid is not valid
     QOid(QOid const &oid);
+    ///
+    /// \brief QOid
+    /// \param oid
+    /// throw exception if QOid is not valid
     QOid(QOid& oid);
+    ///
+    /// \brief QOid
+    /// \param oid
+    /// throw exception if QOid is not valid
     QOid(QOid&& oid);
     ~QOid() {}
 
+    ///
+    /// \brief oid
+    /// \return
+    /// throw exception if QOid is not valid
     QString oid() const;
 
+
+    ///
+    /// \brief operator =
+    /// \param oid
+    /// \return
+    /// throw exception if QOid is not valid
     QOid& operator=(const QOid& oid);
+
+    ///
+    /// \brief isValid
+    /// \return
+    /// return true if QOid is valid else false
+    bool isValid() const;
 };
 
 Q_DECLARE_METATYPE(QOid);

@@ -214,37 +214,54 @@ QByteArray QElement::getBinary() const
 
 QString QOid::oid() const
 {
+    if( !this->isValid() )
+    {
+        throw QError("QOid is not a Valid");
+    }
     return mOid;
 }
 
 QOid &QOid::operator=(const QOid &oid)
 {
+    if( !oid.isValid() )
+    {
+        throw QError("QOid is not a Valid");
+    }
     this->mOid = oid.oid();
     return *this;
 }
 
+bool QOid::isValid() const
+{
+    return valid;
+}
+
 QOid::QOid()
 {
-
+    valid = false;
 }
 
 QOid::QOid( QString oid )
 {
+    valid = true;
     this->mOid = oid;
 }
 
 QOid::QOid( const QOid &oid )
 {
+    valid = true;
     this->mOid = oid.oid();
 }
 
 QOid::QOid( QOid &oid )
 {
+    valid = true;
     this->mOid = oid.oid();
 }
 
 QOid::QOid( QOid &&oid )
 {
+    valid = true;
     this->mOid = oid.oid();
 }
 
