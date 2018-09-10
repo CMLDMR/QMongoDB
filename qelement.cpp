@@ -3,6 +3,10 @@
 
 QElement::QElement(QElementType type_, QVariant value_, QString key_)
 {
+    if( key_.contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->key = key_;
     this->setValue( value_ );
     this->type = type_;
@@ -10,6 +14,10 @@ QElement::QElement(QElementType type_, QVariant value_, QString key_)
 
 QElement::QElement(QElementType type_, QOid oid, QString key)
 {
+    if( key.contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->key = key;
     this->setValue( QVariant::fromValue( oid ) );
     this->type = type_;
@@ -17,6 +25,10 @@ QElement::QElement(QElementType type_, QOid oid, QString key)
 
 QElement::QElement(QOid oid, QString key)
 {
+    if( key.contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->key = key;
     this->type = QElementType::b_oid;
     this->setValue( QVariant::fromValue( oid ) );
@@ -24,6 +36,10 @@ QElement::QElement(QOid oid, QString key)
 
 QElement::QElement(QByteArray binary, QString key)
 {
+    if( key.contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->key = key;
     this->type = QElementType::b_binary;
     this->setValue( QVariant::fromValue(binary) );
@@ -31,13 +47,22 @@ QElement::QElement(QByteArray binary, QString key)
 
 QElement::QElement()
 {
-    this->key = "";
+    this->key = "_";
+    if( key.contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
+
     this->type = QElementType::b_invalid;
     this->setValue( QVariant() );
 }
 
 QElement::QElement(const QElement &element)
 {
+    if( element.getKey().contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->setKey( element.getKey() );
     this->setType( element.getType() );
     if( element.getType() == QElementType::b_oid )
@@ -51,6 +76,10 @@ QElement::QElement(const QElement &element)
 
 QElement::QElement(QElement &element)
 {
+    if( element.getKey().contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->setKey( element.getKey() );
     this->setType( element.getType() );
     if( element.getType() == QElementType::b_oid )
@@ -63,6 +92,10 @@ QElement::QElement(QElement &element)
 
 QElement::QElement(QElement &&element)
 {
+    if( element.getKey().contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->setKey( element.getKey() );
     this->setType( element.getType() );
     if( element.getType() == QElementType::b_oid )
@@ -75,6 +108,7 @@ QElement::QElement(QElement &&element)
 
 bool QElement::isValid() const
 {
+    if( key.contains(".") ){ qDebug() << "Key Not Contain \".\""; return false;}
     if( this->key.isEmpty() )                   { qDebug() << "Key is Empty";  return false;}
     if( this->type == QElementType::b_invalid ) { qDebug() << "Type is inValid"; return false; }
     if( !this->val.isValid() )                  { qDebug() << "val is not Valid"; return false; }
@@ -94,11 +128,15 @@ QArray QElement::toArray() const
 
 QElement &QElement::operator=(const QElement &element)
 {
+    if( element.getKey().contains(".") )
+    {
+        throw QError("Key Not Contain \".\"");
+    }
     this->setKey( element.getKey() );
     this->setType( element.getType() );
     if( element.getType() == QElementType::b_oid )
     {
-        this->setValue( QVariant::fromValue(element.getOid()) );
+        this->setValue( QVariant::fromValue( element.getOid() ) );
     }else{
         this->setValue( element.getValue() );
     }
