@@ -1267,7 +1267,7 @@ void convertArray(QArray &array , bson_t* child){
         case QElementType::b_oid:
         {
             bson_oid_t oid;
-            bson_oid_init_from_string (&oid, element.getValue().toString().toStdString().c_str());
+            bson_oid_init_from_string (&oid, element.getOid().oid().toStdString().c_str());
             BSON_APPEND_OID( child , element.getKey().toStdString().c_str() , &oid );
         }
             break;
