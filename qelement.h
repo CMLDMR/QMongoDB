@@ -66,7 +66,7 @@ class QMONGODBSHARED_EXPORT QElement{
 
 
 public:
-    explicit QElement(QElementType type_ , QVariant value_ = QVariant() , QString key_ = "" );
+    explicit QElement(QElementType type_ , QVariant value_ = QVariant() , QString key_ = "_" );
     QElement(QElementType type_ , QOid oid , QString key );
     QElement( QOid oid , QString key );
     QElement( QByteArray binary , QString key );
