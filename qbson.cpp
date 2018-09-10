@@ -636,7 +636,7 @@ void QArray::append(QElement element)
 
 void QArray::append(QOid oid)
 {
-    QElement element(QOid(oid),"");
+    QElement element(QOid(oid),"blank");
     this->mapData.append(element);
 }
 
