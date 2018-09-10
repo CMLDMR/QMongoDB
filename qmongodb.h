@@ -98,7 +98,8 @@ public:
     bool Delete(std::string collection , QBSON filter);
     bool Delete(const char* collection , QBSON filter);
 
-    QElement uploadfile(QString filename, QString key);
+
+    QElement uploadfile( QString filename , QString key );
 
     QString downloadfile(QOid fileoid , bool fileNametoOid = true );
 

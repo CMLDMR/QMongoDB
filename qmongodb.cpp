@@ -63,7 +63,9 @@ QMongoDB::QMongoDB(QString mongourl , QString database , QObject *parent )
     client = mongoc_client_new (this->mUrl.toStdString().c_str());
     bson_error_t error;
     gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
+    fprintf (stderr, "%s\n", error.message);
 
+    assert (gridfs);
 #endif
 }
 
@@ -520,6 +522,7 @@ bool QMongoDB::insert_one(QString collection, QBSON document)
 
     if( !mongoc_collection_insert(col,mongoc_insert_flags_t::MONGOC_INSERT_NONE,_document,nullptr,&error) )
     {
+        qDebug() << "ERROR insert_one: "<<error.message;
         return false;
     }else{
         return true;
@@ -540,6 +543,7 @@ return this->insert_one(QString(collection.c_str()),document);
 
     if( !mongoc_collection_insert(col,mongoc_insert_flags_t::MONGOC_INSERT_NONE,_document,nullptr,&error) )
     {
+        qDebug() << "ERROR insert_one: "<<error.message;
         return false;
     }else{
         return true;
@@ -560,6 +564,7 @@ bool QMongoDB::insert_one(const char *collection, QBSON document)
 
     if( !mongoc_collection_insert(col,mongoc_insert_flags_t::MONGOC_INSERT_NONE,_document,nullptr,&error) )
     {
+        qDebug() << "ERROR insert_one: "<<error.message;
         return false;
     }else{
         return true;
@@ -854,16 +859,12 @@ bool QMongoDB::Delete(const char *collection, QBSON filter)
 
 }
 
-QElement QMongoDB::uploadfile(QString filename , QString key)
+QElement QMongoDB::uploadfile(QString filename, QString key)
 {
+
 #ifdef MAC_IOS
     return QElement();
 #else
-    bson_error_t error;
-
-    auto stream = mongoc_stream_file_new_for_path (filename.toStdString().c_str(), O_RDONLY, 0);
-
-    assert (stream);
 
     QFileInfo info(filename);
 
@@ -875,6 +876,9 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
     {
         ar = qfile.readAll();
         qfile.close();
+    }else{
+        qDebug() << "file can not open";
+        return QElement();
     }
 
     auto hash = QCryptographicHash::hash(ar,QCryptographicHash::Algorithm::Md5);
@@ -883,39 +887,77 @@ QElement QMongoDB::uploadfile(QString filename , QString key)
 
     QMimeType mime = mimedb.mimeTypeForFile(filename, QMimeDatabase::MatchContent);
 
-    mongoc_gridfs_file_opt_t opt = {hash.toHex().toStdString().c_str(),info.fileName().toStdString().c_str(),mime.name().toStdString().c_str()};
+    QBSON file;
 
-    auto file = mongoc_gridfs_create_file_from_stream (gridfs, stream, &opt);
+    file.append("length",ar.size(),QElementType::b_int64);
+    file.append("chunkSize",261120);
+    file.append("md5",QString::fromUtf8(hash.toHex()));
+    file.append("filename",info.fileName());
 
-    bson_value_t id;
 
-    id.value_type = BSON_TYPE_OID;
-
-
-    if (!mongoc_gridfs_file_set_id (file, &id, &error)) {
-    }else{
+    try {
+        if( !this->insert_one("fs.files",file) )
+        {
+            qDebug() << "Error insert File Description";
+            return QElement();
+        }
+    } catch (QError& e) {
+        qDebug() << e.what();
     }
 
-    auto rid = mongoc_gridfs_file_get_id(file);
 
-    auto ridfilename = mongoc_gridfs_file_get_filename(file);
+    auto val = this->find_one("fs.files",file);
 
-    QString hexCode;
+    int diveded = ar.size()/261120;
+    int atik = ar.size()%261120;
 
-    for( int i = 0 ; i < 12 ; i++ )
+
+    if( diveded )
     {
-        if( rid->value.v_oid.bytes[i] < 16 )
+        bool insertedFail = false;
+        for( int i = 0 ; i < diveded ; i++ )
         {
-            hexCode += "0"+QString::number( rid->value.v_oid.bytes[i] , 16 );
-        }else{
-            hexCode += QString::number( rid->value.v_oid.bytes[i] , 16 );
+            auto part = ar.mid(0,261120);
+            ar.remove(0,261120);
+            QBSON chunk;
+
+            chunk.append("files_id",QOid(val["_id"].getOid().oid()));
+            chunk.append("n",i);
+            chunk.append("data",part);
+            if( this->insert_one("fs.chunks",chunk) )
+            {
+
+            }
+        }
+        if( insertedFail )
+        {
+            qDebug() << "insert Fail";
+            return QElement();
         }
     }
 
-    mongoc_gridfs_file_save (file);
 
-    return QElement(QElementType::b_oid,QOid(hexCode),key);
+    if( atik )
+    {
+        bool insertedFail = false;
+        auto part = ar;
+        QBSON chunk;
+        chunk.append("files_id",QOid(val["_id"].getOid().oid()));
+        chunk.append("n",diveded);
+        chunk.append("data",part);
+        insertedFail = this->insert_one("fs.chunks",chunk);
+        if( insertedFail )
+        {
+            qDebug() << "insert Fail";
+            return QElement();
+        }
+    }
+
+    return QElement(QOid(val["_id"].getOid().oid()),key);
+
 #endif
+
+
 
 
 }
@@ -1126,12 +1168,14 @@ bson_t *convert(QBSON &obj){
         case QElementType::b_bool:
             BSON_APPEND_BOOL(doc , element.getKey().toStdString().c_str() , element.getValue().toBool() );
             break;
+        case QElementType::b_binary:
+            BSON_APPEND_BINARY( doc , element.getKey().toStdString().c_str() , BSON_SUBTYPE_BINARY, reinterpret_cast<const uint8_t*>( element.getBinary().data() ), element.getBinary().size() );
+            break;
         default:
             throw "No Element Type Detected. Skipped Key: " + element.getKey().toStdString();
             break;
         }
     }
-
     return doc;
 }
 
@@ -1187,6 +1231,9 @@ void convert(QBSON &obj,bson_t* parent){
 
         case QElementType::b_bool:
             BSON_APPEND_BOOL(parent , element.getKey().toStdString().c_str() , element.getValue().toBool() );
+            break;
+        case QElementType::b_binary:
+            BSON_APPEND_BINARY( parent , element.getKey().toStdString().c_str() , BSON_SUBTYPE_BINARY, reinterpret_cast<const uint8_t*>( element.getBinary().data() ), element.getBinary().size() );
             break;
         default:
             throw "No Element Type Detected. Skipped Key: " + element.getKey().toStdString();
@@ -1247,6 +1294,9 @@ void convertArray(QArray &array , bson_t* child){
 
         case QElementType::b_bool:
             BSON_APPEND_BOOL(child , element.getKey().toStdString().c_str() , element.getValue().toBool() );
+            break;
+        case QElementType::b_binary:
+            BSON_APPEND_BINARY( child , element.getKey().toStdString().c_str() , BSON_SUBTYPE_BINARY, reinterpret_cast<const uint8_t*>( element.getBinary().data() ), element.getBinary().size() );
             break;
         default:
             throw "No Element Type Detected. Skipped Key: " + element.getKey().toStdString();
