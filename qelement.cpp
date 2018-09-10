@@ -118,11 +118,19 @@ bool QElement::isValid() const
 
 QBSON QElement::toDocument() const
 {
+    if( this->type != QElementType::b_document )
+    {
+        throw QError("This Element is not a QBSON");
+    }
     return this->getValue().value<QBSON>();
 }
 
 QArray QElement::toArray() const
 {
+    if( this->type != QElementType::b_array )
+    {
+        throw QError("This Element is not a QArray");
+    }
     return this->getValue().value<QArray>();
 }
 
