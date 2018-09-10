@@ -75,10 +75,10 @@ QElement::QElement(QElement &&element)
 
 bool QElement::isValid() const
 {
-    if( this->key.isEmpty() ) return false;
-    if( this->type == QElementType::b_invalid ) return false;
-    if( this->val.isValid() ) return false;
-    if( this->val.isNull() ) return false;
+    if( this->key.isEmpty() )                   { qDebug() << "Key is Empty";  return false;}
+    if( this->type == QElementType::b_invalid ) { qDebug() << "Type is inValid"; return false; }
+    if( !this->val.isValid() )                  { qDebug() << "val is not Valid"; return false; }
+    if( this->val.isNull() )                    { qDebug() << "val is null"; return false;}
 
     return true;
 }
