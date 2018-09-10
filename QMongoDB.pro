@@ -123,5 +123,8 @@ ios{
 QT       += network
 }
 
+DISTFILES += \
+    README.md
+
 
 
