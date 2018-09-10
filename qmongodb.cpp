@@ -906,7 +906,12 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
     }
 
 
-    auto val = this->find_one("fs.files",file);
+    QBSON val;
+
+    auto cursor = this->find("fs.files",file);
+
+    val = cursor.last();
+
 
     int diveded = ar.size()/261120;
     int atik = ar.size()%261120;
@@ -924,14 +929,14 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
             chunk.append("files_id",QOid(val["_id"].getOid().oid()));
             chunk.append("n",i);
             chunk.append("data",part);
-            if( this->insert_one("fs.chunks",chunk) )
+            if( !this->insert_one("fs.chunks",chunk) )
             {
-
+                break;
             }
         }
         if( insertedFail )
         {
-            qDebug() << "insert Fail";
+            qDebug() << "insert Fail multi chunk";
             return QElement();
         }
     }
@@ -939,16 +944,14 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
 
     if( atik )
     {
-        bool insertedFail = false;
         auto part = ar;
         QBSON chunk;
         chunk.append("files_id",QOid(val["_id"].getOid().oid()));
         chunk.append("n",diveded);
         chunk.append("data",part);
-        insertedFail = this->insert_one("fs.chunks",chunk);
-        if( insertedFail )
+        if( !this->insert_one("fs.chunks",chunk) )
         {
-            qDebug() << "insert Fail";
+            qDebug() << "insert Fail atik";
             return QElement();
         }
     }
