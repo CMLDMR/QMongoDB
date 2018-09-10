@@ -73,6 +73,16 @@ QElement::QElement(QElement &&element)
     }
 }
 
+bool QElement::isValid() const
+{
+    if( this->key.isEmpty() ) return false;
+    if( this->type == QElementType::b_invalid ) return false;
+    if( this->val.isValid() ) return false;
+    if( this->val.isNull() ) return false;
+
+    return true;
+}
+
 QBSON QElement::toDocument() const
 {
     return this->getValue().value<QBSON>();

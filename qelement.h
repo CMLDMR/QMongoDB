@@ -76,6 +76,12 @@ public:
     QElement(QElement&& element);
     ~QElement() {}
 
+    ///
+    /// \brief isValid
+    /// \return
+    /// if key is not null,val is not null or invalid , type is not equal QElementType==b_invalid return false else return true
+    bool isValid() const;
+
     QBSON toDocument() const;
     QArray toArray() const;
 
