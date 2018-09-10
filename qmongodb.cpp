@@ -895,20 +895,24 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
     file.append("filename",info.fileName());
 
 
-    try {
-        if( !this->insert_one("fs.files",file) )
-        {
-            qDebug() << "Error insert File Description";
-            return QElement();
-        }
-    } catch (QError& e) {
-        qDebug() << e.what();
+
+    if( !this->insert_one("fs.files",file) )
+    {
+        qDebug() << "Error insert File Description";
+        return QElement();
     }
+
 
 
     QBSON val;
 
     auto cursor = this->find("fs.files",file);
+
+    if( !cursor.count() )
+    {
+        qDebug() << "no inserted file";
+        return QElement();
+    }
 
     val = cursor.last();
 
@@ -931,6 +935,7 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
             chunk.append("data",part);
             if( !this->insert_one("fs.chunks",chunk) )
             {
+                insertedFail = true;
                 break;
             }
         }
