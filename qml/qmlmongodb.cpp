@@ -1,6 +1,7 @@
 #include "qmlmongodb.h"
 
-QMLMongoDB::QMLMongoDB(QObject *parent) : QObject(parent)
+QMLMongoDB::QMLMongoDB(QString mongourl, QString database)
+    : QMongoDB(mongourl,database)
 {
 
 }

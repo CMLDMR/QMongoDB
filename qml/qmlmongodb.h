@@ -3,12 +3,13 @@
 
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
+#include "qmongodb.h"
 
-class QMLMongoDB : public QObject
+class QMLMongoDB : public QMongoDB
 {
     Q_OBJECT
 public:
-    explicit QMLMongoDB(QObject *parent = nullptr);
+    explicit QMLMongoDB( QString mongourl , QString database );
 
 signals:
 

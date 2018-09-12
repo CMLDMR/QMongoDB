@@ -43,6 +43,7 @@ public:
     QElement operator[](const int index);
 
 
+
     using container = QVector<QElement>;
 
     using iterator = typename container::iterator;
@@ -94,6 +95,8 @@ public:
     void append(QString key , QOid oid );
     void append(std::string key , QOid oid );
     void append(const char* key , QOid oid );
+
+
 
 
     ///
