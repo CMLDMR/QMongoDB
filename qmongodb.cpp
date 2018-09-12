@@ -1100,6 +1100,16 @@ QString QMongoDB::getLastError() const
 
 }
 
+QString QMongoDB::getUrl() const
+{
+    return mUrl;
+}
+
+QString QMongoDB::getDb() const
+{
+    return db;
+}
+
 #ifdef MAC_IOS
 
 #else

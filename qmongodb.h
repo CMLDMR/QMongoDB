@@ -64,7 +64,7 @@ public:
     ///
     /// \brief isValid
     /// \return
-    /// only available on macosx or ios
+    /// only available on MACOSX or iOS
     /// do not use another platform
     bool isValid();
 
@@ -114,6 +114,19 @@ public:
 
 
     QString getLastError() const;
+
+
+    ///
+    /// \brief getUrl getMongoDB url
+    /// \return
+    ///
+    QString getUrl() const;
+
+    ///
+    /// \brief getDb get DataBase Name
+    /// \return
+    ///
+    QString getDb() const;
 
 Q_SIGNALS:
     void gridfsbytereceived(int);
