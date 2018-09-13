@@ -5,6 +5,9 @@
 #include <QtCore/qglobal.h>
 #include "qelement.h"
 
+
+class QMLBSON;
+
 class QMLElement : public QObject , public QElement
 {
     Q_OBJECT
@@ -58,6 +61,8 @@ private:
     bool getBool() const;
 
     QString Oid() const;
+
+    QMLBSON getBson() const;
 
     QString TypeName() const;
 
