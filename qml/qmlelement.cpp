@@ -10,11 +10,12 @@ QMLElement::QMLElement(QObject *parent)
 QMLElement::QMLElement(const QMLElement& element)
 {
     QElement _element( this->getType(),element.getValue(),element.getKey() );
+    this->setElement(_element);
 }
 
 QMLElement::QMLElement(const QElement &element)
 {
-
+    this->setElement(element);
 }
 
 QMLElement::QMLElement(const QElementType &type, const QString &key, const QString &value)
@@ -140,7 +141,7 @@ QString QMLElement::getString() const
     {
         return this->getValue().toString();
     }else{
-        throw QError(QString("this element is not String type, Key is ")+this->Key());
+        throw QError(QString("this element is not String type, Key is ")+this->Key() );
     }
 }
 
