@@ -675,6 +675,15 @@ QElement QArray::operator[](const int index)
     return this->mapData[index];
 }
 
+QElement QArray::value(const int index)
+{
+    if( this->mapData.count() <= index || index < 0)
+    {
+        throw QString("[%1] index out of bound: 0-%2").arg(index).arg(this->mapData.count());
+    }
+    return this->mapData[index];
+}
+
 QProjection::QProjection()
 {
 

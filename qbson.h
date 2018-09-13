@@ -42,7 +42,7 @@ public:
 
     QElement operator[](const int index);
 
-
+    QElement value(const int index);
 
     using container = QVector<QElement>;
 
