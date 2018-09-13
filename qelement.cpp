@@ -19,7 +19,7 @@ QElement::QElement(QElementType type_, QOid oid, QString key)
         throw QError("Key Not Contain \".\"");
     }
     this->key = key;
-    this->setValue( QVariant::fromValue( oid ) );
+    this->val = QVariant::fromValue( oid ) ;
     this->type = type_;
 }
 
@@ -31,7 +31,7 @@ QElement::QElement(QOid oid, QString key)
     }
     this->key = key;
     this->type = QElementType::b_oid;
-    this->setValue( QVariant::fromValue( oid ) );
+    this->val = QVariant::fromValue( oid );
 }
 
 QElement::QElement(QByteArray binary, QString key)
@@ -64,12 +64,14 @@ QElement::QElement(const QElement &element)
         throw QError("Key Not Contain \".\"");
     }
     this->setKey( element.getKey() );
-    this->setType( element.getType() );
+//    this->setType( element.getType() );
     if( element.getType() == QElementType::b_oid )
     {
-        this->setValue( QVariant::fromValue(element.getOid()) );
+        this->val = QVariant::fromValue( element.getOid());
+        this->type = element.getType() ;
     }else{
         this->setValue( element.getValue() );
+        this->setType( element.getType() );
     }
 
 }
@@ -81,12 +83,14 @@ QElement::QElement(QElement &element)
         throw QError("Key Not Contain \".\"");
     }
     this->setKey( element.getKey() );
-    this->setType( element.getType() );
+//    this->setType( element.getType() );
     if( element.getType() == QElementType::b_oid )
     {
-        this->setValue( QVariant::fromValue(element.getOid()) );
+        this->val = QVariant::fromValue(element.getOid()) ;
+        this->type = element.getType() ;
     }else{
         this->setValue( element.getValue() );
+        this->setType( element.getType() );
     }
 }
 
@@ -97,12 +101,14 @@ QElement::QElement(QElement &&element)
         throw QError("Key Not Contain \".\"");
     }
     this->setKey( element.getKey() );
-    this->setType( element.getType() );
+
     if( element.getType() == QElementType::b_oid )
     {
-        this->setValue( QVariant::fromValue(element.getOid()) );
+        this->val = QVariant::fromValue(element.getOid()) ;
+        this->type = element.getType() ;
     }else{
         this->setValue( element.getValue() );
+        this->setType( element.getType() );
     }
 }
 
@@ -114,6 +120,13 @@ bool QElement::isValid() const
     if( !this->val.isValid() )                  { qDebug() << "val is not Valid"; return false; }
     if( this->val.isNull() )                    { qDebug() << "val is null"; return false;}
     return true;
+}
+
+void QElement::setOid(QOid oid, QString key)
+{
+    this->key = key;
+    this->type = QElementType::b_oid;
+    this->val = QVariant::fromValue(oid);
 }
 
 QBSON QElement::toDocument() const
@@ -141,12 +154,14 @@ QElement &QElement::operator=(const QElement &element)
         throw QError("Key Not Contain \".\"");
     }
     this->setKey( element.getKey() );
-    this->setType( element.getType() );
+
     if( element.getType() == QElementType::b_oid )
     {
-        this->setValue( QVariant::fromValue( element.getOid() ) );
+        this->val = QVariant::fromValue( element.getOid() ) ;
+        this->type = ( element.getType() );
     }else{
         this->setValue( element.getValue() );
+        this->setType( element.getType() );
     }
     return *this;
 }
@@ -167,7 +182,7 @@ QVariant QElement::getValue() const
     {
         return val;
     }else{
-        throw QError("expected QVariant but QOid");
+        throw QError("expected QVariant but this type QOid");
     }
 
 }
@@ -184,7 +199,14 @@ QElementType QElement::getType() const
 
 void QElement::setType(const QElementType &value)
 {
-    type = value;
+
+    if( value == QElementType::b_oid )
+    {
+        throw QError("Can Not Set Oid Type. QElement oid type is only construction");
+    }else{
+        type = value;
+    }
+
 }
 
 QOid QElement::getOid() const
