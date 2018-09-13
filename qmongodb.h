@@ -77,7 +77,6 @@ public:
 
 
 
-
     QVector<QBSON> find(QString collection , QBSON filter , QOption option = QOption() );
     QVector<QBSON> find(std::string collection , QBSON filter , QOption option = QOption() );
     QVector<QBSON> find(const char* collection , QBSON filter , QOption option = QOption() );
