@@ -41,6 +41,8 @@ enum class QElementType : int
 };
 
 
+
+
 class QMONGODBSHARED_EXPORT QOid
 {
     QString mOid;
@@ -118,6 +120,13 @@ public:
     /// \return
     /// if key is not null,val is not null or invalid , type is not equal QElementType==b_invalid return false else return true
     bool isValid() const;
+
+    ///
+    /// \brief setOid
+    /// \param oid
+    /// \param key
+    ///
+    void setOid(QOid oid , QString key);
 
     QBSON toDocument() const;
     QArray toArray() const;
