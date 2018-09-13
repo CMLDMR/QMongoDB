@@ -1,4 +1,5 @@
 #include "qmlelement.h"
+#include "qmlbson.h"
 
 QMLElement::QMLElement(QObject *parent)
     : QObject(parent)
@@ -141,7 +142,9 @@ QString QMLElement::getString() const
     {
         return this->getValue().toString();
     }else{
-        throw QError(QString("this element is not String type, Key is ")+this->Key() );
+        qDebug() << "this element is not String type, Key is " << this->Key();
+//        throw QError(QString("this element is not String type, Key is ")+this->Key() );
+        return "";
     }
 }
 
@@ -190,6 +193,21 @@ QString QMLElement::Oid() const
         return "nullptr";
     }
 
+}
+
+QMLBSON QMLElement::getBson() const
+{
+    if( this->getType() == QElementType::b_document )
+    {
+        try {
+            return this->toDocument();
+        } catch (QError &e) {
+            return QMLBSON();
+        }
+    }else{
+        qDebug() << QString("this element is not b_document type, Key is ")+this->Key();
+        return QMLBSON();
+    }
 }
 
 QString QMLElement::TypeName() const
