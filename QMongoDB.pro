@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       -= gui
-QT       += core network
+QT       += core network qml
 
 TARGET = QMongoDB
 TEMPLATE = lib
@@ -31,7 +31,10 @@ SOURCES += \
     qbson.cpp \
     qerror.cpp \
     src/socket.cpp \
-    qelement.cpp
+    qelement.cpp \
+    qml/qmlmongodb.cpp \
+    qml/qmlelement.cpp \
+    qml/qmlbson.cpp
 
 HEADERS += \
         qmongodb.h \
@@ -39,7 +42,10 @@ HEADERS += \
     qbson.h \
     qerror.h \
     src/socket.h \
-    qelement.h
+    qelement.h \
+    qml/qmlmongodb.h \
+    qml/qmlelement.h \
+    qml/qmlbson.h
 
 
 
