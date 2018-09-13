@@ -472,6 +472,24 @@ QElement QBSON::operator[](const char *key)
     return str;
 }
 
+QElement QBSON::value(const QString &key)
+{
+    if( !this->Keys().contains(key) ){
+        throw QError(QString("%1 is not exist!").arg(key));
+    }
+
+    QElement str(QElementType::b_null);
+    for( auto doc : this->maplist )
+    {
+        if( key == doc.getKey() )
+        {
+            str = doc;
+            break;
+        }
+    }
+    return str;
+}
+
 const QStringList QBSON::Keys()
 {
     QStringList strList;
@@ -859,5 +877,7 @@ void consoleLog(std::string &stream , QArray array ){
 
     return;
 }
+
+
 
 

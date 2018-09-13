@@ -190,6 +190,14 @@ public:
     ///
     QElement operator[](const char* key);
 
+    ///
+    /// \brief value: throw QError if key is not exist
+    /// \param key
+    /// \return
+    ///
+    QElement value( const QString& key );
+
+
     const QStringList Keys();
 
 
