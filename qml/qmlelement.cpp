@@ -19,6 +19,11 @@ QMLElement::QMLElement(const QElement &element)
     this->setElement(element);
 }
 
+QMLElement &QMLElement::operator=(const QMLElement &other)
+{
+    this->setElement(other.getQElement());
+}
+
 QMLElement::QMLElement(const QElementType &type, const QString &key, const QString &value)
 {
     qDebug() << static_cast<int>(type) << key << value;
@@ -39,24 +44,18 @@ QMLElement::QMLElement(const QElementType &type, const QString &key, const QStri
     default:
         break;
     }
-//    this->setKey( key );
-//    this->setType( type );
-//    this->setValue( value );
 }
 
 QVariant QMLElement::newElement()
 {
     QMLElement* element = new QMLElement();
-    return QVariant::fromValue(element);
+    return QVariant::fromValue( element );
 }
 
 QVariant QMLElement::newElement(const QMLElement::Type &type, const QString &key, const QString &value)
 {
-    qDebug() << type << key << value;
-
     QMLElement* element = new QMLElement(QMLElement::ConvertType(type),key,value);
     return QVariant::fromValue( element );
-
 }
 
 void QMLElement::setData(const QString &key, const QString &value, const QMLElement::Type &type)
@@ -119,11 +118,12 @@ void QMLElement::setData(const QVariant &element)
     }
 }
 
-QElement QMLElement::getQElement()
+QElement QMLElement::getQElement() const
 {
     QElement element = static_cast<QElement>(*this);
     return element;
 }
+
 
 QString QMLElement::Key() const
 {

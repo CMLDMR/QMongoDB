@@ -17,13 +17,15 @@ class QMLElement : public QObject , public QElement
     Q_PROPERTY(int Int READ getInt )
     Q_PROPERTY(bool Bool READ getBool )
     Q_PROPERTY(QString TypeName READ TypeName )
-    Q_PROPERTY(QString Type READ getElementType )
+    Q_PROPERTY(Type Type READ getElementType )
     Q_PROPERTY(QString Oid READ Oid )
     Q_PROPERTY(QVariant Bson READ getBson )
 public:
     explicit QMLElement(QObject *parent = nullptr);
     QMLElement(const QMLElement& element);
     QMLElement(const QElement& element);
+
+    QMLElement& operator=(const QMLElement& other);
 
     enum Type{
         B_double = 0,
@@ -52,7 +54,7 @@ public:
 
 
 
-    QElement getQElement();
+    Q_INVOKABLE QElement getQElement() const;
 
 private:
     QString Key() const;
