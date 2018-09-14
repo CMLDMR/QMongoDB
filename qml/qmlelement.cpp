@@ -119,6 +119,12 @@ void QMLElement::setData(const QVariant &element)
     }
 }
 
+QElement QMLElement::getQElement()
+{
+    QElement element = static_cast<QElement>(*this);
+    return element;
+}
+
 QString QMLElement::Key() const
 {
     return this->getKey();
@@ -195,18 +201,18 @@ QString QMLElement::Oid() const
 
 }
 
-QMLBSON QMLElement::getBson() const
+QVariant QMLElement::getBson() const
 {
     if( this->getType() == QElementType::b_document )
     {
         try {
-            return this->toDocument();
+            return QVariant::fromValue(this->toDocument());
         } catch (QError &e) {
-            return QMLBSON();
+            return QVariant::fromValue(QMLBSON());
         }
     }else{
-        qDebug() << QString("this element is not b_document type, Key is ")+this->Key();
-        return QMLBSON();
+        qDebug() << QString("this element is not b_document type, Key is ") + this->Key();
+        return QVariant::fromValue(QMLBSON());
     }
 }
 

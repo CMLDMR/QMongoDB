@@ -18,7 +18,8 @@ class QMLElement : public QObject , public QElement
     Q_PROPERTY(bool Bool READ getBool )
     Q_PROPERTY(QString TypeName READ TypeName )
     Q_PROPERTY(QString Type READ getElementType )
-    Q_PROPERTY(QString oid READ Oid )
+    Q_PROPERTY(QString Oid READ Oid )
+    Q_PROPERTY(QVariant Bson READ getBson )
 public:
     explicit QMLElement(QObject *parent = nullptr);
     QMLElement(const QMLElement& element);
@@ -40,14 +41,18 @@ public:
     Q_ENUM(Type)
 
 
-    Q_INVOKABLE QVariant newElement();
-    Q_INVOKABLE QVariant newElement(const QMLElement::Type& type ,const QString& key , const QString& value );
+    Q_INVOKABLE static QVariant newElement();
+    Q_INVOKABLE static QVariant newElement(const QMLElement::Type& type ,const QString& key , const QString& value );
 
     Q_INVOKABLE void setData( const QString& key , const QString& value  , const Type& type = B_utf8 );
     Q_INVOKABLE void setData( const QString& key , const double& value);
     Q_INVOKABLE void setData( const QString& key , const int& value , const Type& type = B_int32 );
     Q_INVOKABLE void setData( const QString& key , const bool& value );
     Q_INVOKABLE void setData( const QVariant &element );
+
+
+
+    QElement getQElement();
 
 private:
     QString Key() const;
@@ -62,7 +67,7 @@ private:
 
     QString Oid() const;
 
-    QMLBSON getBson() const;
+    QVariant getBson() const;
 
     QString TypeName() const;
 
