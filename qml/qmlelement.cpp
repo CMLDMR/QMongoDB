@@ -1,5 +1,6 @@
 #include "qmlelement.h"
 #include "qmlbson.h"
+#include "qmlarray.h"
 
 QMLElement::QMLElement(QObject *parent)
     : QObject(parent)
@@ -26,8 +27,6 @@ QMLElement &QMLElement::operator=(const QMLElement &other)
 
 QMLElement::QMLElement(const QElementType &type, const QString &key, const QString &value)
 {
-    qDebug() << static_cast<int>(type) << key << value;
-
     switch ( type ) {
     case QElementType::b_utf8:
     {
@@ -58,9 +57,49 @@ QVariant QMLElement::newElement(const QMLElement::Type &type, const QString &key
     return QVariant::fromValue( element );
 }
 
+void QMLElement::setStringData(const QString &key, const QString &value)
+{
+    this->setType(QElementType::b_utf8);
+    this->setValue(QVariant::fromValue(value));
+    this->setKey(key);
+}
+
+void QMLElement::setOidData(const QString &key, const QString &oid)
+{
+    this->setOid(QOid(oid),key);
+}
+
+void QMLElement::setInt32Data(const QString &key, const int &value)
+{
+    this->setType(QElementType::b_int32);
+    this->setValue(QVariant::fromValue(value));
+    this->setKey(key);
+}
+
+void QMLElement::setInt64Data(const QString &key, const qint64 &value)
+{
+    this->setType(QElementType::b_int64);
+    this->setValue(QVariant::fromValue(value));
+    this->setKey(key);
+}
+
+void QMLElement::setDoubleData(const QString &key, const double &value)
+{
+    this->setType(QElementType::b_double);
+    this->setValue(QVariant::fromValue(value));
+    this->setKey(key);
+}
+
+void QMLElement::setBoolData(const QString &key, const bool &value)
+{
+    this->setType(QElementType::b_bool);
+    this->setValue(QVariant::fromValue(value));
+    this->setKey(key);
+}
+
+
 void QMLElement::setData(const QString &key, const QString &value, const QMLElement::Type &type)
 {
-    qDebug() << "setData Call QString";
     QElement element(QElementType::b_null,QVariant::fromValue(value),key);
 
     switch ( type ) {
@@ -73,27 +112,23 @@ void QMLElement::setData(const QString &key, const QString &value, const QMLElem
     default:
         break;
     }
-
     this->setElement(element);
 }
 
 void QMLElement::setData(const QString &key, const double &value)
 {
-    qDebug() << "setData Call double";
     QElement element(QElementType::b_double,QVariant::fromValue(value),key);
     this->setElement(element);
 }
 
 void QMLElement::setData(const QString &key, const int &value , const Type& type)
 {
-    qDebug() << "setData Call int";
     QElement element(QElementType::b_int32,QVariant::fromValue(value),key);
     this->setElement(element);
 }
 
 void QMLElement::setData(const QString &key, const bool &value)
 {
-    qDebug() << "setData Call bool";
     QElement element(QElementType::b_bool,QVariant::fromValue(value),key);
     this->setElement(element);
 }
@@ -118,6 +153,8 @@ void QMLElement::setData(const QVariant &element)
     }
 }
 
+
+
 QElement QMLElement::getQElement() const
 {
     QElement element = static_cast<QElement>(*this);
@@ -136,8 +173,6 @@ double QMLElement::getDouble() const
     {
         return this->getValue().toDouble();
     }else{
-//        throw QError(QString("this element is not double type, Key is ")+this->Key());
-        qDebug() << QString("this element is not double type, Key is ")+this->Key();
         return 0;
     }
 }
@@ -148,8 +183,6 @@ QString QMLElement::getString() const
     {
         return this->getValue().toString();
     }else{
-        qDebug() << "this element is not String type, Key is " << this->Key();
-//        throw QError(QString("this element is not String type, Key is ")+this->Key() );
         return "";
     }
 }
@@ -160,8 +193,16 @@ int QMLElement::getInt() const
     {
         return this->getValue().toInt();
     }else{
-//        throw QError(QString("this element is not int32 type, Key is ")+this->Key());
-        qDebug() << QString("this element is not int32 type, Key is ")+this->Key();
+        return 0;
+    }
+}
+
+QVariant QMLElement::getInt64() const
+{
+    if( this->getType() == QElementType::b_int64 )
+    {
+        return this->getValue();
+    }else{
         return 0;
     }
 }
@@ -172,49 +213,48 @@ bool QMLElement::getBool() const
     {
         return this->getValue().toBool();
     }else{
-//        throw QError(QString("this element is not Bool type, Key is ")+this->Key());
-        qDebug() << QString("this element is not Bool type, Key is ")+this->Key();
         return false;
     }
 }
 
 QString QMLElement::Oid() const
 {
-    qDebug() << static_cast<int>(this->getType());
-//    qDebug() << this->getValue();
     if( this->getType() == QElementType::b_oid )
     {
-        qDebug() << "type is oid";
         try {
-//            qDebug() << this->getOid().oid();
             return this->getOid().oid();
         } catch (QError &e) {
             return e.what();
         }
-
-
     }else{
-//        throw QError(QString("this element is not Oid type, Key is ")+this->Key());
-        qDebug() << QString("this element is not Oid type, Key is ")+this->Key();
         return "nullptr";
     }
 
 }
 
-QVariant QMLElement::getBson() const
+QMLBSON* QMLElement::getBson() const
 {
     if( this->getType() == QElementType::b_document )
     {
-        try {
-            return QVariant::fromValue(this->toDocument());
-        } catch (QError &e) {
-            return QVariant::fromValue(QMLBSON());
-        }
+        QMLBSON* bson = new QMLBSON(this->toDocument());
+        return bson;
     }else{
-        qDebug() << QString("this element is not b_document type, Key is ") + this->Key();
-        return QVariant::fromValue(QMLBSON());
+        return new QMLBSON();
     }
 }
+
+QMLArray *QMLElement::getArray() const
+{
+    if( this->getType() == QElementType::b_array )
+    {
+        auto array = new QMLArray(this->toArray());
+        return array;
+    }else{
+        return new QMLArray();
+    }
+}
+
+
 
 QString QMLElement::TypeName() const
 {

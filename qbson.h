@@ -24,10 +24,13 @@ class QBSON;
 
 class QMONGODBSHARED_EXPORT QArray
 {
+    using container = QVector<QElement>;
 public:
     QArray() {}
 
     int count() const;
+
+    void clear();
 
     void append(QString str);
     void append(double val);
@@ -43,8 +46,9 @@ public:
     QElement operator[](const int index);
 
     QElement value(const int index);
+    const QElement const_value(const int index) const;
 
-    using container = QVector<QElement>;
+
 
     using iterator = typename container::iterator;
     using const_iterator = typename container::const_iterator;

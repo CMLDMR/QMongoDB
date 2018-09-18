@@ -7,6 +7,7 @@
 
 
 class QMLBSON;
+class QMLArray;
 
 class QMLElement : public QObject , public QElement
 {
@@ -15,15 +16,18 @@ class QMLElement : public QObject , public QElement
     Q_PROPERTY(double Double READ getDouble )
     Q_PROPERTY(QString String READ getString )
     Q_PROPERTY(int Int READ getInt )
+    Q_PROPERTY(QVariant Int64 READ getInt64 )
     Q_PROPERTY(bool Bool READ getBool )
     Q_PROPERTY(QString TypeName READ TypeName )
     Q_PROPERTY(Type Type READ getElementType )
     Q_PROPERTY(QString Oid READ Oid )
-    Q_PROPERTY(QVariant Bson READ getBson )
+    Q_PROPERTY(QMLBSON* Bson READ getBson )
+    Q_PROPERTY(QMLArray* Array READ getArray )
 public:
     explicit QMLElement(QObject *parent = nullptr);
     QMLElement(const QMLElement& element);
     QMLElement(const QElement& element);
+    virtual ~QMLElement(){/*qDebug() << "QMLElement Desturctor";*/}
 
     QMLElement& operator=(const QMLElement& other);
 
@@ -46,6 +50,13 @@ public:
     Q_INVOKABLE static QVariant newElement();
     Q_INVOKABLE static QVariant newElement(const QMLElement::Type& type ,const QString& key , const QString& value );
 
+    Q_INVOKABLE void setStringData( const QString& key , const QString& value );
+    Q_INVOKABLE void setOidData( const QString& key , const QString& oid );
+    Q_INVOKABLE void setInt32Data( const QString& key , const int& value );
+    Q_INVOKABLE void setInt64Data( const QString& key , const qint64& value );
+    Q_INVOKABLE void setDoubleData( const QString& key , const double& value );
+    Q_INVOKABLE void setBoolData( const QString& key , const bool& value );
+
     Q_INVOKABLE void setData( const QString& key , const QString& value  , const Type& type = B_utf8 );
     Q_INVOKABLE void setData( const QString& key , const double& value);
     Q_INVOKABLE void setData( const QString& key , const int& value , const Type& type = B_int32 );
@@ -56,6 +67,8 @@ public:
 
     Q_INVOKABLE QElement getQElement() const;
 
+    Type getElementType() const;
+
 private:
     QString Key() const;
 
@@ -65,15 +78,18 @@ private:
 
     int getInt() const;
 
+    QVariant getInt64() const;
+
     bool getBool() const;
 
     QString Oid() const;
 
-    QVariant getBson() const;
+    QMLBSON *getBson() const;
+
+    QMLArray* getArray() const;
 
     QString TypeName() const;
 
-    Type getElementType() const;
 
     static QElementType ConvertType(QMLElement::Type type);
 

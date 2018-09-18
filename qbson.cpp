@@ -586,6 +586,11 @@ int QArray::count() const
     return mapData.count();
 }
 
+void QArray::clear()
+{
+    this->mapData.clear();
+}
+
 void QArray::append(QString str)
 {
     QElement element(QElementType::b_utf8);
@@ -617,6 +622,8 @@ void QArray::append(qint32 val)
     this->mapData.append(element);
 }
 
+
+
 void QArray::append(qint64 val)
 {
     QElement element(QElementType::b_int64);
@@ -640,6 +647,8 @@ void QArray::append(QArray array)
     element.setValue( QVariant::fromValue(array) );
     this->mapData.append(element);
 }
+
+
 
 void QArray::append(QElement element)
 {
@@ -681,6 +690,17 @@ QElement QArray::value(const int index)
     {
         throw QString("[%1] index out of bound: 0-%2").arg(index).arg(this->mapData.count());
     }
+    auto element = this->mapData[index];
+    return this->mapData[index];
+}
+
+const QElement QArray::const_value(const int index) const
+{
+    if( this->mapData.count() <= index || index < 0)
+    {
+        throw QString("[%1] index out of bound: 0-%2").arg(index).arg(this->mapData.count());
+    }
+    auto element = this->mapData[index];
     return this->mapData[index];
 }
 

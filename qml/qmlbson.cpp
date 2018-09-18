@@ -1,4 +1,8 @@
 ﻿#include "qmlbson.h"
+#include "qml/qmlarray.h"
+#include <memory>
+
+
 
 QMLBSON::QMLBSON(QObject *parent) : QObject(parent)
 {
@@ -17,25 +21,68 @@ QMLBSON::QMLBSON(const QBSON &bson)
     this->append(bson.getMaplist());
 }
 
-QVariant QMLBSON::newBSON()
+QMLBSON *QMLBSON::operator=(QMLBSON *bson)
+{
+    this->clear();
+    this->append(bson->getMaplist());
+}
+
+QMLBSON* QMLBSON::newBSON()
 {
     QMLBSON* bson = new QMLBSON();
-    return QVariant::fromValue(bson);
+    return (bson);
 }
+
+void QMLBSON::addString( const QString &key, const QString &value )
+{
+    this->append(key,value);
+}
+
+void QMLBSON::addOid(const QString &key, const QString &oid)
+{
+    this->append(key,QOid(oid));
+}
+
+void QMLBSON::addInt(const QString &key, const int &value)
+{
+    this->append(key,value);
+}
+
+void QMLBSON::addInt64(const QString &key, const qint64 &value)
+{
+    this->append(key,value);
+}
+
+void QMLBSON::addDouble(const QString &key, const double &value)
+{
+    this->append( key , value );
+}
+
+void QMLBSON::addBool(const QString &key, const bool &value)
+{
+    this->append( key , value );
+}
+
+void QMLBSON::addBson(const QString &key, QMLBSON* value)
+{
+    this->append(key,value->getQBSON());
+}
+
+void QMLBSON::addArray(const QString &key, QMLArray *value)
+{
+    this->append(key,value->getArray());
+}
+
+
 
 QMLBSON &QMLBSON::add(QString key, QString value, const QMLElement::Type &type)
 {
-
     if( type == QMLElement::B_oid )
     {
-        qDebug() << "insert Oid";
         this->append(key,QOid(value));
     }else{
-        qDebug() << "insert QString Value";
         this->append(key,value);
-        qDebug() << this->value(key).getValue() << value;
     }
-
 }
 
 QMLBSON &QMLBSON::add(QString key, qreal value, const QMLElement::Type &type)
@@ -54,70 +101,64 @@ QMLBSON &QMLBSON::add(QString key, qreal value, const QMLElement::Type &type)
 
 QMLBSON &QMLBSON::add(QString key, bool value)
 {
-    qDebug() << "Call add bool";
     this->append(key,value);
 }
 
 QMLBSON &QMLBSON::add(QString key, QMLBSON* value)
 {
-    qDebug() << "Call add QMLBSON" << key << value->tojson().c_str();
     this->append(key,*value);
-    qDebug() << "View added QMLBSON" << this->tojson().c_str()<<"\n";
 }
 
+bool QMLBSON::containsKey(const QString &key)
+{
+    if( !this->Keys().contains(key) )
+    {
+        return false;
+    }else{
+        return true;
+    }
+}
 
-QVariant QMLBSON::getElement(const QString &key)
+QMLElement *QMLBSON::getElement(const QString &key)
 {
     if( !this->Keys().contains(key) )
     {
         QString err = "bson document has no key: "+key;
         qDebug() << err;
-        return QVariant();
+        return new QMLElement();
     }else{
         QElement element = this->value(key);
-
-        switch (element.getType()) {
-        case QElementType::b_document:
-        {
-            qDebug() << "This is Bson Object. Use getBson function ("+key+")";
-            return QVariant();
-        }
-            break;
-        default:
-        {
-            QMLElement *_element = new QMLElement(element);
-            return QVariant::fromValue(_element);
-        }
-            break;
-        }
+        return new QMLElement(this->value(key));
     }
 }
 
-QVariant QMLBSON::getBson(const QString &key)
+
+QMLElement::Type QMLBSON::getElementType(const QString &key)
 {
     if( !this->Keys().contains(key) )
     {
         QString err = "bson document has no key: "+key;
         qDebug() << err;
-        return QVariant();
+        return QMLElement::B_invalid;
     }else{
-        QElement element = this->value(key);
-
-        switch (element.getType()) {
-        case QElementType::b_document:
-        {
-            qDebug() << element.toDocument().tojson().c_str();
-            QMLBSON *_bson = new QMLBSON(element.toDocument());
-            return QVariant::fromValue(_bson);
-        }
-            break;
-        default:
-        {
-            qDebug() << "This is Not BSON object within Key: " + key ;
-            return QVariant();
-        }
-            break;
-        }
+        auto e = std::make_unique<QMLElement>(this->value(key));
+        auto type = e->getElementType();
+        return type;
     }
 }
+
+QJsonArray QMLBSON::getKeys()
+{
+    QJsonArray keylist;
+    for( auto key : this->Keys() ){
+        keylist.append(key);
+    }
+    return keylist;
+}
+
+QBSON QMLBSON::getQBSON()
+{
+    return static_cast<QBSON>(*this);
+}
+
 
