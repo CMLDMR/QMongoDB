@@ -223,7 +223,7 @@ public:
 
     static QString TypeToString(QElementType type);
 
-    std::string tojson();
+    std::string tojson() const;
 
 
 
@@ -236,7 +236,6 @@ public:
         {
 
             auto element = bson.getMaplist().at(i);
-            qDebug() << "KEY<<" << element.getKey();
             in << static_cast<int>(element.getType());
             if( element.getType() == QElementType::b_document )
             {

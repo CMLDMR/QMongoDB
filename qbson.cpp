@@ -562,12 +562,19 @@ QString QBSON::TypeToString(QElementType type)
 
 }
 
-std::string QBSON::tojson()
+std::string QBSON::tojson() const
 {
     std::string str;
     str += "{ ";
     consoleLog(str,*this);
-    str += " }";
+    if( str.size() > 2 )
+    {
+        if( str.at(str.size()-2) == ',' )
+        {
+            str.resize(str.size()-2);
+        }
+    }
+    str += "}";
     return str;
 }
 
@@ -836,11 +843,25 @@ void consoleLog( std::string &stream , QBSON obj ){
         case QElementType::b_document:
             stream += "\""+element.getKey().toStdString() +"\" : "+ "{ ";
             consoleLog(stream,element.toDocument());
+            if( stream.size() > 2 )
+            {
+                if( stream.at(stream.size()-2) == ',' )
+                {
+                    stream.resize(stream.size()-2);
+                }
+            }
             stream += "} , ";
             break;
         case QElementType::b_array:
             stream += "\""+element.getKey().toStdString() +"\" : "+ "[ ";
             consoleLog(stream,element.toArray());
+            if( stream.size() > 2 )
+            {
+                if( stream.at(stream.size()-2) == ',' )
+                {
+                    stream.resize(stream.size()-2);
+                }
+            }
             stream += "] , ";
             break;
         case QElementType::b_binary:
@@ -888,11 +909,25 @@ void consoleLog(std::string &stream , QArray array ){
         case QElementType::b_document:
             stream += "{ ";
             consoleLog(stream,element.toDocument());
+            if( stream.size() > 2 )
+            {
+                if( stream.at(stream.size()-2) == ',' )
+                {
+                    stream.resize(stream.size()-2);
+                }
+            }
             stream += " } , ";
             break;
         case QElementType::b_array:
             stream += "[";
             consoleLog(stream,element.toArray());
+            if( stream.size() > 2 )
+            {
+                if( stream.at(stream.size()-2) == ',' )
+                {
+                    stream.resize(stream.size()-2);
+                }
+            }
             stream += "] , ";
             break;
         case QElementType::b_binary:
