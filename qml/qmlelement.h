@@ -12,7 +12,7 @@ class QMLArray;
 class QMLElement : public QObject , public QElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString Key READ Key )
+    Q_PROPERTY(QString Key READ Key NOTIFY keyChanged )
     Q_PROPERTY(double Double READ getDouble )
     Q_PROPERTY(QString String READ getString )
     Q_PROPERTY(int Int READ getInt )
@@ -95,6 +95,7 @@ private:
 
 
 signals:
+    void keyChanged();
 
 public slots:
 

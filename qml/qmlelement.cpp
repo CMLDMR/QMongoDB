@@ -13,16 +13,19 @@ QMLElement::QMLElement(const QMLElement& element)
 {
     QElement _element( this->getType(),element.getValue(),element.getKey() );
     this->setElement(_element);
+    emit keyChanged();
 }
 
 QMLElement::QMLElement(const QElement &element)
 {
     this->setElement(element);
+    emit keyChanged();
 }
 
 QMLElement &QMLElement::operator=(const QMLElement &other)
 {
     this->setElement(other.getQElement());
+    emit keyChanged();
 }
 
 QMLElement::QMLElement(const QElementType &type, const QString &key, const QString &value)
@@ -43,6 +46,7 @@ QMLElement::QMLElement(const QElementType &type, const QString &key, const QStri
     default:
         break;
     }
+    emit keyChanged();
 }
 
 QMLElement* QMLElement::newElement()
@@ -62,11 +66,13 @@ void QMLElement::setStringData(const QString &key, const QString &value)
     this->setType(QElementType::b_utf8);
     this->setValue(QVariant::fromValue(value));
     this->setKey(key);
+    emit keyChanged();
 }
 
 void QMLElement::setOidData(const QString &key, const QString &oid)
 {
     this->setOid(QOid(oid),key);
+    emit keyChanged();
 }
 
 void QMLElement::setInt32Data(const QString &key, const int &value)
@@ -74,6 +80,7 @@ void QMLElement::setInt32Data(const QString &key, const int &value)
     this->setType(QElementType::b_int32);
     this->setValue(QVariant::fromValue(value));
     this->setKey(key);
+    emit keyChanged();
 }
 
 void QMLElement::setInt64Data(const QString &key, const qint64 &value)
@@ -81,6 +88,7 @@ void QMLElement::setInt64Data(const QString &key, const qint64 &value)
     this->setType(QElementType::b_int64);
     this->setValue(QVariant::fromValue(value));
     this->setKey(key);
+    emit keyChanged();
 }
 
 void QMLElement::setDoubleData(const QString &key, const double &value)
@@ -88,6 +96,7 @@ void QMLElement::setDoubleData(const QString &key, const double &value)
     this->setType(QElementType::b_double);
     this->setValue(QVariant::fromValue(value));
     this->setKey(key);
+    emit keyChanged();
 }
 
 void QMLElement::setBoolData(const QString &key, const bool &value)
@@ -95,6 +104,7 @@ void QMLElement::setBoolData(const QString &key, const bool &value)
     this->setType(QElementType::b_bool);
     this->setValue(QVariant::fromValue(value));
     this->setKey(key);
+    emit keyChanged();
 }
 
 
@@ -113,24 +123,28 @@ void QMLElement::setData(const QString &key, const QString &value, const QMLElem
         break;
     }
     this->setElement(element);
+    emit keyChanged();
 }
 
 void QMLElement::setData(const QString &key, const double &value)
 {
     QElement element(QElementType::b_double,QVariant::fromValue(value),key);
     this->setElement(element);
+    emit keyChanged();
 }
 
 void QMLElement::setData(const QString &key, const int &value , const Type& type)
 {
     QElement element(QElementType::b_int32,QVariant::fromValue(value),key);
     this->setElement(element);
+    emit keyChanged();
 }
 
 void QMLElement::setData(const QString &key, const bool &value)
 {
     QElement element(QElementType::b_bool,QVariant::fromValue(value),key);
     this->setElement(element);
+    emit keyChanged();
 }
 
 void QMLElement::setData(const QVariant &element)
@@ -151,6 +165,7 @@ void QMLElement::setData(const QVariant &element)
         this->setValue(QVariant::fromValue(element_->getValue()));
         break;
     }
+    emit keyChanged();
 }
 
 
@@ -404,5 +419,6 @@ void QMLElement::setElement(const QElement &element)
             break;
         }
     }
+    emit keyChanged();
 
 }
