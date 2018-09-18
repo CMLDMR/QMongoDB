@@ -1,5 +1,4 @@
 #include "qbson.h"
-
 #include <QDebug>
 
 
