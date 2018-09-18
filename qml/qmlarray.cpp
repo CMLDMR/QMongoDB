@@ -88,6 +88,11 @@ void QMLArray::insertString( QString value )
     this->append(value);
 }
 
+void QMLArray::insertOid(QString oid)
+{
+    this->append(QOid(oid));
+}
+
 void QMLArray::insertBson( QMLBSON* value )
 {
     this->append(value->getQBSON());

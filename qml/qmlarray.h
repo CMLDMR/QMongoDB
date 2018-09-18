@@ -31,6 +31,7 @@ public:
     Q_INVOKABLE void insertDouble( double value );
     Q_INVOKABLE void insertBool( bool value );
     Q_INVOKABLE void insertString( QString value );
+    Q_INVOKABLE void insertOid( QString oid );
     Q_INVOKABLE void insertBson(QMLBSON *value );
     Q_INVOKABLE void insertArray( QMLArray* value );
     Q_INVOKABLE QMLElement* getElement(const int& index);
