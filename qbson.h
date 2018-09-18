@@ -201,6 +201,14 @@ public:
     ///
     QElement value( const QString& key );
 
+    ///
+    /// \brief removeElement
+    /// \param key
+    /// \return
+    /// Remove First Element that's key = "key"
+    bool removeElement( const QString& key );
+
+
 
     const QStringList Keys();
 

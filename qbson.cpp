@@ -489,6 +489,22 @@ QElement QBSON::value(const QString &key)
     return str;
 }
 
+bool QBSON::removeElement(const QString &key)
+{
+    bool removed = false;
+    int i = 0;
+    for( auto element : this->maplist )
+    {
+        if( element.getKey() == key )
+        {
+            this->maplist.removeAt(i);
+            removed = true;
+        }
+        i++;
+    }
+    return removed;
+}
+
 const QStringList QBSON::Keys()
 {
     QStringList strList;
@@ -719,6 +735,7 @@ QProjection::QProjection()
 
 void QProjection::set(QString key, bool visible)
 {
+    this->bson.removeElement(key);
     this->bson.append(key,visible);
 }
 
@@ -736,11 +753,13 @@ QSort::QSort()
 
 void QSort::sortByAscending(QString key)
 {
+    this->bson.removeElement(key);
     this->bson.append(key,1,QElementType::b_int32);
 }
 
 void QSort::sortByDescending(QString key)
 {
+    this->bson.removeElement(key);
     this->bson.append(key,-1,QElementType::b_int32);
 }
 
@@ -774,21 +793,26 @@ QOption::QOption(QOption &&option)
 
 void QOption::setProjection(const QProjection &projection)
 {
+    this->bson.removeElement("projection");
     this->bson.append("projection",projection.getBson());
 }
 
 void QOption::setSort(const QSort &sort)
 {
+    this->bson.removeElement("sort");
     this->bson.append("sort",sort.getBson());
 }
 
 void QOption::setSkip(int skip)
 {
+    this->bson.removeElement("skip");
     this->bson.append("skip",skip);
+
 }
 
 void QOption::setLimit(int limit)
 {
+    this->bson.removeElement("limit");
     this->bson.append("limit",limit);
 }
 
