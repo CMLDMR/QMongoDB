@@ -27,6 +27,12 @@ QMLBSON *QMLBSON::operator=(QMLBSON *bson)
     this->append(bson->getMaplist());
 }
 
+QMLBSON &QMLBSON::operator=(const QMLBSON &bson)
+{
+    this->clear();
+    this->append(bson.getMaplist());
+}
+
 QMLBSON* QMLBSON::newBSON()
 {
     QMLBSON* bson = new QMLBSON();

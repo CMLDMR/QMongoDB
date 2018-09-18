@@ -19,9 +19,13 @@ public:
     QMLBSON(const QBSON& bson);
 
     QMLBSON* operator=( QMLBSON* bson);
+    QMLBSON& operator=( const QMLBSON& bson);
 
 
-
+    ///
+    /// \brief newBSON
+    /// \return
+    /// New instance of QMLBSON
     Q_INVOKABLE static QMLBSON* newBSON();
 
     Q_INVOKABLE void addString( const QString& key , const QString& value );
