@@ -14,20 +14,47 @@ QMLElement::QMLElement(const QMLElement& element)
     QElement _element( this->getType(),element.getValue(),element.getKey() );
     this->setElement(_element);
     emit keyChanged();
+
+    switch ( this->getType() ) {
+    case QElementType::b_utf8:
+        emit stringChanged();
+        break;
+
+    default:
+        break;
+    }
 }
 
 QMLElement::QMLElement(const QElement &element)
 {
     this->setElement(element);
     emit keyChanged();
+
+    switch ( element.getType() ) {
+    case QElementType::b_utf8:
+        emit stringChanged();
+        break;
+
+    default:
+        break;
+    }
 }
 
 QMLElement &QMLElement::operator=(const QMLElement &other)
 {
     this->setElement(other.getQElement());
     emit keyChanged();
-}
 
+    switch ( other.getType() ) {
+    case QElementType::b_utf8:
+        emit stringChanged();
+        break;
+
+    default:
+        break;
+    }
+}
+//TODO: other element type must be implemented
 QMLElement::QMLElement(const QElementType &type, const QString &key, const QString &value)
 {
     switch ( type ) {
@@ -35,6 +62,7 @@ QMLElement::QMLElement(const QElementType &type, const QString &key, const QStri
     {
         QElement elemet(type,QVariant::fromValue(value),key);
         this->setElement(elemet);
+        emit stringChanged();
     }
         break;
     case QElementType::b_oid:
@@ -67,6 +95,7 @@ void QMLElement::setStringData(const QString &key, const QString &value)
     this->setValue(QVariant::fromValue(value));
     this->setKey(key);
     emit keyChanged();
+    emit stringChanged();
 }
 
 void QMLElement::setOidData(const QString &key, const QString &oid)
@@ -115,6 +144,7 @@ void QMLElement::setData(const QString &key, const QString &value, const QMLElem
     switch ( type ) {
     case QMLElement::B_utf8:
         element.setType(QElementType::b_utf8);
+
         break;
     case QMLElement::B_oid:
         element.setType(QElementType::b_oid);
@@ -420,5 +450,14 @@ void QMLElement::setElement(const QElement &element)
         }
     }
     emit keyChanged();
+
+    switch ( element.getType() ) {
+    case QElementType::b_utf8:
+        emit stringChanged();
+        break;
+
+    default:
+        break;
+    }
 
 }
