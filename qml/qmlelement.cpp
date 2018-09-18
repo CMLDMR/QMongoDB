@@ -45,16 +45,16 @@ QMLElement::QMLElement(const QElementType &type, const QString &key, const QStri
     }
 }
 
-QVariant QMLElement::newElement()
+QMLElement* QMLElement::newElement()
 {
     QMLElement* element = new QMLElement();
-    return QVariant::fromValue( element );
+    return ( element );
 }
 
-QVariant QMLElement::newElement(const QMLElement::Type &type, const QString &key, const QString &value)
+QMLElement* QMLElement::newElement(const QMLElement::Type &type, const QString &key, const QString &value)
 {
     QMLElement* element = new QMLElement(QMLElement::ConvertType(type),key,value);
-    return QVariant::fromValue( element );
+    return ( element );
 }
 
 void QMLElement::setStringData(const QString &key, const QString &value)

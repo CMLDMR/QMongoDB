@@ -47,8 +47,8 @@ public:
     Q_ENUM(Type)
 
 
-    Q_INVOKABLE static QVariant newElement();
-    Q_INVOKABLE static QVariant newElement(const QMLElement::Type& type ,const QString& key , const QString& value );
+    Q_INVOKABLE static QMLElement *newElement();
+    Q_INVOKABLE static QMLElement *newElement(const QMLElement::Type& type ,const QString& key , const QString& value );
 
     Q_INVOKABLE void setStringData( const QString& key , const QString& value );
     Q_INVOKABLE void setOidData( const QString& key , const QString& oid );
