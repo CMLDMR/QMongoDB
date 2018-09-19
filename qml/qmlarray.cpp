@@ -61,46 +61,54 @@ QMLArray*  QMLArray::newArray()
     return array;
 }
 
-
-
-void QMLArray::insertElement( QMLElement *element )
+QMLArray::self &QMLArray::insertElement(QMLElement *element)
 {
     this->append(element->getQElement());
+    return *this;
 }
 
-void QMLArray::insertInt( int value )
+
+
+QMLArray::self &QMLArray::insertInt( int value )
 {
     this->append(QElement(QElementType::b_int32,value,"blank"));
+    return *this;
 }
 
-void QMLArray::insertDouble( double value )
+QMLArray::self &QMLArray::insertDouble( double value )
 {
     this->append(value);
+    return *this;
 }
 
-void QMLArray::insertBool( bool value )
+QMLArray::self &QMLArray::insertBool( bool value )
 {
     this->append(value);
+    return *this;
 }
 
-void QMLArray::insertString( QString value )
+QMLArray::self &QMLArray::insertString( QString value )
 {
     this->append(value);
+    return *this;
 }
 
-void QMLArray::insertOid(QString oid)
+QMLArray::self &QMLArray::insertOid(QString oid)
 {
     this->append(QOid(oid));
+    return *this;
 }
 
-void QMLArray::insertBson( QMLBSON* value )
+QMLArray::self &QMLArray::insertBson( QMLBSON* value )
 {
     this->append(value->getQBSON());
+    return *this;
 }
 
-void QMLArray::insertArray(QMLArray *value)
+QMLArray::self &QMLArray::insertArray(QMLArray *value)
 {
     this->append(value->getArray());
+    return *this;
 }
 
 QMLElement *QMLArray::getElement(const int &index)
