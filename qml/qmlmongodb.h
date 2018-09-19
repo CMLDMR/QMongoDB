@@ -17,10 +17,8 @@ class QMONGODBSHARED_EXPORT QMLMongoDB : public QObject
 public:
     explicit QMLMongoDB();
     QMLMongoDB(const QMLMongoDB& db):QObject (db.parent()) {}
-    QMLMongoDB& operator=(const QMLMongoDB& db){ return *this; }
-    virtual ~QMLMongoDB(){
-        qDebug() << "QMLMongoDB Destructor";
-    }
+    QMLMongoDB& operator=(const QMLMongoDB& db);
+    virtual ~QMLMongoDB();
 
 
     ///
@@ -28,6 +26,7 @@ public:
     /// \return
     /// Check Started DB
     bool isValid() const;
+
 
     ///
     /// \brief start
@@ -87,17 +86,49 @@ public:
 
 
 
-    ///TEST FUNCTION
-    Q_INVOKABLE QString test();
+    ///
+    /// \brief fileurl
+    /// \param oid
+    /// \param fileNametoOid
+    /// \return
+    /// Download GridFS file by given file oid and return file Url type QString
+    Q_INVOKABLE QString fileurl( const QString& oid , bool fileNametoOid = true );
 
-signals:
 
-public slots:
+
+    ///
+    /// \brief uploadfile
+    /// \param filename
+    /// \param key
+    /// \return
+    /// Upload file and return information about file oid in QMLElement
+    QMLElement* uploadfile( const QString& filename , QString key );
+
+
+
+    ///
+    /// \brief getDb
+    /// \return
+    /// Get C++ based db variable
+    QMongoDB *getDb() const;
+
+
+
+
+
+    ///
+    /// \brief instance
+    /// \param url
+    /// \param dbName
+    /// Call This Function before using QMongoDB Operation
+    static void instance(const QString& url , const QString dbName );
 
 
 private:
     QMongoDB* db;
     bool mStarted;
+
+
 
 };
 

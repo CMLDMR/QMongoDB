@@ -9,7 +9,7 @@
 
 
 #define MAJOR   0
-#define MINOR   6
+#define MINOR   7
 
 static QObject *QMLElementSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
@@ -56,6 +56,8 @@ static void registerQmlMongoTypes() {
 Q_COREAPP_STARTUP_FUNCTION(registerQmlMongoTypes)
 
 
+
+namespace MongoInstanceVariable {
 ///
 /// \brief mDBUrl
 /// Connection db url
@@ -66,12 +68,25 @@ static QString mDBUrl;
 /// Connection db Name
 static QString mDBName;
 
+///
+/// \brief instanceCalled
+/// if this true Start Using QMongoDB else Nothing
+static bool instanceCalled = false;
+}
+
+
+
 
 
 QMLMongoDB::QMLMongoDB()
     :QObject (), mStarted(false)
 {
-    this->start(mDBUrl,mDBName);
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        this->start(MongoInstanceVariable::mDBUrl,MongoInstanceVariable::mDBName);
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
 }
 
 QMLMongoDB &QMLMongoDB::operator=(const QMLMongoDB &db)
@@ -86,79 +101,129 @@ QMLMongoDB::~QMLMongoDB()
 
 bool QMLMongoDB::isValid() const
 {
-    return mStarted ;
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        return mStarted ;
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
+
 }
 
 void QMLMongoDB::start(const QString &mUrl, const QString &database)
 {
-    qDebug() << "start function";
-    db = new QMongoDB(mUrl,database);
-    mStarted = true;
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        qDebug() << "start function";
+        db = new QMongoDB(mUrl,database);
+        mStarted = true;
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
+
 }
 
 
 QVariantList QMLMongoDB::find(const QString &collection, QMLBSON *filter, QMLBSON *option)
 {
-    QBSON _filter;
-    if( filter )
+    if( MongoInstanceVariable::instanceCalled )
     {
-        _filter.append(filter->getMaplist());
+        QBSON _filter;
+        if( filter )
+        {
+            _filter.append(filter->getMaplist());
+        }
+        QOption option_ ;
+        if( option )
+        {
+            option_.setBson(option->getQBSON());
+        }
+        auto cursor = this->db->find(collection,filter->getQBSON(),option_);
+        QVariantList bsonlist;
+        for( auto element : cursor )
+        {
+            auto bson = new QMLBSON(element);
+            bsonlist.append(QVariant::fromValue(bson));
+        }
+        return bsonlist;
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
     }
-    QOption option_ ;
-    if( option )
-    {
-        option_.setBson(option->getQBSON());
-    }
-    auto cursor = this->db->find(collection,filter->getQBSON(),option_);
-    QVariantList bsonlist;
-    for( auto element : cursor )
-    {
-        auto bson = new QMLBSON(element);
-        bsonlist.append(QVariant::fromValue(bson));
-    }
-    return bsonlist;
+
 }
 
 QMLBSON *QMLMongoDB::find_one(const QString &collection, QMLBSON *filter, QMLBSON *option)
 {
-    option->addInt("limit",1);
-    QOption option_ ;
-    if( option )
+    if( MongoInstanceVariable::instanceCalled )
     {
-        option_.setBson(option->getQBSON());
-    }
-    auto cursor = this->db->find_one( collection,filter->getQBSON() , option_ );
+        option->addInt("limit",1);
+        QOption option_ ;
+        if( option )
+        {
+            option_.setBson(option->getQBSON());
+        }
+        auto cursor = this->db->find_one( collection,filter->getQBSON() , option_ );
 
-    auto bson = new QMLBSON(cursor);
-    return bson;
+        auto bson = new QMLBSON(cursor);
+        return bson;
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
+
 }
 
 bool QMLMongoDB::insert_one(const QString &collection, QMLBSON *bson)
 {
-    return this->db->insert_one(collection,bson->getQBSON());
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        return this->db->insert_one(collection,bson->getQBSON());
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
 }
 
 bool QMLMongoDB::update_one(const QString &collection, QMLBSON *filter, QMLBSON *updatebson)
 {
-    return this->db->update_one(collection,filter->getQBSON(),updatebson->getQBSON());
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        return this->db->update_one(collection,filter->getQBSON(),updatebson->getQBSON());
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
 }
 
 bool QMLMongoDB::delete_one(const QString &collection, QMLBSON *filter)
 {
-    return this->db->Delete( collection , filter->getQBSON() );
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        return this->db->Delete( collection , filter->getQBSON() );
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
 }
 
 QString QMLMongoDB::fileurl(const QString &oid, bool fileNametoOid)
 {
-    QString url = this->db->downloadfile(QOid(oid),fileNametoOid);
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        QString url = this->db->downloadfile(QOid(oid),fileNametoOid);
+        return QUrl::fromLocalFile(url).toString();
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
 
-    return QUrl::fromLocalFile(url).toString();
 }
 
 QMLElement *QMLMongoDB::uploadfile(const QString &filename, QString key)
 {
-    auto element = this->db->uploadfile(filename,key);
-    return new QMLElement(element);
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        auto element = this->db->uploadfile(filename,key);
+        return new QMLElement(element);
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+    }
+
 }
 
 QMongoDB *QMLMongoDB::getDb() const
@@ -168,9 +233,10 @@ QMongoDB *QMLMongoDB::getDb() const
 
 void QMLMongoDB::instance(const QString &url, const QString dbName)
 {
-    mDBUrl = url;
-    mDBName = dbName;
+    MongoInstanceVariable::mDBUrl = url;
+    MongoInstanceVariable::mDBName = dbName;
     QMongoDB::instance();
+    MongoInstanceVariable::instanceCalled = true;
 }
 
 

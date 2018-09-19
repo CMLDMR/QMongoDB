@@ -11,6 +11,7 @@ TARGET = QMongoDB
 TEMPLATE = lib
 
 CONFIG += c++14
+API_VER=0.6
 
 
 DEFINES += QMONGODB_LIBRARY
@@ -34,7 +35,8 @@ SOURCES += \
     qelement.cpp \
     qml/qmlmongodb.cpp \
     qml/qmlelement.cpp \
-    qml/qmlbson.cpp
+    qml/qmlbson.cpp \
+    qml/qmlarray.cpp
 
 HEADERS += \
         qmongodb.h \
@@ -45,7 +47,8 @@ HEADERS += \
     qelement.h \
     qml/qmlmongodb.h \
     qml/qmlelement.h \
-    qml/qmlbson.h
+    qml/qmlbson.h \
+    qml/qmlarray.h
 
 
 
@@ -130,7 +133,10 @@ QT       += network
 }
 
 DISTFILES += \
-    README.md
+    README.md \
+    qmldir
+
+RESOURCES +=
 
 
 
