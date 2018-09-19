@@ -106,6 +106,7 @@ bool QMLMongoDB::isValid() const
         return mStarted ;
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return false;
     }
 
 }
@@ -119,6 +120,7 @@ void QMLMongoDB::start(const QString &mUrl, const QString &database)
         mStarted = true;
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        mStarted = false;
     }
 
 }
@@ -168,6 +170,7 @@ QMLBSON *QMLMongoDB::find_one(const QString &collection, QMLBSON *filter, QMLBSO
         return bson;
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return new QMLBSON();
     }
 
 }
@@ -179,6 +182,7 @@ bool QMLMongoDB::insert_one(const QString &collection, QMLBSON *bson)
         return this->db->insert_one(collection,bson->getQBSON());
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return false;
     }
 }
 
@@ -189,6 +193,7 @@ bool QMLMongoDB::update_one(const QString &collection, QMLBSON *filter, QMLBSON 
         return this->db->update_one(collection,filter->getQBSON(),updatebson->getQBSON());
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return false;
     }
 }
 
@@ -199,6 +204,7 @@ bool QMLMongoDB::delete_one(const QString &collection, QMLBSON *filter)
         return this->db->Delete( collection , filter->getQBSON() );
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return false;
     }
 }
 
@@ -210,6 +216,7 @@ QString QMLMongoDB::fileurl(const QString &oid, bool fileNametoOid)
         return QUrl::fromLocalFile(url).toString();
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return "";
     }
 
 }
@@ -222,6 +229,7 @@ QMLElement *QMLMongoDB::uploadfile(const QString &filename, QString key)
         return new QMLElement(element);
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return new QMLElement();
     }
 
 }
