@@ -1,10 +1,15 @@
 #include "qmlmongodb.h"
 #include <QtQml/QQmlApplicationEngine>
-#include "qml/qmlelement.h"
-#include "qml/qmlbson.h"
+#include "qmlelement.h"
+#include "qmlbson.h"
+#include "qmlarray.h"
+
+#include <QQmlContext>
+
+
 
 #define MAJOR   0
-#define MINOR   5
+#define MINOR   6
 
 static QObject *QMLElementSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
@@ -24,15 +29,27 @@ static QObject *QMLBSONSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEn
     return singletonClass;
 }
 
+static QObject *QMLArraySingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    static QMLArray *singletonClass = new QMLArray();
+    return singletonClass;
+}
+
 static void registerQmlMongoTypes() {
 
-    qDebug() << "REGISTER QML COMPONENT";
+
     qmlRegisterType<QMLElement>("com.mongodb", MAJOR, MINOR, "QMLElement");
     qmlRegisterType<QMLMongoDB>("com.mongodb", MAJOR, MINOR, "MongoDB");
     qmlRegisterType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QMLBSON");
+    qmlRegisterType<QMLArray>("com.mongodb", MAJOR, MINOR, "QMLArray");
 
-    qmlRegisterSingletonType<QMLElement>("com.mongodb", MAJOR, MINOR, "Element", QMLElementSingletonProvider);
-    qmlRegisterSingletonType<QMLBSON>("com.mongodb", MAJOR, MINOR, "Bson", QMLBSONSingletonProvider);
+
+    qmlRegisterSingletonType<QMLElement>("com.mongodb", MAJOR, MINOR, "QElement", QMLElementSingletonProvider);
+    qmlRegisterSingletonType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QBSON", QMLBSONSingletonProvider);
+    qmlRegisterSingletonType<QMLArray>("com.mongodb", MAJOR, MINOR, "QArray", QMLArraySingletonProvider);
 
 }
 
@@ -61,25 +78,56 @@ void QMLMongoDB::start(const QString &mUrl, const QString &database)
     mStarted = true;
 }
 
-QString QMLMongoDB::find_one( const QString &collection , const QString &filter , const QString &option )
+
+QVariantList QMLMongoDB::find(const QString &collection, QMLBSON *filter, QMLBSON *option)
 {
-
-    try {
-        auto val = this->db->find_one("TEST",QBSON());
-        try {
-            qDebug() << val["birim"].getValue().toString();
-            return val["birim"].getValue().toString();
-        } catch (QError &e) {
-            return e.what();
-        }
-
-    } catch (QError &e) {
-        return e.what();
+    QBSON _filter;
+    if( filter )
+    {
+        _filter.append(filter->getMaplist());
     }
+    QOption option_ ;
+    if( option )
+    {
+        option_.setBson(option->getQBSON());
+    }
+    auto cursor = this->db->find(collection,filter->getQBSON(),option_);
+    QVariantList bsonlist;
+    for( auto element : cursor )
+    {
+        auto bson = new QMLBSON(element);
+        bsonlist.append(QVariant::fromValue(bson));
+    }
+    return bsonlist;
+}
 
+QMLBSON *QMLMongoDB::find_one(const QString &collection, QMLBSON *filter, QMLBSON *option)
+{
+    option->addInt("limit",1);
+    QOption option_ ;
+    if( option )
+    {
+        option_.setBson(option->getQBSON());
+    }
+    auto cursor = this->db->find_one( collection,filter->getQBSON() , option_ );
 
+    auto bson = new QMLBSON(cursor);
+    return bson;
+}
 
+bool QMLMongoDB::insert_one(const QString &collection, QMLBSON *bson)
+{
+    return this->db->insert_one(collection,bson->getQBSON());
+}
 
+bool QMLMongoDB::update_one(const QString &collection, QMLBSON *filter, QMLBSON *updatebson)
+{
+    return this->db->update_one(collection,filter->getQBSON(),updatebson->getQBSON());
+}
+
+bool QMLMongoDB::delete_one(const QString &collection, QMLBSON *filter)
+{
+    return this->db->Delete( collection , filter->getQBSON() );
 }
 
 

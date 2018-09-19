@@ -12,22 +12,22 @@ class QMLArray;
 class QMLElement : public QObject , public QElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString Key READ Key NOTIFY keyChanged )
-    Q_PROPERTY(double Double READ getDouble )
-    Q_PROPERTY(QString String READ getString NOTIFY stringChanged )
-    Q_PROPERTY(int Int READ getInt )
-    Q_PROPERTY(QVariant Int64 READ getInt64 )
-    Q_PROPERTY(bool Bool READ getBool )
-    Q_PROPERTY(QString TypeName READ TypeName )
-    Q_PROPERTY(Type Type READ getElementType )
-    Q_PROPERTY(QString Oid READ Oid )
-    Q_PROPERTY(QMLBSON* Bson READ getBson )
-    Q_PROPERTY(QMLArray* Array READ getArray )
+    Q_PROPERTY( QString Key READ Key NOTIFY keyChanged )
+    Q_PROPERTY( double Double READ getDouble )
+    Q_PROPERTY( QString String READ getString NOTIFY stringChanged )
+    Q_PROPERTY( int Int READ getInt )
+    Q_PROPERTY( QVariant Int64 READ getInt64 )
+    Q_PROPERTY( bool Bool READ getBool )
+    Q_PROPERTY( QString TypeName READ TypeName )
+    Q_PROPERTY( Type Type READ getElementType )
+    Q_PROPERTY( QString Oid READ Oid )
+    Q_PROPERTY( QMLBSON* Bson READ getBson )
+    Q_PROPERTY( QMLArray* Array READ getArray )
 public:
-    explicit QMLElement(QObject *parent = nullptr);
-    QMLElement(const QMLElement& element);
-    QMLElement(const QElement& element);
-    virtual ~QMLElement(){/*qDebug() << "QMLElement Desturctor";*/}
+    explicit QMLElement( QObject *parent = nullptr );
+    QMLElement( const QMLElement& element );
+    QMLElement( const QElement& element );
+    virtual ~QMLElement(){ qDebug() << "QMLElement Desturctor"; }
 
     QMLElement& operator=(const QMLElement& other);
 
@@ -48,7 +48,7 @@ public:
 
 
     Q_INVOKABLE static QMLElement *newElement();
-    Q_INVOKABLE static QMLElement *newElement(const QMLElement::Type& type ,const QString& key , const QString& value );
+    Q_INVOKABLE static QMLElement *newElement( const QMLElement::Type& type , const QString& key , const QString& value );
 
     Q_INVOKABLE void setStringData( const QString& key , const QString& value );
     Q_INVOKABLE void setOidData( const QString& key , const QString& oid );
@@ -89,7 +89,6 @@ private:
     QMLArray* getArray() const;
 
     QString TypeName() const;
-
 
     static QElementType ConvertType(QMLElement::Type type);
 
