@@ -56,14 +56,32 @@ static void registerQmlMongoTypes() {
 Q_COREAPP_STARTUP_FUNCTION(registerQmlMongoTypes)
 
 
+///
+/// \brief mDBUrl
+/// Connection db url
+static QString mDBUrl;
 
+///
+/// \brief mDBName
+/// Connection db Name
+static QString mDBName;
 
 
 
 QMLMongoDB::QMLMongoDB()
     :QObject (), mStarted(false)
 {
-    this->start("mongodb://<serikbeltr>:><<sErikBeltR>>1926><@195.175.200.2:41112/?authSource=SERIKBELTR","SERIKBELTR");
+    this->start(mDBUrl,mDBName);
+}
+
+QMLMongoDB &QMLMongoDB::operator=(const QMLMongoDB &db)
+{
+    return *this;
+}
+
+QMLMongoDB::~QMLMongoDB()
+{
+    qDebug() << "QMLMongoDB Destructor";
 }
 
 bool QMLMongoDB::isValid() const
@@ -130,11 +148,29 @@ bool QMLMongoDB::delete_one(const QString &collection, QMLBSON *filter)
     return this->db->Delete( collection , filter->getQBSON() );
 }
 
-
-
-
-QString QMLMongoDB::test()
+QString QMLMongoDB::fileurl(const QString &oid, bool fileNametoOid)
 {
-    return "TEST";
+    QString url = this->db->downloadfile(QOid(oid),fileNametoOid);
+
+    return QUrl::fromLocalFile(url).toString();
 }
+
+QMLElement *QMLMongoDB::uploadfile(const QString &filename, QString key)
+{
+    auto element = this->db->uploadfile(filename,key);
+    return new QMLElement(element);
+}
+
+QMongoDB *QMLMongoDB::getDb() const
+{
+    return db;
+}
+
+void QMLMongoDB::instance(const QString &url, const QString dbName)
+{
+    mDBUrl = url;
+    mDBName = dbName;
+    QMongoDB::instance();
+}
+
 
