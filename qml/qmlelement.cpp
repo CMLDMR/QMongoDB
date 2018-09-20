@@ -20,6 +20,10 @@ QMLElement::QMLElement(const QMLElement& element)
         emit stringChanged();
         break;
 
+    case QElementType::b_oid:
+        emit oidChanged();
+        break;
+
     default:
         break;
     }
@@ -35,6 +39,10 @@ QMLElement::QMLElement(const QElement &element)
         emit stringChanged();
         break;
 
+    case QElementType::b_oid:
+        emit oidChanged();
+        break;
+
     default:
         break;
     }
@@ -48,6 +56,9 @@ QMLElement &QMLElement::operator=(const QMLElement &other)
     switch ( other.getType() ) {
     case QElementType::b_utf8:
         emit stringChanged();
+        break;
+    case QElementType::b_oid:
+        emit oidChanged();
         break;
 
     default:
@@ -69,6 +80,7 @@ QMLElement::QMLElement(const QElementType &type, const QString &key, const QStri
     {
         QElement elemet(QOid(value),key);
         this->setElement(elemet);
+        emit oidChanged();
     }
         break;
     default:
@@ -102,6 +114,7 @@ void QMLElement::setOidData(const QString &key, const QString &oid)
 {
     this->setOid(QOid(oid),key);
     emit keyChanged();
+    emit oidChanged();
 }
 
 void QMLElement::setInt32Data(const QString &key, const int &value)
@@ -148,6 +161,7 @@ void QMLElement::setData(const QString &key, const QString &value, const QMLElem
         break;
     case QMLElement::B_oid:
         element.setType(QElementType::b_oid);
+        emit oidChanged();
         break;
     default:
         break;
@@ -187,6 +201,7 @@ void QMLElement::setData(const QVariant &element)
     switch (element_->getType()) {
     case QElementType::b_oid:
         this->setValue(QVariant::fromValue(element_->getOid().oid()));
+        emit oidChanged();
         break;
     case QElementType::b_binary:
         this->setValue(QVariant::fromValue(element_->getBinary()));
@@ -436,28 +451,42 @@ void QMLElement::setElement(const QElement &element)
 
     if( element.getType() == QElementType::b_oid )
     {
+
         this->setOid(QOid(element.getOid().oid()),element.getKey());
     }else{
+
         this->setKey(element.getKey());
+
         this->setType(element.getType());
+
         switch (element.getType()) {
+
         case QElementType::b_binary:
             this->setValue(QVariant::fromValue(element.getBinary()));
             break;
+
         default:
             this->setValue(QVariant::fromValue(element.getValue()));
             break;
+
         }
     }
+
     emit keyChanged();
 
     switch ( element.getType() ) {
+
     case QElementType::b_utf8:
         emit stringChanged();
         break;
 
+    case QElementType::b_oid:
+        emit oidChanged();
+        break;
+
     default:
         break;
+
     }
 
 }
