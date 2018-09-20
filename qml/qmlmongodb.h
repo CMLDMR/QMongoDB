@@ -4,11 +4,18 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 #include <QVector>
+#include <QtQml/QQmlApplicationEngine>
+#include <QQmlContext>
+
 #include "qmongodb.h"
 
 #include "qmlbson.h"
 #include "qmlelement.h"
 #include "qmlarray.h"
+
+
+#define MAJOR   0
+#define MINOR   7
 
 class QMONGODBSHARED_EXPORT QMLMongoDB : public QObject
 {
@@ -132,7 +139,48 @@ private:
 
 };
 
-
 Q_DECLARE_METATYPE(QMLMongoDB);
+
+
+static QObject *QMLArraySingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine){
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    static QMLArray *singletonClass = new QMLArray();
+    return singletonClass;
+}
+static QObject *QMLElementSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    static QMLElement *singletonClass = new QMLElement();
+    return singletonClass;
+}
+
+static QObject *QMLBSONSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    static QMLBSON *singletonClass = new QMLBSON();
+    return singletonClass;
+}
+
+static void registerComponents(){
+
+    qmlRegisterType<QMLElement>("com.mongodb", MAJOR, MINOR, "QMLElement");
+    qmlRegisterType<QMLMongoDB>("com.mongodb", MAJOR, MINOR, "MongoDB");
+    qmlRegisterType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QMLBSON");
+    qmlRegisterType<QMLArray>("com.mongodb", MAJOR, MINOR, "QMLArray");
+
+    qmlRegisterSingletonType<QMLElement>("com.mongodb", MAJOR, MINOR, "QElement", QMLElementSingletonProvider);
+    qmlRegisterSingletonType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QBSON", QMLBSONSingletonProvider);
+    qmlRegisterSingletonType<QMLArray>("com.mongodb", MAJOR, MINOR, "QArray", QMLArraySingletonProvider);
+}
+
+Q_COREAPP_STARTUP_FUNCTION(registerComponents)
+
+
 
 #endif // QMLMONGODB_H
