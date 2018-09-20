@@ -4,7 +4,7 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 #include "qbson.h"
-#include "qml/qmlelement.h"
+#include "qmlelement.h"
 #include "qmlbson.h"
 
 
