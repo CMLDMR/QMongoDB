@@ -4,54 +4,55 @@
 #include "qmlbson.h"
 #include "qmlarray.h"
 
+#include <QQmlContext>
 
 
 
 
 
-//static QObject *QMLElementSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
-//{
-//    Q_UNUSED(engine)
-//    Q_UNUSED(scriptEngine)
+static QObject *QMLElementSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
 
-//    static QMLElement *singletonClass = new QMLElement();
-//    return singletonClass;
-//}
+    static QMLElement *singletonClass = new QMLElement();
+    return singletonClass;
+}
 
-//static QObject *QMLBSONSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
-//{
-//    Q_UNUSED(engine)
-//    Q_UNUSED(scriptEngine)
+static QObject *QMLBSONSingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
 
-//    static QMLBSON *singletonClass = new QMLBSON();
-//    return singletonClass;
-//}
+    static QMLBSON *singletonClass = new QMLBSON();
+    return singletonClass;
+}
 
-//static QObject *QMLArraySingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
-//{
-//    Q_UNUSED(engine)
-//    Q_UNUSED(scriptEngine)
+static QObject *QMLArraySingletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
 
-//    static QMLArray *singletonClass = new QMLArray();
-//    return singletonClass;
-//}
+    static QMLArray *singletonClass = new QMLArray();
+    return singletonClass;
+}
 
-//static void registerQmlMongoTypes() {
-
-
-//    qmlRegisterType<QMLElement>("com.mongodb", MAJOR, MINOR, "QMLElement");
-//    qmlRegisterType<QMLMongoDB>("com.mongodb", MAJOR, MINOR, "MongoDB");
-//    qmlRegisterType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QMLBSON");
-//    qmlRegisterType<QMLArray>("com.mongodb", MAJOR, MINOR, "QMLArray");
+static void registerQmlMongoTypes() {
 
 
-//    qmlRegisterSingletonType<QMLElement>("com.mongodb", MAJOR, MINOR, "QElement", QMLElementSingletonProvider);
-//    qmlRegisterSingletonType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QBSON", QMLBSONSingletonProvider);
-//    qmlRegisterSingletonType<QMLArray>("com.mongodb", MAJOR, MINOR, "QArray", QMLArraySingletonProvider);
+    qmlRegisterType<QMLElement>("com.mongodb", MAJOR, MINOR, "QMLElement");
+    qmlRegisterType<QMLMongoDB>("com.mongodb", MAJOR, MINOR, "MongoDB");
+    qmlRegisterType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QMLBSON");
+    qmlRegisterType<QMLArray>("com.mongodb", MAJOR, MINOR, "QMLArray");
 
-//}
 
-//Q_COREAPP_STARTUP_FUNCTION(registerQmlMongoTypes)
+    qmlRegisterSingletonType<QMLElement>("com.mongodb", MAJOR, MINOR, "QElement", QMLElementSingletonProvider);
+    qmlRegisterSingletonType<QMLBSON>("com.mongodb", MAJOR, MINOR, "QBSON", QMLBSONSingletonProvider);
+    qmlRegisterSingletonType<QMLArray>("com.mongodb", MAJOR, MINOR, "QArray", QMLArraySingletonProvider);
+
+}
+
+Q_COREAPP_STARTUP_FUNCTION(registerQmlMongoTypes)
 
 
 
@@ -113,11 +114,9 @@ void QMLMongoDB::start(const QString &mUrl, const QString &database)
 {
     if( MongoInstanceVariable::instanceCalled )
     {
-        qDebug() << "start function";
         db = new QMongoDB(mUrl,database);
         mStarted = true;
     }else{
-        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
         mStarted = false;
     }
 

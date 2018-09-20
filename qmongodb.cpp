@@ -61,11 +61,6 @@ QMongoDB::QMongoDB(QString mongourl , QString database , QObject *parent )
 #else
 
     client = mongoc_client_new (this->mUrl.toStdString().c_str());
-    bson_error_t error;
-    gridfs = mongoc_client_get_gridfs(client,db.toStdString().c_str(),"fs",&error);
-    fprintf (stderr, "%s\n", error.message);
-
-    assert (gridfs);
 #endif
 }
 
@@ -958,6 +953,22 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
 #ifdef MAC_IOS
     return "";
 #else
+
+    if( QFile::exists("temp/"+fileoid.oid() ) )
+    {
+        QString returnFileName;
+        QFile file("temp/"+fileoid.oid() );
+
+        if( file.open(QIODevice::ReadOnly) )
+        {
+            auto ar = file.readAll();
+            returnFileName = QString::fromUtf8(ar);
+            file.close();
+            file.flush();
+            return returnFileName;
+        }
+    }
+
     QBSON filter;
 
     filter.append("_id",fileoid);
@@ -1043,8 +1054,19 @@ QString QMongoDB::downloadfile( QOid fileoid, bool fileNametoOid )
             skip++;
         }
         file.close();
+        file.flush();
     }
 
+    {
+        QFile file("temp/"+fileoid.oid() );
+
+        if( file.open(QIODevice::ReadWrite) )
+        {
+            file.write(filename.toUtf8());
+            file.close();
+            file.flush();
+        }
+    }
     return filename;
 #endif
 
