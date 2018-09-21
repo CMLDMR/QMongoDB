@@ -15,7 +15,7 @@ class QMLArray : public QObject , public QArray
     /// \brief count
     /// \return
     /// Return count of Element in Array
-    Q_PROPERTY(int count READ count )
+    Q_PROPERTY(int count READ Count )
 
     /// \brief
     /// \return
@@ -117,6 +117,12 @@ public:
     /// \param array
     /// Set Base Object to this.
     void setArray( QArray &array );
+
+    ///
+    /// \brief Count
+    /// \return
+    /// get Count of Element inside from Array
+    int Count() const;
 
 
 };

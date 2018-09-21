@@ -141,3 +141,8 @@ void QMLArray::setArray( QArray &array )
     }
 }
 
+int QMLArray::Count() const
+{
+    return this->count();
+}
+
