@@ -24,6 +24,10 @@ QMLElement::QMLElement(const QMLElement& element)
         emit oidChanged();
         break;
 
+    case QElementType::b_document:
+        emit bsonChanged();
+        break;
+
     default:
         break;
     }
@@ -42,6 +46,9 @@ QMLElement::QMLElement(const QElement &element)
     case QElementType::b_oid:
         emit oidChanged();
         break;
+    case QElementType::b_document:
+        emit bsonChanged();
+        break;
 
     default:
         break;
@@ -59,6 +66,9 @@ QMLElement &QMLElement::operator=(const QMLElement &other)
         break;
     case QElementType::b_oid:
         emit oidChanged();
+        break;
+    case QElementType::b_document:
+        emit bsonChanged();
         break;
 
     default:
@@ -83,6 +93,7 @@ QMLElement::QMLElement(const QElementType &type, const QString &key, const QStri
         emit oidChanged();
     }
         break;
+
     default:
         break;
     }
@@ -197,7 +208,7 @@ void QMLElement::setData(const QVariant &element)
 
     this->setKey(element_->getKey());
     this->setType(element_->getType());
-
+emit bsonChanged();
     switch (element_->getType()) {
     case QElementType::b_oid:
         this->setValue(QVariant::fromValue(element_->getOid().oid()));
@@ -205,6 +216,9 @@ void QMLElement::setData(const QVariant &element)
         break;
     case QElementType::b_binary:
         this->setValue(QVariant::fromValue(element_->getBinary()));
+        break;
+    case QElementType::b_document:
+        emit bsonChanged();
         break;
     default:
         this->setValue(QVariant::fromValue(element_->getValue()));
@@ -482,6 +496,10 @@ void QMLElement::setElement(const QElement &element)
 
     case QElementType::b_oid:
         emit oidChanged();
+        break;
+
+    case QElementType::b_document:
+        emit bsonChanged();
         break;
 
     default:

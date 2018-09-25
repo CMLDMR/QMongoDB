@@ -21,7 +21,7 @@ class QMLElement : public QObject , public QElement
     Q_PROPERTY( QString TypeName READ TypeName )
     Q_PROPERTY( Type Type READ getElementType )
     Q_PROPERTY( QString Oid READ Oid NOTIFY oidChanged )
-    Q_PROPERTY( QMLBSON* Bson READ getBson )
+    Q_PROPERTY( QMLBSON* Bson READ getBson NOTIFY bsonChanged )
     Q_PROPERTY( QMLArray* Array READ getArray )
 public:
     explicit QMLElement( QObject *parent = nullptr );
@@ -97,6 +97,7 @@ signals:
     void keyChanged();
     void stringChanged();
     void oidChanged();
+    void bsonChanged();
 
 public slots:
 
