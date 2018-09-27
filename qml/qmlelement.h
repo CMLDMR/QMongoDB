@@ -16,7 +16,7 @@ class QMLElement : public QObject , public QElement
     Q_PROPERTY( double Double READ getDouble )
     Q_PROPERTY( QString String READ getString NOTIFY stringChanged )
     Q_PROPERTY( int Int READ getInt )
-    Q_PROPERTY( QVariant Int64 READ getInt64 )
+    Q_PROPERTY( QVariant Int64 READ getInt64 NOTIFY int64Changed )
     Q_PROPERTY( bool Bool READ getBool )
     Q_PROPERTY( QString TypeName READ TypeName )
     Q_PROPERTY( Type Type READ getElementType )
@@ -98,6 +98,7 @@ signals:
     void stringChanged();
     void oidChanged();
     void bsonChanged();
+    void int64Changed();
 
 public slots:
 
