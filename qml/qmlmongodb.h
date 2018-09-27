@@ -106,7 +106,7 @@ public:
     /// \param key
     /// \return
     /// Upload file and return information about file oid in QMLElement
-    QMLElement* uploadfile( const QString& filename , QString key );
+    Q_INVOKABLE QMLElement* uploadfile( const QString& filename , QString key );
 
 
 
