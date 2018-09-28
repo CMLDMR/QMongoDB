@@ -10,6 +10,7 @@ QMLBSON::QMLBSON(QObject *parent) : QObject(parent)
 }
 
 QMLBSON::QMLBSON(const QMLBSON &bson)
+    :QObject (),QBSON ()
 {
     this->clear();
     this->append(bson.getMaplist());
@@ -21,16 +22,24 @@ QMLBSON::QMLBSON(const QBSON &bson)
     this->append(bson.getMaplist());
 }
 
+QMLBSON::~QMLBSON()
+{
+    this->clear();
+    qDebug() << "QMLBSON Destructor";
+}
+
 QMLBSON *QMLBSON::operator=(QMLBSON *bson)
 {
     this->clear();
     this->append(bson->getMaplist());
+    return this;
 }
 
 QMLBSON &QMLBSON::operator=(const QMLBSON &bson)
 {
     this->clear();
     this->append(bson.getMaplist());
+    return *this;
 }
 
 QMLBSON* QMLBSON::newBSON()
@@ -77,6 +86,7 @@ void QMLBSON::addBson(const QString &key, QMLBSON* value)
 void QMLBSON::addArray(const QString &key, QMLArray *value)
 {
     this->append(key,value->getArray());
+
 }
 
 
@@ -89,6 +99,7 @@ QMLBSON &QMLBSON::add(QString key, QString value, const QMLElement::Type &type)
     }else{
         this->append(key,value);
     }
+    return *this;
 }
 
 QMLBSON &QMLBSON::add(QString key, qreal value, const QMLElement::Type &type)
@@ -103,16 +114,19 @@ QMLBSON &QMLBSON::add(QString key, qreal value, const QMLElement::Type &type)
     default:
         break;
     }
+    return *this;
 }
 
 QMLBSON &QMLBSON::add(QString key, bool value)
 {
     this->append(key,value);
+    return *this;
 }
 
 QMLBSON &QMLBSON::add(QString key, QMLBSON* value)
 {
     this->append(key,*value);
+    return *this;
 }
 
 bool QMLBSON::containsKey(const QString &key)
@@ -165,6 +179,11 @@ QJsonArray QMLBSON::getKeys()
 QBSON QMLBSON::getQBSON()
 {
     return static_cast<QBSON>(*this);
+}
+
+void QMLBSON::print()
+{
+    qDebug() << this->getQBSON().tojson().c_str();
 }
 
 

@@ -18,6 +18,8 @@ public:
     QMLBSON(const QMLBSON& bson);
     QMLBSON(const QBSON& bson);
 
+    virtual ~QMLBSON();
+
     QMLBSON* operator=( QMLBSON* bson);
     QMLBSON& operator=( const QMLBSON& bson);
 
@@ -52,6 +54,8 @@ public:
     Q_INVOKABLE QJsonArray getKeys();
 
     QBSON getQBSON();
+
+    Q_INVOKABLE void print();
 
 
 
