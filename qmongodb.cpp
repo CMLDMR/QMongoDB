@@ -836,6 +836,28 @@ bool QMongoDB::Delete(const char *collection, QBSON filter)
 
 }
 
+int64_t QMongoDB::count(const QString &collection, QBSON filter)
+{
+#ifdef MAC_IOS
+    return 0;
+#else
+    auto col = mongoc_client_get_collection(client,db.toStdString().c_str(),collection.toStdString().c_str());
+
+    bson_error_t error;
+    auto _filter = convert(filter);
+
+    bson_t* opts = bson_new();
+
+    int64_t count = 0;
+
+    count = mongoc_collection_count_documents(col,_filter,opts,nullptr,nullptr,&error);
+    bson_destroy (opts);
+    bson_destroy (_filter);
+
+    return count;
+#endif
+}
+
 QElement QMongoDB::uploadfile(QString filename, QString key)
 {
 

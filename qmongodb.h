@@ -97,6 +97,8 @@ public:
     bool Delete(std::string collection , QBSON filter);
     bool Delete(const char* collection , QBSON filter);
 
+    int64_t count( const QString& collection , QBSON filter );
+
 
     QElement uploadfile( QString filename , QString key );
 
