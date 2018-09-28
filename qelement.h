@@ -108,7 +108,7 @@ public:
     QElement( QOid oid , QString key );
     QElement( QByteArray binary , QString key );
     QElement();
-    QElement(QElement const &element);
+    QElement(const QElement &element);
     QElement(QElement& element);
     QElement(QElement&& element);
     ~QElement() {}
