@@ -122,6 +122,18 @@ void QMLMongoDB::start(const QString &mUrl, const QString &database)
 
 }
 
+qint64 QMLMongoDB::count(const QString &collection, QMLBSON *filter)
+{
+    if( MongoInstanceVariable::instanceCalled )
+    {
+            return this->db->count( collection , filter->getQBSON() );
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return 0;
+    }
+
+}
+
 
 QVariantList QMLMongoDB::find(const QString &collection, QMLBSON *filter, QMLBSON *option)
 {

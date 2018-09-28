@@ -40,6 +40,15 @@ public:
     Q_INVOKABLE void start( const QString& mUrl , const QString& database );
 
 
+    ///
+    /// \brief count
+    /// \param collection
+    /// \param filter
+    /// \return
+    /// get count of matched field with filter
+    Q_INVOKABLE qint64 count( const QString& collection , QMLBSON* filter );
+
+
 
     ///
     /// \brief find
