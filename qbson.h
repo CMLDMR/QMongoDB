@@ -27,6 +27,8 @@ class QMONGODBSHARED_EXPORT QArray
     using container = QVector<QElement>;
 public:
     QArray() {}
+    QArray( const QArray& array );
+    virtual ~QArray();
 
     int count() const;
 
@@ -81,7 +83,7 @@ public:
     QBSON(QBSON const &obj);
     QBSON(QBSON& obj);
     QBSON(QBSON&& obj);
-    virtual ~QBSON() {}
+    virtual ~QBSON();
 
     void append(QString key , QVariant value , QElementType type);
 

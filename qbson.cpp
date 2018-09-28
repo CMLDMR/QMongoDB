@@ -9,6 +9,7 @@ void consoleLog( std::string &stream , QArray array  );
 
 QBSON::QBSON()
 {
+    this->maplist.clear();
 }
 
 QBSON::QBSON(const QBSON &obj)
@@ -29,6 +30,11 @@ QBSON::QBSON(QBSON &&obj)
 {
     this->maplist.clear();
     this->maplist.append(obj.getMaplist());
+}
+
+QBSON::~QBSON()
+{
+    qDebug() << "QBSON Destructor";
 }
 
 void QBSON::append(QString key, QVariant value, QElementType type)
@@ -535,46 +541,43 @@ void QBSON::append(QVector<QElement> mlist)
 QString QBSON::TypeToString(QElementType type)
 {
 
+    QString tpyeString = "Unknown Element Type";
     switch (type) {
     case QElementType::b_double:
-        return "double";
+        tpyeString = "double";
         break;
     case QElementType::b_utf8:
-        return "utf8";
+        tpyeString = "utf8";
         break;
     case QElementType::b_oid:
-        return "oid";
+        tpyeString = "oid";
         break;
     case QElementType::b_array:
-        return "array";
+        tpyeString = "array";
         break;
     case QElementType::b_int64:
-        return "int64";
+        tpyeString = "int64";
         break;
     case QElementType::b_int32:
-        return "int32";
+        tpyeString = "int32";
         break;
     case QElementType::b_document:
-        return "document";
+        tpyeString = "document";
         break;
     case QElementType::b_bool:
-        return "bool";
+        tpyeString = "bool";
         break;
     case QElementType::b_null:
-        return "null";
+        tpyeString = "null";
         break;
     case QElementType::b_invalid:
-        return "invalid";
+        tpyeString = "invalid";
         break;
     case QElementType::b_binary:
-        return "binary";
-        break;
-    default:
-        return "Unknown Element Type";
+        tpyeString = "binary";
         break;
     }
-
-
+    return tpyeString;
 
 }
 
@@ -602,6 +605,21 @@ std::string QBSON::tojson() const
 
 
 
+
+QArray::QArray(const QArray &array)
+{
+    this->mapData.clear();
+    for( int i = 0 ; i < array.count() ; i++ )
+    {
+        this->mapData.append(array.const_value(i));
+    }
+}
+
+QArray::~QArray()
+{
+    this->mapData.clear();
+    qDebug() << "QArray Destructor";
+}
 
 int QArray::count() const
 {
