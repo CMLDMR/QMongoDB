@@ -10,6 +10,7 @@ QMLElement::QMLElement(QObject *parent)
 
 
 QMLElement::QMLElement(const QMLElement& element)
+    :QObject () , QElement ()
 {
     QElement _element( this->getType(),element.getValue(),element.getKey() );
     this->setElement(_element);
@@ -38,6 +39,7 @@ QMLElement::QMLElement(const QMLElement& element)
 }
 
 QMLElement::QMLElement(const QElement &element)
+    :QObject ()
 {
     this->setElement(element);
     emit keyChanged();
@@ -86,6 +88,7 @@ QMLElement &QMLElement::operator=(const QMLElement &other)
     default:
         break;
     }
+    return *this;
 }
 //TODO: other element type must be implemented
 QMLElement::QMLElement(const QElementType &type, const QString &key, const QString &value)
@@ -201,7 +204,7 @@ void QMLElement::setData(const QString &key, const double &value)
     emit keyChanged();
 }
 
-void QMLElement::setData(const QString &key, const int &value , const Type& type)
+void QMLElement::setData(const QString &key, const int &value )
 {
     QElement element(QElementType::b_int32,QVariant::fromValue(value),key);
     this->setElement(element);

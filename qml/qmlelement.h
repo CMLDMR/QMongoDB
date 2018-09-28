@@ -59,7 +59,7 @@ public:
 
     Q_INVOKABLE void setData( const QString& key , const QString& value  , const Type& type = B_utf8 );
     Q_INVOKABLE void setData( const QString& key , const double& value);
-    Q_INVOKABLE void setData( const QString& key , const int& value , const Type& type = B_int32 );
+    Q_INVOKABLE void setData(const QString& key , const int& value );
     Q_INVOKABLE void setData( const QString& key , const bool& value );
     Q_INVOKABLE void setData( const QVariant &element );
 
