@@ -1,12 +1,13 @@
 #include "qmlarray.h"
 
 
-QMLArray::QMLArray(QObject *parent) : QObject(parent)
+QMLArray::QMLArray(QObject *parent) : QObject(parent) , QArray()
 {
 
 }
 
 QMLArray::QMLArray(const QMLArray &array)
+    :QArray ()
 {
     this->clear();
     for( auto element : array.getArray() )
@@ -16,6 +17,7 @@ QMLArray::QMLArray(const QMLArray &array)
 }
 
 QMLArray::QMLArray( QArray &array)
+    :QArray ()
 {
     this->clear();
     for( int i = 0 ; i < array.count() ; i++ )
