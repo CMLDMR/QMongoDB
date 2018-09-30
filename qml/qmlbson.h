@@ -24,6 +24,16 @@ public:
     QMLBSON& operator=( const QMLBSON& bson);
 
 
+    Q_INVOKABLE static void insertString( QMLBSON* bson , const QString& key , const QString& str );
+    Q_INVOKABLE static void insertOid( QMLBSON* bson , const QString& key , const QString& oid );
+    Q_INVOKABLE static void insertInt( QMLBSON* bson , const QString& key , const int& value );
+    Q_INVOKABLE static void insertInt64( QMLBSON* bson , const QString& key , const int& value );
+    Q_INVOKABLE static void insertDouble( QMLBSON* bson , const QString& key , const double& value );
+    Q_INVOKABLE static void insertBool( QMLBSON* bson , const QString& key , const bool& value );
+    Q_INVOKABLE static void insertBson( QMLBSON* bson , const QString& key , QMLBSON *value );
+    Q_INVOKABLE static void insertArray( QMLBSON* bson , const QString& key , QMLArray *value );
+
+
     ///
     /// \brief newBSON
     /// \return

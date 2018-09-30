@@ -42,6 +42,47 @@ QMLBSON &QMLBSON::operator=(const QMLBSON &bson)
     return *this;
 }
 
+void QMLBSON::insertString(QMLBSON *bson, const QString &key, const QString &str)
+{
+    bson->addString(key,str);
+}
+
+void QMLBSON::insertOid(QMLBSON *bson, const QString &key, const QString &oid)
+{
+    bson->addOid(key,oid);
+}
+
+void QMLBSON::insertInt(QMLBSON *bson, const QString &key, const int &value)
+{
+    bson->addInt(key,value);
+}
+
+void QMLBSON::insertInt64(QMLBSON *bson, const QString &key, const int &value)
+{
+    bson->addInt64(key,value);
+}
+
+void QMLBSON::insertDouble(QMLBSON *bson, const QString &key, const double &value)
+{
+    bson->addDouble(key,value);
+}
+
+void QMLBSON::insertBool(QMLBSON *bson, const QString &key, const bool &value)
+{
+    bson->addBool(key,value);
+}
+
+void QMLBSON::insertBson(QMLBSON *bson, const QString &key, QMLBSON *value)
+{
+    bson->addBson(key,value);
+}
+
+void QMLBSON::insertArray(QMLBSON *bson, const QString &key, QMLArray *value)
+{
+    bson->addArray(key,value);
+}
+
+
 QMLBSON* QMLBSON::newBSON()
 {
     QMLBSON* bson = new QMLBSON();
