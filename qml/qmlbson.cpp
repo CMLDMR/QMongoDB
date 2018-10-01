@@ -170,6 +170,12 @@ QMLBSON &QMLBSON::add(QString key, QMLBSON* value)
     return *this;
 }
 
+void QMLBSON::removeAll()
+{
+    this->clear();
+}
+
+
 bool QMLBSON::containsKey(const QString &key)
 {
     if( !this->Keys().contains(key) )

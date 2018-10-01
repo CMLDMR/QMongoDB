@@ -56,6 +56,10 @@ public:
     Q_INVOKABLE QMLBSON& add( QString key , QMLBSON *value  );
 
 
+    Q_INVOKABLE void removeAll();
+
+
+
     Q_INVOKABLE bool containsKey( const QString& key );
     Q_INVOKABLE QMLElement* getElement( const QString& key );
 
