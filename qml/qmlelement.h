@@ -22,7 +22,7 @@ class QMLElement : public QObject , public QElement
     Q_PROPERTY( Type Type READ getElementType )
     Q_PROPERTY( QString Oid READ Oid NOTIFY oidChanged )
     Q_PROPERTY( QMLBSON* Bson READ getBson NOTIFY bsonChanged )
-    Q_PROPERTY( QMLArray* Array READ getArray )
+    Q_PROPERTY( QMLArray* Array READ getArray NOTIFY arrayChanged )
 public:
     explicit QMLElement( QObject *parent = nullptr );
     QMLElement( const QMLElement& element );
@@ -101,6 +101,7 @@ signals:
     void int64Changed();
     void doubleChanged();
     void intChanged();
+    void arrayChanged();
 
 public slots:
 

@@ -41,6 +41,10 @@ QMLElement::QMLElement(const QMLElement& element)
         emit doubleChanged();
         break;
 
+    case QElementType::b_array:
+        emit arrayChanged();
+        break;
+
     default:
         break;
     }
@@ -76,6 +80,10 @@ QMLElement::QMLElement(const QElement &element)
         emit doubleChanged();
         break;
 
+    case QElementType::b_array:
+        emit arrayChanged();
+        break;
+
     default:
         break;
     }
@@ -107,6 +115,10 @@ QMLElement &QMLElement::operator=(const QMLElement &other)
 
     case QElementType::b_double:
         emit doubleChanged();
+        break;
+
+    case QElementType::b_array:
+        emit arrayChanged();
         break;
 
     default:
@@ -274,6 +286,9 @@ emit bsonChanged();
 
     case QElementType::b_double:
         emit doubleChanged();
+        break;
+    case QElementType::b_array:
+        emit arrayChanged();
         break;
     default:
         this->setValue(QVariant::fromValue(element_->getValue()));
@@ -569,6 +584,9 @@ void QMLElement::setElement(const QElement &element)
         emit doubleChanged();
         break;
 
+    case QElementType::b_array:
+        emit arrayChanged();
+        break;
 
     default:
         break;
