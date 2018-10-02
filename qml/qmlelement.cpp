@@ -33,6 +33,10 @@ QMLElement::QMLElement(const QMLElement& element)
         emit int64Changed();
         break;
 
+    case QElementType::b_int32:
+        emit intChanged();
+        break;
+
     case QElementType::b_double:
         emit doubleChanged();
         break;
@@ -64,6 +68,10 @@ QMLElement::QMLElement(const QElement &element)
         emit int64Changed();
         break;
 
+    case QElementType::b_int32:
+        emit intChanged();
+        break;
+
     case QElementType::b_double:
         emit doubleChanged();
         break;
@@ -91,6 +99,10 @@ QMLElement &QMLElement::operator=(const QMLElement &other)
 
     case QElementType::b_int64:
         emit int64Changed();
+        break;
+
+    case QElementType::b_int32:
+        emit intChanged();
         break;
 
     case QElementType::b_double:
@@ -160,7 +172,9 @@ void QMLElement::setInt32Data(const QString &key, const int &value)
     this->setType(QElementType::b_int32);
     this->setValue(QVariant::fromValue(value));
     this->setKey(key);
+    emit intChanged();
     emit keyChanged();
+
 }
 
 void QMLElement::setInt64Data(const QString &key, const qint64 &value)
@@ -221,6 +235,7 @@ void QMLElement::setData(const QString &key, const int &value )
 {
     QElement element(QElementType::b_int32,QVariant::fromValue(value),key);
     this->setElement(element);
+    emit intChanged();
     emit keyChanged();
 }
 
@@ -251,6 +266,10 @@ emit bsonChanged();
         break;
     case QElementType::b_int64:
         emit int64Changed();
+        break;
+
+    case QElementType::b_int32:
+        emit intChanged();
         break;
 
     case QElementType::b_double:
@@ -540,6 +559,10 @@ void QMLElement::setElement(const QElement &element)
 
     case QElementType::b_int64:
         emit int64Changed();
+        break;
+
+    case QElementType::b_int32:
+        emit intChanged();
         break;
 
     case QElementType::b_double:

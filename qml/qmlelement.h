@@ -15,7 +15,7 @@ class QMLElement : public QObject , public QElement
     Q_PROPERTY( QString Key READ Key NOTIFY keyChanged )
     Q_PROPERTY( double Double READ getDouble NOTIFY doubleChanged )
     Q_PROPERTY( QString String READ getString NOTIFY stringChanged )
-    Q_PROPERTY( int Int READ getInt )
+    Q_PROPERTY( int Int READ getInt NOTIFY intChanged )
     Q_PROPERTY( QVariant Int64 READ getInt64 NOTIFY int64Changed )
     Q_PROPERTY( bool Bool READ getBool )
     Q_PROPERTY( QString TypeName READ TypeName )
@@ -100,6 +100,7 @@ signals:
     void bsonChanged();
     void int64Changed();
     void doubleChanged();
+    void intChanged();
 
 public slots:
 
