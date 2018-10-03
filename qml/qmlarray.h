@@ -15,7 +15,7 @@ class QMLArray : public QObject , public QArray
     /// \brief count
     /// \return
     /// Return count of Element in Array
-    Q_PROPERTY(int count READ Count )
+    Q_PROPERTY(int count READ Count NOTIFY countChanged )
 
     /// \brief
     /// \return
@@ -123,6 +123,9 @@ public:
     /// \return
     /// get Count of Element inside from Array
     int Count() const;
+
+signals:
+    void countChanged();
 
 
 };

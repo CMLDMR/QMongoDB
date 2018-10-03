@@ -14,6 +14,7 @@ QMLArray::QMLArray(const QMLArray &array)
     {
         this->append(element);
     }
+    emit countChanged();
 }
 
 QMLArray::QMLArray( QArray &array)
@@ -24,6 +25,7 @@ QMLArray::QMLArray( QArray &array)
     {
         this->append(array.value(i));
     }
+    emit countChanged();
 }
 
 QMLArray::QMLArray(const QArray &array)
@@ -33,6 +35,7 @@ QMLArray::QMLArray(const QArray &array)
     {
         this->append(array.const_value(i));
     }
+    emit countChanged();
 }
 
 QMLArray &QMLArray::operator=(const QMLArray &array)
@@ -42,6 +45,7 @@ QMLArray &QMLArray::operator=(const QMLArray &array)
     {
         this->append(element);
     }
+    emit countChanged();
     return *this;
 }
 
@@ -52,6 +56,7 @@ QMLArray &QMLArray::operator=(const QMLArray *array)
     {
         this->append(element);
     }
+    emit countChanged();
     return *this;
 }
 
@@ -66,6 +71,7 @@ QMLArray*  QMLArray::newArray()
 QMLArray::self &QMLArray::insertElement(QMLElement *element)
 {
     this->append(element->getQElement());
+    emit countChanged();
     return *this;
 }
 
@@ -74,42 +80,49 @@ QMLArray::self &QMLArray::insertElement(QMLElement *element)
 QMLArray::self &QMLArray::insertInt( int value )
 {
     this->append(QElement(QElementType::b_int32,value,"blank"));
+    emit countChanged();
     return *this;
 }
 
 QMLArray::self &QMLArray::insertDouble( double value )
 {
     this->append(value);
+    emit countChanged();
     return *this;
 }
 
 QMLArray::self &QMLArray::insertBool( bool value )
 {
     this->append(value);
+    emit countChanged();
     return *this;
 }
 
 QMLArray::self &QMLArray::insertString( QString value )
 {
     this->append(value);
+    emit countChanged();
     return *this;
 }
 
 QMLArray::self &QMLArray::insertOid(QString oid)
 {
     this->append(QOid(oid));
+    emit countChanged();
     return *this;
 }
 
 QMLArray::self &QMLArray::insertBson( QMLBSON* value )
 {
     this->append(value->getQBSON());
+    emit countChanged();
     return *this;
 }
 
 QMLArray::self &QMLArray::insertArray(QMLArray *value)
 {
     this->append(value->getArray());
+    emit countChanged();
     return *this;
 }
 
@@ -141,6 +154,7 @@ void QMLArray::setArray( QArray &array )
     {
         this->append(element);
     }
+    emit countChanged();
 }
 
 int QMLArray::Count() const
