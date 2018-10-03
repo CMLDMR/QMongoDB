@@ -25,7 +25,6 @@ QMLBSON::QMLBSON(const QBSON &bson)
 QMLBSON::~QMLBSON()
 {
     this->clear();
-    qDebug() << "QMLBSON Destructor";
 }
 
 QMLBSON *QMLBSON::operator=(QMLBSON *bson)

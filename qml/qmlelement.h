@@ -27,7 +27,7 @@ public:
     explicit QMLElement( QObject *parent = nullptr );
     QMLElement( const QMLElement& element );
     QMLElement( const QElement& element );
-    virtual ~QMLElement(){ qDebug() << "QMLElement Desturctor"; }
+    virtual ~QMLElement(){  }
 
     QMLElement& operator=(const QMLElement& other);
 

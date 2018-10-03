@@ -34,7 +34,8 @@ QBSON::QBSON(QBSON &&obj)
 
 QBSON::~QBSON()
 {
-    qDebug() << "QBSON Destructor";
+    this->maplist.clear();
+//    qDebug() << "QBSON Destructor";
 }
 
 void QBSON::append(QString key, QVariant value, QElementType type)
@@ -618,7 +619,7 @@ QArray::QArray(const QArray &array)
 QArray::~QArray()
 {
     this->mapData.clear();
-    qDebug() << "QArray Destructor";
+//    qDebug() << "QArray Destructor";
 }
 
 int QArray::count() const
