@@ -895,15 +895,21 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
 
 
 
-    if( !this->insert_one("fs.files",file) )
+    if( this->count("fs.files",file) )
     {
-        qDebug() << "Error insert File Description";
-        return QElement();
+        auto val = this->find_one("fs.files",file);
+        return QElement(QOid(val["_id"].getOid().oid()),key);
+    }else{
+        if( !this->insert_one("fs.files",file) )
+        {
+            qDebug() << "Error insert File Description";
+            return QElement();
+        }
     }
 
 
 
-    QBSON val;
+
 
     auto cursor = this->find("fs.files",file);
 
@@ -913,7 +919,12 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
         return QElement();
     }
 
-    val = cursor.last();
+    for( auto bson : cursor )
+    {
+        qDebug() << bson.tojson().c_str();
+    }
+
+    QBSON val = cursor.last();
 
 
     int diveded = ar.size()/261120;

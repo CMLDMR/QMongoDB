@@ -5,7 +5,7 @@ QElement::QElement(QElementType type_, QVariant value_, QString key_)
 {
     if( key_.contains(".") )
     {
-        throw QError("Key Not Contain \".\"");
+        throw QError("Key Must Not Contain \".\"");
     }
     this->key = key_;
     this->setValue( value_ );
