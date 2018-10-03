@@ -129,7 +129,7 @@ public:
     /// \param index
     /// \return
     /// Remove Element Selected index
-    bool removeElement(const int& index);
+    Q_INVOKABLE bool removeElement(const int& index);
 
 signals:
     void countChanged();
