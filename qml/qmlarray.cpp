@@ -162,3 +162,8 @@ int QMLArray::Count() const
     return this->count();
 }
 
+bool QMLArray::removeElement(const int &index)
+{
+    return this->removeAt(index);
+}
+

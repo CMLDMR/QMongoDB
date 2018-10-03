@@ -60,6 +60,8 @@ public:
     const_iterator cbegin() const { return mapData.cbegin(); }
     const_iterator cend() const { return mapData.cend(); }
 
+    bool removeAt( const int& index);
+
 private:
     QVector<QElement> mapData;
 };

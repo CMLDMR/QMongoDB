@@ -124,6 +124,13 @@ public:
     /// get Count of Element inside from Array
     int Count() const;
 
+    ///
+    /// \brief removeElement
+    /// \param index
+    /// \return
+    /// Remove Element Selected index
+    bool removeElement(const int& index);
+
 signals:
     void countChanged();
 

@@ -745,6 +745,17 @@ const QElement QArray::const_value(const int index) const
     return this->mapData[index];
 }
 
+bool QArray::removeAt(const int &index)
+{
+    if( index >= 0 && index < this->mapData.count() )
+    {
+        this->mapData.removeAt(index);
+        return true;
+    }else{
+        return false;
+    }
+}
+
 QProjection::QProjection()
 {
 
