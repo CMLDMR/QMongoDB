@@ -9,6 +9,9 @@
 
 
 
+
+
+
 #include "qmongodb.h"
 #include "qmlbson.h"
 #include "qmlelement.h"
@@ -138,7 +141,7 @@ public:
     /// \param url
     /// \param dbName
     /// Call This Function before using QMongoDB Operation
-    static void instance(const QString& url , const QString dbName );
+     static void instance(const QString& url , const QString dbName );
 
 
 

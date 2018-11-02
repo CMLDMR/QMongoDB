@@ -1,11 +1,15 @@
 #ifndef QBSON_H
 #define QBSON_H
 
+
 #if defined(QMONGODB_LIBRARY)
 #  define QMONGODBSHARED_EXPORT Q_DECL_EXPORT
 #else
 #  define QMONGODBSHARED_EXPORT Q_DECL_IMPORT
 #endif
+
+
+
 
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
@@ -17,6 +21,8 @@
 
 #include "qerror.h"
 #include "qelement.h"
+
+
 
 
 

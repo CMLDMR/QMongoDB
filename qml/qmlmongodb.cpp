@@ -234,6 +234,7 @@ QMLElement *QMLMongoDB::uploadfile(const QString &filename, QString key)
     if( MongoInstanceVariable::instanceCalled )
     {
         auto element = this->db->uploadfile(filename,key);
+        qDebug() << "QML Upload File: " << element.getOid().oid() ;
         return new QMLElement(element);
     }else{
         qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";

@@ -919,9 +919,10 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
         return QElement();
     }
 
+    int __Counter = 0;
     for( auto bson : cursor )
     {
-        qDebug() << bson.tojson().c_str();
+        qDebug() << __Counter++ << bson.tojson().c_str();
     }
 
     QBSON val = cursor.last();
@@ -970,6 +971,8 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
             return QElement();
         }
     }
+
+    qDebug() << "Uploaded File Oid: " << val["_id"].getOid().oid() << key;
 
     return QElement(QOid(val["_id"].getOid().oid()),key);
 
