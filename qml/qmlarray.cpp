@@ -167,3 +167,8 @@ bool QMLArray::removeElement(const int &index)
     return this->removeAt(index);
 }
 
+void QMLArray::removeAll()
+{
+    this->clear();
+}
+

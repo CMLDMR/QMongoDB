@@ -131,6 +131,11 @@ public:
     /// Remove Element Selected index
     Q_INVOKABLE bool removeElement(const int& index);
 
+    ///
+    /// \brief removeAll
+    /// Remove All Element in Array
+    Q_INVOKABLE void removeAll();
+
 signals:
     void countChanged();
 
