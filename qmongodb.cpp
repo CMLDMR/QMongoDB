@@ -876,7 +876,7 @@ QElement QMongoDB::uploadfile(QString filename, QString key)
         ar = qfile.readAll();
         qfile.close();
     }else{
-        qDebug() << "file can not open";
+        qDebug() << "file can not open: " << filename;
         return QElement();
     }
 
