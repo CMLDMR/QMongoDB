@@ -232,4 +232,13 @@ void QMLBSON::print()
     qDebug() << this->getQBSON().tojson().c_str();
 }
 
+bool QMLBSON::isEmpty() const
+{
+    if( this->getMaplist().count() ){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 

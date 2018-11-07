@@ -71,6 +71,12 @@ public:
 
     Q_INVOKABLE void print();
 
+    ///
+    /// \brief isNull
+    /// \return
+    /// Check if the Document is Empty
+    Q_INVOKABLE bool isEmpty() const;
+
 
 
 signals:
