@@ -235,9 +235,9 @@ void QMLBSON::print()
 bool QMLBSON::isEmpty() const
 {
     if( this->getMaplist().count() ){
-        return true;
-    }else{
         return false;
+    }else{
+        return true;
     }
 }
 
