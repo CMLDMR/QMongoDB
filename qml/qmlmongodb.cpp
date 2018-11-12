@@ -3,6 +3,8 @@
 #include "qmlbson.h"
 #include "qmlarray.h"
 
+#include <QUrl>
+
 
 
 
@@ -241,6 +243,19 @@ QMLElement *QMLMongoDB::uploadfile(const QString &filename, QString key)
         return new QMLElement();
     }
 
+}
+
+QMLElement *QMLMongoDB::uploadfromUrl(const QString &fileurl, QString key)
+{
+    if( MongoInstanceVariable::instanceCalled )
+    {
+        auto element = this->db->uploadfile(QUrl(fileurl).toLocalFile(),key);
+        qDebug() << "QML Upload File From Url: " << element.getOid().oid() ;
+        return new QMLElement(element);
+    }else{
+        qDebug() << "Call QMLMongoDB::instance(url,dbname); before using Driver";
+        return new QMLElement();
+    }
 }
 
 QMongoDB *QMLMongoDB::getDb() const

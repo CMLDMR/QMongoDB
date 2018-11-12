@@ -125,6 +125,15 @@ public:
     Q_INVOKABLE QMLElement* uploadfile( const QString& filename , QString key );
 
 
+    ///
+    /// \brief uploadfromUrl
+    /// \param fileurl
+    /// \param key
+    /// \return
+    /// Upload file and return information about file oid in QMLElement
+    Q_INVOKABLE QMLElement* uploadfromUrl( const QString& fileurl , QString key );
+
+
 
     ///
     /// \brief getDb
