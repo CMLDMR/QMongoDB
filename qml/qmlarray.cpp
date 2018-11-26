@@ -136,6 +136,16 @@ QMLElement *QMLArray::getElement(const int &index)
     }
 }
 
+QMLElement *QMLArray::at(const int &index)
+{
+    if( index >= this->count() || index < 0 )
+    {
+        return (new QMLElement());
+    }else{
+        return (new QMLElement(this->value(index)));
+    }
+}
+
 
 
 

@@ -104,6 +104,13 @@ public:
     /// Return QMLElement at index position
     Q_INVOKABLE QMLElement* getElement(const int& index);
 
+    ///
+    /// \brief at
+    /// \param index
+    /// \return
+    /// Return QMLElement at index position
+    Q_INVOKABLE QMLElement* at( const int& index );
+
 
 
     ///
