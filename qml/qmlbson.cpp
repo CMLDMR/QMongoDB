@@ -88,6 +88,48 @@ QMLBSON* QMLBSON::newBSON()
     return (bson);
 }
 
+QMLBSON *QMLBSON::makeBSON(const QString &key, const QString &value)
+{
+    QMLBSON* bson = new QMLBSON();
+    bson->append(key,value);
+    return (bson);
+}
+
+QMLBSON *QMLBSON::makeBSON(const QString &key, const int &value)
+{
+    QMLBSON* bson = new QMLBSON();
+    bson->append(key,value);
+    return (bson);
+}
+
+QMLBSON *QMLBSON::makeBSON(const QString &key, const QMLBSON *value)
+{
+    QMLBSON* bson = new QMLBSON();
+    bson->append(key,value);
+    return (bson);
+}
+
+QMLBSON *QMLBSON::makeBSON(const QString &key, const QMLArray *value)
+{
+    QMLBSON* bson = new QMLBSON();
+    bson->append(key,value);
+    return (bson);
+}
+
+QMLBSON *QMLBSON::makeBSON(const QString &key, const bool &value)
+{
+    QMLBSON* bson = new QMLBSON();
+    bson->append(key,value);
+    return (bson);
+}
+
+QMLBSON *QMLBSON::makeBSON(const QString &key, const double &value)
+{
+    QMLBSON* bson = new QMLBSON();
+    bson->append(key,value);
+    return (bson);
+}
+
 void QMLBSON::addString( const QString &key, const QString &value )
 {
     this->append(key,value);

@@ -40,6 +40,19 @@ public:
     /// New instance of QMLBSON
     Q_INVOKABLE static QMLBSON* newBSON();
 
+    ///
+    /// \brief makeBSON
+    /// \param key
+    /// \param value
+    /// \return
+    /// make a standalone BSON document
+    Q_INVOKABLE static QMLBSON* makeBSON( const QString& key , const QString& value );
+    Q_INVOKABLE static QMLBSON* makeBSON( const QString& key , const int& value );
+    Q_INVOKABLE static QMLBSON* makeBSON( const QString& key , const QMLBSON* value );
+    Q_INVOKABLE static QMLBSON* makeBSON( const QString& key , const QMLArray* value );
+    Q_INVOKABLE static QMLBSON* makeBSON( const QString& key , const bool& value );
+    Q_INVOKABLE static QMLBSON* makeBSON( const QString& key , const double& value );
+
     Q_INVOKABLE void addString( const QString& key , const QString& value );
     Q_INVOKABLE void addOid( const QString& key , const QString& oid );
     Q_INVOKABLE void addInt( const QString& key , const int& value );
