@@ -162,6 +162,20 @@ public:
 
 
 
+    static QBSON make_bson( QString key , QString value );
+    static QBSON make_bson( QString key , qint64 value );
+    static QBSON make_bson( QString key , bool value );
+    static QBSON make_bson( QString key , int value );
+    static QBSON make_bson( QString key , QByteArray value );
+    static QBSON make_bson( QString key , double value );
+    static QBSON make_bson( QString key , QBSON value );
+    static QBSON make_bson( QString key , QArray value );
+    static QBSON make_bson( QString key , QOid value );
+
+    ///
+    /// \brief append
+    /// \param element
+    /// Append QElement to Document
     void append(QElement element );
 
     ///

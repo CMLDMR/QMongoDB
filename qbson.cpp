@@ -358,6 +358,69 @@ void QBSON::append(const char *key, QByteArray binary)
     maplist.push_back(var);
 }
 
+QBSON QBSON::make_bson(QString key, QString value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, qint64 value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, bool value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, int value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, QByteArray value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, double value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, QBSON value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, QArray value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
+QBSON QBSON::make_bson(QString key, QOid value)
+{
+    QBSON bson;
+    bson.append(key,value);
+    return bson;
+}
+
 void QBSON::append(QElement element)
 {
     maplist.push_back(element);
